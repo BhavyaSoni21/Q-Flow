@@ -329,7 +329,11 @@ Fishing Watch, VED). Algorithm basis: Sun et al., quantum-behaved PSO.
 
 ## 23. License
 
-Prototype developed for Smart India Hackathon (SIH26138). See repository for terms.
+**Proprietary — All rights reserved.** Copyright (c) 2026 Q-Flow. This software and
+its source, documentation, and assets are proprietary and confidential; no license
+is granted. You may not use, copy, modify, distribute, or create derivative works
+without prior written permission. See [`LICENSE`](LICENSE). Developed for Smart
+India Hackathon (SIH26138).
 
 ---
 
