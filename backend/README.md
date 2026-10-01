@@ -15,10 +15,15 @@ MRV data layer, the XGBoost predictor (Strategy A), and the §10 FastAPI routes.
 backend/
 ├── requirements.txt
 ├── conftest.py              # test bootstrap (Phase 0)
-├── optimization/            # decoder, repair, archive, mo_qpso, nsga2, selection
-│   ├── fleet_engine.py      # ported handoff engine (monolith, split in Phase 1)
-│   └── config_default.json  # synthetic vessels + placeholder fuels
-├── emissions/               # energy, lifecycle, shore_power, cost, compliance (Phase 1)
+├── optimization/            # the search + problem model
+│   ├── fleet_engine.py      # FleetProblem (decode/repair/objectives) + optimize_fleet facade
+│   ├── archive.py           # dominance, crowding, hypervolume, archive update
+│   ├── selection.py         # balanced Pareto pick
+│   ├── mo_qpso.py           # MO-QPSO + MOPSO control
+│   ├── nsga2_baseline.py    # NSGA-II baseline (pymoo)
+│   ├── constraints.py       # independent §4 Step 8 feasibility verifier + GHG cap
+│   └── config_default.json  # synthetic vessels + sourced fuels
+├── emissions/               # energy, lifecycle, shore_power, cost, compliance, factors (sourced)
 ├── data/                    # loaders, validation, provenance, feature_engineering (Phase 2)
 ├── prediction/              # physics_baseline, train_xgb, tune_qpso, predict (Phase 3)
 ├── api/                     # prediction/optimization/scenario/benchmark routes (Phase 4)

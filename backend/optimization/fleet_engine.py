@@ -33,6 +33,7 @@ from emissions import energy as _energy
 from emissions import shore_power as _shore
 from emissions import lifecycle as _life
 from emissions import cost as _cost
+from emissions import compliance as _comp
 
 # ----------------------------------------------------------------------------
 # 1. Reference data -- sourced lifecycle factors are imported from
@@ -201,6 +202,8 @@ class FleetProblem:
         self.eligible = self.avail & (self.smax >= self.s_req)
         self.max_capacity = self.cap[self.eligible].sum()
         self.demand_ok = self.max_capacity >= r["cargo_demand_t"]
+        # optional lifecycle GHG cap (tCO2e); None = not enforced
+        self.ghg_cap = r.get("ghg_cap_tonnes_co2e", r.get("ghg_cap_t", None))
         self.n_evals = self.n_repaired = self.n_cargo_repaired = 0
 
     # -- decode + repair -------------------------------------------------
@@ -269,6 +272,11 @@ class FleetProblem:
         cost = _cost.operating_cost(cost_fuel, cost_time, cost_shore,
                                     _cost.carbon_cost(ghg_t, r["carbon_price_usd_per_t"]))
         objs = np.array([(main_gj + aux_gj).sum(), cost.sum(), ghg_t.sum()])
+        # lifecycle GHG cap: soft penalty so cap-violating plans get dominated (master doc §6.6, §7.5)
+        if self.ghg_cap is not None:
+            v = _comp.ghg_cap_violation(objs[2], self.ghg_cap)
+            if v > 0:
+                objs = objs * (1.0 + v / max(self.ghg_cap, 1e-9)) + v
         if not detail:
             return objs
         rows = [dict(vessel_id=self.V[i]["vessel_id"], vessel_type=self.V[i]["vessel_type"],
@@ -340,166 +348,14 @@ class FleetProblem:
 
 
 # ----------------------------------------------------------------------------
-# 4. Multi-objective utilities
+# 4-5. Multi-objective utilities + optimisers (split into dedicated modules,
+#      master doc §11: archive / selection / mo_qpso / nsga2_baseline).
 # ----------------------------------------------------------------------------
-def nondominated_mask(F):
-    F = np.asarray(F)
-    n = len(F)
-    keep = np.ones(n, bool)
-    for i in range(n):
-        if not keep[i]:
-            continue
-        dom = np.all(F <= F[i], axis=1) & np.any(F < F[i], axis=1)
-        if dom.any():
-            keep[i] = False
-    return keep
-
-
-def crowding_distance(F):
-    n, m = F.shape
-    d = np.zeros(n)
-    if n <= 2:
-        return np.full(n, np.inf)
-    for j in range(m):
-        o = np.argsort(F[:, j])
-        d[o[0]] = d[o[-1]] = np.inf
-        span = F[o[-1], j] - F[o[0], j]
-        if span > 0:
-            d[o[1:-1]] += (F[o[2:], j] - F[o[:-2], j]) / span
-    return d
-
-
-def hypervolume(F, ideal, nadir, ref=1.1):
-    from pymoo.indicators.hv import HV
-    Fn = (np.asarray(F) - ideal) / np.maximum(nadir - ideal, 1e-12)
-    Fn = Fn[np.all(Fn <= ref, axis=1)]
-    return float(HV(ref_point=np.full(Fn.shape[1], ref))(Fn)) if len(Fn) else 0.0
-
-
-def select_balanced(F, weights=(1 / 3, 1 / 3, 1 / 3)):
-    """TOPSIS-style pick: smallest weighted distance to the ideal point (normalised objectives)."""
-    F = np.asarray(F, float)
-    Fn = (F - F.min(0)) / np.maximum(F.max(0) - F.min(0), 1e-12)
-    return int(np.argmin(np.sqrt((np.asarray(weights) * Fn ** 2).sum(1))))
-
-
-# ----------------------------------------------------------------------------
-# 5. Optimisers  (all share: demand-aware init + Lamarckian repair when smart=True)
-# ----------------------------------------------------------------------------
-def _update_archive(AX, AF, Xn, Fn, archive_size):
-    CX, CF = np.vstack([AX, Xn]), np.vstack([AF, Fn])
-    m = nondominated_mask(CF)
-    CX, CF = CX[m], CF[m]
-    _, u_idx = np.unique(np.round(CF, 6), axis=0, return_index=True)   # drop duplicates
-    CX, CF = CX[u_idx], CF[u_idx]
-    while len(CX) > archive_size:
-        k = int(np.argmin(crowding_distance(CF)))
-        CX, CF = np.delete(CX, k, 0), np.delete(CF, k, 0)
-    return CX, CF
-
-
-def run_qpso(problem, pop=100, iters=100, archive_size=100, seed=0, alpha_hi=1.0, alpha_lo=0.5,
-             update="qpso", smart=True, mutation=0.0, lamarck=False, leader="crowd"):
-    """Multi-objective swarm optimiser with an external Pareto archive.
-    update="qpso" (quantum-behaved, Sun et al.):
-        p = phi*pbest + (1-phi)*gbest ;  x' = p +/- alpha*|mbest - x|*ln(1/u),  alpha: alpha_hi -> alpha_lo
-        (no velocity term; x is sampled from a delta-potential-well distribution centred on p)
-    update="pso"  (classical MOPSO control, same archive/leader logic):
-        v' = w*v + c1*r1*(pbest-x) + c2*r2*(gbest-x), w: 0.9 -> 0.4, c1=c2=1.5
-    mutation: per-dimension probability of re-sampling a coordinate uniformly (0 = off)."""
-    rng = np.random.default_rng(seed)
-    n = problem.n_var
-    lamarck = bool(lamarck)
-    problem.lamarckian = lamarck
-    X = problem.sample(rng, pop, smart)
-    if lamarck:
-        X = problem.repair_pop(X)
-    F = np.array([problem.evaluate(x) for x in X])
-    PX, PF = X.copy(), F.copy()
-    m = nondominated_mask(F)
-    AX, AF = X[m].copy(), F[m].copy()
-    V = rng.uniform(-0.1, 0.1, (pop, n))
-    W = rng.dirichlet(np.ones(3), size=pop)       # fixed preference direction per particle (decomposition-style leaders)
-    hist = [(pop, AF.copy())]
-    t0 = time.perf_counter()
-    for t in range(iters):
-        frac = t / max(iters - 1, 1)
-        if leader == "tcheby" and len(AX) > 1:
-            # each particle follows the archive member that best matches ITS weight vector
-            # (weighted Tchebycheff on archive-normalised objectives) -> particles stay in their own front region
-            lo, hi = AF.min(0), AF.max(0)
-            An = (AF - lo) / np.maximum(hi - lo, 1e-12)
-            idx = np.argmin(np.max(W[:, None, :] * An[None, :, :], axis=2), axis=1)
-            G = AX[idx]
-        else:   # binary tournament on crowding distance
-            cd = crowding_distance(AF)
-            a, b = rng.integers(len(AX), size=pop), rng.integers(len(AX), size=pop)
-            G = AX[np.where(cd[a] >= cd[b], a, b)]
-        if update == "qpso":
-            alpha = alpha_hi - (alpha_hi - alpha_lo) * frac
-            mbest = PX.mean(0)
-            phi = rng.random((pop, n))
-            p = phi * PX + (1 - phi) * G
-            u = np.clip(rng.random((pop, n)), 1e-12, 1.0)
-            sign = np.where(rng.random((pop, n)) < 0.5, -1.0, 1.0)
-            Xn = p + sign * alpha * np.abs(mbest - X) * np.log(1.0 / u)
-        else:
-            w = 0.9 - 0.5 * frac
-            V = np.clip(w * V + 1.5 * rng.random((pop, n)) * (PX - X) + 1.5 * rng.random((pop, n)) * (G - X), -0.5, 0.5)
-            Xn = X + V
-        Xn = np.clip(Xn, 0, 1)
-        if mutation > 0:
-            mm = rng.random((pop, n)) < mutation
-            Xn = np.where(mm, rng.random((pop, n)), Xn)
-        if lamarck:
-            Xn = problem.repair_pop(Xn)
-        Fn = np.array([problem.evaluate(x) for x in Xn])
-        dom_new = np.all(Fn <= PF, axis=1) & np.any(Fn < PF, axis=1)
-        dom_old = np.all(PF <= Fn, axis=1) & np.any(PF < Fn, axis=1)
-        upd = dom_new | (~dom_new & ~dom_old & (rng.random(pop) < 0.5))
-        PX[upd], PF[upd] = Xn[upd], Fn[upd]
-        X = Xn
-        AX, AF = _update_archive(AX, AF, Xn, Fn, archive_size)
-        hist.append((pop * (t + 2), AF.copy()))
-    return dict(X=AX, F=AF, history=hist, runtime=time.perf_counter() - t0,
-                algo="MO-QPSO" if update == "qpso" else "MOPSO")
-
-
-def run_nsga2(problem, pop=100, iters=100, seed=0, smart=True, lamarck=False):
-    from pymoo.algorithms.moo.nsga2 import NSGA2
-    from pymoo.core.problem import ElementwiseProblem
-    from pymoo.core.repair import Repair
-    from pymoo.core.sampling import Sampling
-    from pymoo.optimize import minimize
-
-    problem.lamarckian = bool(lamarck)
-
-    class _P(ElementwiseProblem):
-        def __init__(s):
-            super().__init__(n_var=problem.n_var, n_obj=3, xl=0.0, xu=1.0)
-
-        def _evaluate(s, x, out, *a, **k):
-            out["F"] = problem.evaluate(x)
-
-    init_rng = np.random.default_rng(seed)
-
-    class _Samp(Sampling):
-        def _do(s, prob, n_samples, **k):
-            X = problem.sample(init_rng, n_samples, smart)    # own seeded generator -> reproducible on any pymoo version
-            return problem.repair_pop(X) if lamarck else X
-
-    class _Rep(Repair):
-        def _do(s, prob, X, **k):
-            return problem.repair_pop(X)
-
-    t0 = time.perf_counter()
-    algo = NSGA2(pop_size=pop, sampling=_Samp(), repair=_Rep() if lamarck else None)
-    res = minimize(_P(), algo, ("n_gen", iters + 1), seed=seed, save_history=True, verbose=False)
-    rt = time.perf_counter() - t0
-    hist = [(h.evaluator.n_eval, h.opt.get("F").copy()) for h in res.history]
-    F, X = np.atleast_2d(res.F), np.atleast_2d(res.X)
-    m = nondominated_mask(F)
-    return dict(X=X[m], F=F[m], history=hist, runtime=rt, algo="NSGA-II")
+from archive import nondominated_mask, crowding_distance, hypervolume, update_archive as _update_archive
+from selection import select_balanced
+from mo_qpso import run_qpso
+from nsga2_baseline import run_nsga2
+import constraints as _constraints
 
 
 def run_algo(name, problem, pop, iters, seed, smart=True, lamarck=False, **kw):
@@ -586,7 +442,8 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
             deadline_h=request.get("deadline_hours", 72.0), weather=request.get("weather", "normal"),
             fuel_available=[int(i in allowed) for i in ids],
             port_ops_available=1.0 if request.get("shore_power", True) else 0.0,
-            carbon_price_usd_per_t=request.get("carbon_price_usd_per_t", 0.0))
+            carbon_price_usd_per_t=request.get("carbon_price_usd_per_t", 0.0),
+            ghg_cap_tonnes_co2e=request.get("ghg_cap_tonnes_co2e", None))
         pr = FleetProblem(pool, route)
     except InputError as e:
         return dict(status="error", reason=str(e))
@@ -604,8 +461,11 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
     base_f = pr.evaluate_plan(pr.baseline_plan())
     sols = []
     for x, f in zip(res["X"], res["F"]):
-        _, rows = pr.describe(x)
-        sols.append(dict(objectives=dict(fuel_energy_gj=float(f[0]), cost_usd=float(f[1]), wtw_ghg_t=float(f[2])), plan=rows))
+        plan = pr.decode(x, count=False)
+        _, rows = pr.evaluate_plan(plan, detail=True)
+        ghg_real = float(sum(rw["wtw_ghg_t"] for rw in rows)) if rows else float(f[2])
+        sols.append(dict(objectives=dict(fuel_energy_gj=float(f[0]), cost_usd=float(f[1]), wtw_ghg_t=float(f[2])),
+                         plan=rows, constraints=_constraints.constraint_report(pr, plan, ghg_real)))
     return dict(status="ok", algorithm=res["algo"], seed=seed, runtime_s=res["runtime"],
                 baseline=dict(fuel_energy_gj=float(base_f[0]), cost_usd=float(base_f[1]), wtw_ghg_t=float(base_f[2])),
                 balanced_index=k, pareto=sols,
