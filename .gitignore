@@ -1,0 +1,35 @@
+# Claude Code local
+.claude/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.next/
+
+# Data & models (large / generated)
+data/raw/
+data/processed/
+*.parquet
+models/*.json
+!models/metadata.json
+
+# Env & secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
