@@ -8,4 +8,6 @@ package imports; until then we put the engine dir on sys.path here.
 import os
 import sys
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "optimization"))
+_HERE = os.path.dirname(__file__)
+sys.path.insert(0, _HERE)                              # backend/  -> `emissions`, package imports
+sys.path.insert(0, os.path.join(_HERE, "optimization"))  # -> `import fleet_engine`

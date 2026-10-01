@@ -14,8 +14,10 @@ Objectives (all minimised):
     [1] operating cost (USD)        fuel + charter/time + shore electricity + carbon price
     [2] lifecycle GHG (tCO2e)       Well-to-Wake: fuel energy * EF_WtW + grid electricity * grid EF
 
-IMPORTANT: every fuel price / emission factor in DEFAULT_FUELS is a PLACEHOLDER,
-clearly labelled, to be replaced with sourced IMO MEPC.391(81) / scenario values.
+Lifecycle factors are defined and sourced in emissions/factors.py (WtW grounded in
+IMO MEPC.391(81) LCA / FuelEU conventions; prices are indicative scenario values).
+The deterministic emissions/cost math lives in the emissions/ package (energy,
+shore_power, lifecycle, cost, compliance) and is unit-tested independently.
 
 The fuel predictor is pluggable (see `set_predictor` / `make_xgb_predictor`).
 """
@@ -23,23 +25,19 @@ from __future__ import annotations
 import json, time
 import numpy as np
 
-# ----------------------------------------------------------------------------
-# 1. Reference data (PLACEHOLDERS -- replace with sourced values)
-# ----------------------------------------------------------------------------
-DEFAULT_FUELS = [
-    # id, LHV GJ/t, price USD/t, WtW gCO2e/MJ, source tag
-    dict(fuel_id="vlsfo",          name="VLSFO (reference)",        lhv=40.2, price=620,  wtw=91.0, source="PLACEHOLDER"),
-    dict(fuel_id="lng",            name="LNG (fossil)",             lhv=49.0, price=560,  wtw=86.0, source="PLACEHOLDER"),
-    dict(fuel_id="methanol_grey",  name="Methanol (fossil)",        lhv=19.9, price=430,  wtw=100.0, source="PLACEHOLDER"),
-    dict(fuel_id="methanol_green", name="Methanol (bio/e-)",        lhv=19.9, price=1050, wtw=18.0, source="PLACEHOLDER"),
-    dict(fuel_id="ammonia_green",  name="Ammonia (renewable)",      lhv=18.6, price=820,  wtw=20.0, source="PLACEHOLDER"),
-    dict(fuel_id="hydrogen_green", name="Hydrogen (electrolysis)",  lhv=120.0, price=5200, wtw=12.0, source="PLACEHOLDER"),
-]
-REF_FUEL = 0  # index of the reference fuel; also used for auxiliary engines
+# Deterministic emissions/cost engine (master doc §6), split into audited modules.
+from emissions.factors import (
+    DEFAULT_FUELS, REF_FUEL, WEATHER, AUX_SFOC_KG_PER_KWH, DEFAULT_GRID_EF_G_PER_KWH,
+)
+from emissions import energy as _energy
+from emissions import shore_power as _shore
+from emissions import lifecycle as _life
+from emissions import cost as _cost
 
-WEATHER = {"normal": 1.00, "adverse": 1.15, "severe": 1.35}   # power multiplier (scenario input)
-
-AUX_SFOC_KG_PER_KWH = 0.20    # auxiliary engines burn reference fuel at berth
+# ----------------------------------------------------------------------------
+# 1. Reference data -- sourced lifecycle factors are imported from
+#    emissions/factors.py (DEFAULT_FUELS, REF_FUEL, WEATHER, AUX_SFOC_KG_PER_KWH).
+# ----------------------------------------------------------------------------
 
 
 def default_route(**kw):
@@ -47,7 +45,7 @@ def default_route(**kw):
              port_time_h=8.0, buffer_h=4.0, weather="normal",
              fuel_available=[1] * len(DEFAULT_FUELS),      # bunkering availability per fuel
              port_ops_available=1.0,                        # share of berth time with shore power (0..1)
-             grid_ef_g_per_kwh=650.0,                       # PLACEHOLDER grid factor
+             grid_ef_g_per_kwh=DEFAULT_GRID_EF_G_PER_KWH,   # sourced grid factor (emissions/factors.py)
              shore_price_usd_per_kwh=0.12,
              carbon_price_usd_per_t=0.0)
     r.update(kw)
@@ -253,23 +251,23 @@ class FleetProblem:
                      type_code=self.tcode[idx])
         rate = np.maximum(np.asarray(_PREDICTOR(feats), float), 0.0)            # t/h reference-fuel equivalent
         sail_h = r["distance_nm"] / spd
-        main_gj = rate * sail_h * self.lhv[REF_FUEL]                             # main engine energy (GJ)
+        lhv_ref = self.lhv[REF_FUEL]
+        main_gj = _energy.main_engine_energy_gj(rate, sail_h, lhv_ref)           # main engine energy (GJ)
         # auxiliary at berth: shore power replaces aux fuel where the vessel uses OPS
-        ops_share = r["port_ops_available"]
-        berth_kwh = 0.04 * self.power[idx] * r["port_time_h"]
-        shore_kwh = np.where(ops, berth_kwh * ops_share, 0.0)
-        aux_kwh = berth_kwh - shore_kwh
-        aux_gj = aux_kwh * AUX_SFOC_KG_PER_KWH * self.lhv[REF_FUEL] / 1000.0
+        berth_kwh = _shore.berth_energy_kwh(self.power[idx], r["port_time_h"])
+        shore_kwh, aux_kwh = _shore.shore_and_aux_kwh(berth_kwh, ops, r["port_ops_available"])
+        aux_gj = _energy.aux_energy_gj(aux_kwh, lhv_ref, AUX_SFOC_KG_PER_KWH)
         # main engine runs on chosen fuel (same energy demand); aux on reference fuel
-        fuel_t = main_gj / self.lhv[fu]
-        aux_t = aux_gj / self.lhv[REF_FUEL]
-        cost_fuel = fuel_t * self.price[fu] + aux_t * self.price[REF_FUEL]
+        fuel_t = _energy.fuel_mass_t(main_gj, self.lhv[fu])
+        aux_t = _energy.fuel_mass_t(aux_gj, lhv_ref)
+        cost_fuel = _cost.fuel_cost(fuel_t, self.price[fu], aux_t, self.price[REF_FUEL])
         hours = sail_h + r["port_time_h"]
-        cost_time = self.charter[idx] * hours / 24.0
-        cost_shore = shore_kwh * r["shore_price_usd_per_kwh"]
-        ghg_t = (main_gj * self.wtw[fu] + aux_gj * self.wtw[REF_FUEL]) / 1000.0 \
-                + shore_kwh * r["grid_ef_g_per_kwh"] / 1e6
-        cost = cost_fuel + cost_time + cost_shore + ghg_t * r["carbon_price_usd_per_t"]
+        cost_time = _cost.time_cost(self.charter[idx], hours)
+        cost_shore = _cost.shore_cost(shore_kwh, r["shore_price_usd_per_kwh"])
+        ghg_t = _life.wtw_ghg_t(main_gj, self.wtw[fu], aux_gj, self.wtw[REF_FUEL],
+                                shore_kwh, r["grid_ef_g_per_kwh"])
+        cost = _cost.operating_cost(cost_fuel, cost_time, cost_shore,
+                                    _cost.carbon_cost(ghg_t, r["carbon_price_usd_per_t"]))
         objs = np.array([(main_gj + aux_gj).sum(), cost.sum(), ghg_t.sum()])
         if not detail:
             return objs
@@ -614,8 +612,8 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
                 constraints=dict(cargo_demand_t=route["cargo_demand_t"], deadline_h=route["deadline_h"],
                                  min_speed_for_schedule_kn=round(pr.s_req, 2)),
                 units=dict(fuel_energy="GJ", cost="USD", ghg="tCO2e (well-to-wake)"),
-                warnings=["Fuel prices/emission factors are PLACEHOLDERS unless replaced."] if any(
-                    f.get("source") == "PLACEHOLDER" for f in pr.fuels) else [])
+                warnings=["Fuel prices are indicative scenario assumptions; WtW factors are IMO-LCA-based representatives (see emissions/factors.py)."] if any(
+                    "scenario_assumption" in str(f.get("price_source", "")) for f in pr.fuels) else [])
 
 
 if __name__ == "__main__":
