@@ -1,9 +1,9 @@
-# Q-Flow — Q-GreenFleet
+# Q-Flow
 
 > **Quantum-Inspired Fuel Prediction and Green Fleet Optimization**
 > SIH26138 · Software decision-support platform for maritime fleet planning.
 
-Q-GreenFleet is an auditable decision-support platform that predicts vessel fuel
+Q-Flow is an auditable decision-support platform that predicts vessel fuel
 consumption, evaluates fuel-pathway lifecycle emissions and operating cost, and
 uses a quantum-inspired multi-objective optimizer to select feasible vessel,
 speed, fuel, and shore-power decisions. Recommendations are returned as a Pareto

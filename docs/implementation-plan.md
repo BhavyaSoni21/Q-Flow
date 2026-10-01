@@ -1,4 +1,4 @@
-# Q-GreenFleet — Implementation Plan (v2)
+# Q-Flow — Implementation Plan (v2)
 
 > **v2 update:** incorporates the `q_greenfleet_handoff` engine (Module B/C already
 > built) and the real **EU MRV** datasets now in `Datasets/`. Supersedes v1's

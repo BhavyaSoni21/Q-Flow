@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Government-portal palette — light */
+        --background: 214 33% 97%;
+        /* #F5F7FA */
+        --foreground: 214 28% 15%;
+        /* #1B2430 */
+        --card: 0 0% 100%;
+        --card-foreground: 214 28% 15%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 214 28% 15%;
+        --primary: 202 89% 35%;
+        /* #0A6EA8 */
+        --primary-foreground: 0 0% 100%;
+        --secondary: 210 16% 93%;
+        --secondary-foreground: 214 28% 15%;
+        --muted: 210 16% 94%;
+        --muted-foreground: 213 13% 40%;
+        --accent: 202 89% 29%;
+        /* #085A8A hover blue */
+        --accent-foreground: 0 0% 100%;
+        --destructive: 3 71% 41%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 210 18% 84%;
+        /* #D0D7DE */
+        --input: 210 18% 84%;
+        --ring: 202 89% 35%;
+        --panel-header: 210 16% 95%;
+        --status-green: 122 47% 34%;
+        --status-amber: 35 100% 35%;
+        --status-red: 3 71% 41%;
+        --chart-1: 202 89% 35%;
+        --chart-2: 212 33% 45%;
+        --chart-3: 122 47% 34%;
+        --chart-4: 35 100% 40%;
+        --chart-5: 3 71% 41%;
+        --radius: 2px;
+        --font-heading: "Noto Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+        --font-body: "Noto Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+        --font-display: "Noto Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        /* Dark slate band — header/footer/utility bar/section band (#1F2D3D) */
+        --sidebar-background: 212 33% 18%;
+        --sidebar-foreground: 210 24% 92%;
+        --sidebar-primary: 202 89% 45%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 212 30% 26%;
+        --sidebar-accent-foreground: 0 0% 100%;
+        --sidebar-border: 212 25% 26%;
+        --sidebar-ring: 202 89% 45%;
+    }
+
+    .dark {
+        --background: 212 33% 10%;
+        --foreground: 210 20% 90%;
+        --card: 212 30% 14%;
+        --card-foreground: 210 20% 90%;
+        --popover: 212 30% 14%;
+        --popover-foreground: 210 20% 90%;
+        --primary: 202 89% 50%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 212 25% 18%;
+        --secondary-foreground: 210 20% 90%;
+        --muted: 212 25% 18%;
+        --muted-foreground: 210 14% 62%;
+        --accent: 202 89% 55%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 3 71% 56%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 212 22% 24%;
+        --input: 212 22% 24%;
+        --ring: 202 89% 50%;
+        --panel-header: 212 28% 16%;
+        --status-green: 122 47% 44%;
+        --status-amber: 35 100% 50%;
+        --status-red: 3 71% 56%;
+        --chart-1: 202 89% 55%;
+        --chart-2: 212 33% 60%;
+        --chart-3: 122 47% 44%;
+        --chart-4: 35 100% 50%;
+        --chart-5: 3 71% 56%;
+        --sidebar-background: 212 38% 9%;
+        --sidebar-foreground: 210 14% 75%;
+        --sidebar-primary: 202 89% 55%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 212 25% 16%;
+        --sidebar-accent-foreground: 0 0% 100%;
+        --sidebar-border: 212 22% 18%;
+        --sidebar-ring: 202 89% 55%;
+    }
+
+    .high-contrast {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 0%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 0%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 0%;
+        --primary: 215 100% 28%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 0 0% 88%;
+        --secondary-foreground: 0 0% 0%;
+        --muted: 0 0% 92%;
+        --muted-foreground: 0 0% 20%;
+        --accent: 215 100% 22%;
+        --accent-foreground: 0 0% 100%;
+        --destructive: 0 80% 35%;
+        --destructive-foreground: 0 0% 100%;
+        --border: 0 0% 0%;
+        --input: 0 0% 0%;
+        --ring: 215 100% 28%;
+        --panel-header: 0 0% 92%;
+        --status-green: 142 70% 25%;
+        --status-amber: 38 100% 30%;
+        --status-red: 0 80% 35%;
+        --chart-1: 215 100% 30%;
+        --chart-2: 0 0% 30%;
+        --chart-3: 142 70% 25%;
+        --chart-4: 38 100% 30%;
+        --chart-5: 0 80% 35%;
+        --sidebar-background: 0 0% 0%;
+        --sidebar-foreground: 0 0% 100%;
+        --sidebar-primary: 215 100% 45%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 0 0% 18%;
+        --sidebar-accent-foreground: 0 0% 100%;
+        --sidebar-border: 0 0% 40%;
+        --sidebar-ring: 215 100% 45%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    html {
+        font-size: 16px;
+    }
+
+    body {
+        @apply bg-background text-foreground font-body antialiased;
+        font-size: 0.8125rem;
+        line-height: 1.4;
+    }
+
+    /* Square, high-visibility focus ring (WCAG) */
+    :focus-visible {
+        outline: 2px solid hsl(var(--ring));
+        outline-offset: 1px;
+        border-radius: 0;
+    }
+}
+
+@layer components {
+    .label-eyebrow {
+        @apply uppercase tracking-wider text-[11px] font-semibold text-muted-foreground;
+        letter-spacing: 0.06em;
+    }
+
+    .num {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .panel-header-bar {
+        @apply h-9 px-3 flex items-center justify-between border-b bg-[hsl(var(--panel-header))];
+    }
+}

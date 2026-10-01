@@ -1,7 +1,7 @@
-# Claude Code local
+# ───────────────────────── Claude Code ─────────────────────────
 .claude/
 
-# Python
+# ───────────────────────── Python / backend ────────────────────
 __pycache__/
 *.py[cod]
 .venv/
@@ -11,13 +11,28 @@ env/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# Node / frontend
-node_modules/
-dist/
-build/
+# ───────────────────────── Node / frontend ─────────────────────
+node_modules
+dist
+dist-ssr
+build
 .next/
+.vite
+.output
+.wrangler
+*.local
+base44/.app.jsonc
 
-# Data & models (large / generated)
+# Logs
+/logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ───────────────────────── Data & models ───────────────────────
 data/raw/
 data/processed/
 *.parquet
@@ -30,12 +45,18 @@ Datasets/
 *.zip
 _handoff_extract/
 
-# Env & secrets
+# ───────────────────────── Env & secrets ───────────────────────
 .env
 .env.*
 
-# OS / editor
+# ───────────────────────── OS / editor ─────────────────────────
 .DS_Store
 Thumbs.db
-.vscode/
-.idea/
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
