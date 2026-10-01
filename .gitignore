@@ -24,6 +24,12 @@ data/processed/
 models/*.json
 !models/metadata.json
 
+# Raw datasets & handoff archive (large / reproducible public data)
+Datasets/
+*.xlsx
+*.zip
+_handoff_extract/
+
 # Env & secrets
 .env
 .env.*

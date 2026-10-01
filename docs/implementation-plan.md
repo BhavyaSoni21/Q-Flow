@@ -1,134 +1,139 @@
-# Q-GreenFleet — Implementation Plan
+# Q-GreenFleet — Implementation Plan (v2)
 
-**Scope of this plan:** everything *except* the two pieces you are providing —
-the **training dataset(s)** and the **frontend**. This covers the backend
-engine, the three models, the API (per master doc §10), experiments,
-reproducibility, and the glue that connects your dataset and frontend.
+> **v2 update:** incorporates the `q_greenfleet_handoff` engine (Module B/C already
+> built) and the real **EU MRV** datasets now in `Datasets/`. Supersedes v1's
+> phase ordering. Still anchored to `SIH26138_Master_Implementation_Document.md`.
 
-**Status key:** ⬜ not started · 🟨 in progress · ✅ done
-**Decisions locked:** API strictly follows master doc §10 · coding starts only
-after the dataset arrives.
+**Decisions locked:** API follows master doc §10 · the handoff engine is our
+Module B/C core · frontend + dataset are provided by you.
 
 ---
 
-## 0. What you provide vs. what I build
+## 0. What we now have (big change from v1)
 
-| You provide | I build |
-|-------------|---------|
-| Training dataset(s) (fuel/vessel/voyage/weather) | Data loader, validation, provenance, feature engineering |
-| React/TypeScript frontend | FastAPI backend matching §10 contract |
-| — | Fuel prediction (XGBoost + baselines + QPSO tuner) |
-| — | Deterministic emissions & cost engine |
-| — | MO-QPSO optimizer + NSGA-II baseline |
-| — | Experiments, benchmarks, reproducibility store |
+### The handoff engine (`fleet_engine.py`) already implements most of Modules B & C
+A self-contained, NumPy + pymoo core — **working, with 8 tests**:
 
-**Integration boundaries:**
-- **Dataset →** a documented loader + a dataset schema spec (I'll define the
-  columns I need; you map your data to it, or I write the adapter once I see it).
-- **Frontend →** the API in §10. The frontend consumes those exact routes/shapes.
+| Master doc requirement | Handoff status |
+|------------------------|----------------|
+| Mixed-variable decoder (§7.2) | ✅ `FleetProblem.decode` — on/off, speed, fuel index, shore power |
+| 9-step constraint repair (§4.5) | ✅ availability→schedule→fuel compat→bunkering→shore→cargo greedy fill |
+| Deterministic emissions + cost (§6) | ✅ inlined in `evaluate_plan` (energy GJ, WtW GHG, fuel/charter/shore/carbon cost) |
+| MO-QPSO with quantum update (§7.6) | ✅ `run_qpso` — `x' = p ± α·|mbest−x|·ln(1/u)`, α schedule, archive |
+| NSGA-II baseline (§7.7) | ✅ `run_nsga2` via pymoo |
+| Extra baseline (classical PSO) | ✅ `run_qpso(update="pso")` = MOPSO |
+| Pareto archive + crowding + HV + IGD+ | ✅ `_update_archive`, `hypervolume`, `benchmark` |
+| Multi-seed benchmark harness (§14) | ✅ `benchmark()` → `benchmark_results.csv`, `scalability_results.csv` |
+| Balanced selection (§7.4) | ✅ `select_balanced` (TOPSIS-style) |
+| API entry + validation + infeasibility (§4.2, §10) | ✅ `optimize_fleet()` never raises, returns `error`/`infeasible`/`ok` |
+| **Pluggable predictor hook** | ✅ `set_predictor(fn)` / `make_xgb_predictor(model, cols)` |
 
----
+Benchmark evidence already produced (10 seeds, pop 100 × 100 iters): MO-QPSO
+matches/beats NSGA-II through 50 vessels (HV 0.68 vs 0.65 at 50), loses at 100 —
+honest, and `algo="auto"` switches to NSGA-II above 50. **This is a strong head start.**
 
-## 1. Build order (deterministic-first)
-
-This follows the master doc's §24 rule: build the credible engine first, UI last.
-Each phase ends with runnable tests before the next begins.
-
-```
-Phase 0  Scaffold          repo skeleton, config, CI, Makefile
-Phase 1  Deterministic core energy · cost · emissions · constraints · physics baseline
-Phase 2  Data layer        loader · validation · provenance · features  (needs your data)
-Phase 3  Prediction        baselines · XGBoost · QPSO tuner · validation · /predict API
-Phase 4  Optimizer base    decoder · repair · archive · NSGA-II · one scenario
-Phase 5  MO-QPSO           quantum-inspired update · mixed decoder · convergence log
-Phase 6  Integration       wire predictor+emissions into optimizer · /optimize API · runs store
-Phase 7  Benchmark & freeze multi-seed experiments · provenance report · clean-start demo
-```
-
-Phases 0–1 need **no dataset** (physics baseline + deterministic engine). Phase 2
-onward needs your data. Frontend plugs in at Phase 6 against the live API.
+### What the handoff deliberately leaves to us
+- **Predictor is a `physics_predictor` stand-in** (cubic speed-power law). The real
+  Model 1 (XGBoost) must be trained and plugged in via `set_predictor`.
+- **Fuel factors + vessel pool are PLACEHOLDER / synthetic** (labelled as such).
+- **No FastAPI, no persistence, no SHAP, no provenance layer, no frontend.**
+- Emissions/cost math is inlined, not a separately unit-tested module (master doc §6 wants it split out).
 
 ---
 
-## 2. Phase detail, deliverables, and acceptance
+## 1. The central technical decision — predictor vs. the MRV data ⚠️
 
-### Phase 0 — Scaffold ⬜
-- `backend/` package tree per master doc §11, `config.py`, `requirements.txt`, `Makefile`.
-- `configs/` with `fuels.json`, `vessels.json`, `routes.json`, `scenarios.json` (MVP scenario).
-- pytest + ruff/black set up; GitHub Actions running tests on push.
-- **Done when:** `make install` works and an empty `pytest` run is green from a clean checkout.
+This is the one thing to resolve before building Model 1.
 
-### Phase 1 — Deterministic emissions, cost & constraints ⬜ *(no dataset needed)*
-- `emissions/energy.py` — fuel mass → MJ (`Energy = tonnes·1000·LHV`).
-- `emissions/lifecycle.py` — WtT + TtW = WtW; tracks CO₂/CH₄/N₂O when the factor source has them.
-- `emissions/shore_power.py` — grid-intensity-based (never auto-zero).
-- `emissions/cost.py` — fuel + shore + vessel + time + carbon.
-- `emissions/compliance.py` — GHG cap / CII threshold.
-- `optimization/constraints.py` — cargo, deadline, speed, availability, compatibility, bunkering, shore-power, emissions cap → violation vector.
-- `prediction/physics_baseline.py` — `P = k·v³`, `Fuel = P·T/(η·LHV)` (sanity model + synthetic generator).
-- **Done when:** `test_energy`, `test_lifecycle`, `test_constraints` pass with hand-checked values; factor table versioned and unit-tested.
+**What the engine's predictor needs:** `rate(speed, load, weather, engine_power,
+capacity, design_speed, type) → tonnes/hour of reference fuel`. It is **speed-
+dependent** — that's what makes speed optimization meaningful.
 
-### Phase 2 — Data & feature layer ⬜ *(needs your dataset)*
-- Define **dataset schema** I need: vessel features, operating, route, weather, fuel columns (master doc §5.2).
-- `data/loaders.py` — read CSV/Parquet → typed frames; `data/validation.py` — ranges, units, completeness.
-- `data/provenance.py` — enforce the `measured/derived/synthetic` label + source + formula per field (§8.5).
-- `data/feature_engineering.py` — derived features (distance, duration, load factor, speed bins, fuel intensity), each with a documented formula.
-- Split strategy: chronological / voyage-group / vessel-holdout (§5.4) — **not** plain random.
-- **Done when:** your dataset loads, validates, and produces a train/val/test split with no leakage; provenance table generated.
+**What EU MRV actually gives us** (confirmed by inspecting `Datasets/2020…xlsx`,
+12,118 rows × 62 cols, one row = **one ship-year aggregate**):
+- `Ship type`, `Technical efficiency` (EEDI/EIV, sparse), `Ice class`
+- `Total fuel consumption [m tonnes]`, `Total CO₂ [m tonnes]`
+- `Annual average fuel consumption per distance [kg/n mile]`
+- `Time spent at sea [hours]`, laden-voyage variants, transport-work intensities
+- **No speed. No per-voyage rows. No engine power. No DWT/capacity. No weather.**
 
-### Phase 3 — Fuel prediction engine ⬜
-- Baselines: linear regression, random forest, untuned XGBoost (vs. physics baseline).
-- `prediction/train_xgb.py` — final XGBoost; `prediction/tune_qpso.py` — QPSO over the §5.3 hyperparameter box with fixed eval budget.
-- `prediction/validation.py` — MAE, RMSE, R², sMAPE, train/infer time, sample/vessel/voyage counts.
-- `prediction/explainability.py` — SHAP feature contributions.
-- Guardrails: reject missing features, no negative fuel, out-of-domain flag, uncertainty band (§5.6).
-- `POST /api/predict/fuel` returning the exact §10 response (incl. bounds, `out_of_domain`, contributions).
-- **Done when:** benchmark table (physics→LR→RF→XGB→QPSO-XGB) is generated from a recorded experiment; API passes model tests (§15).
+So we **cannot** train a speed-resolved per-voyage predictor directly from MRV.
+Three honest options (recommended first):
 
-### Phase 4 — Optimizer baseline first ⬜
-- `optimization/decoder.py` — latent vector → activation/speed/fuel/shore/cargo (§7.2).
-- `optimization/repair.py` — the 9-step repair order (§4 Step 5).
-- `optimization/objectives.py` — calls predictor + emissions engine (**no hard-coded fuel**).
-- `optimization/archive.py` — non-dominated feasible archive; `optimization/selection.py` — min-fuel/cost/GHG, knee, balanced.
-- `optimization/nsga2_baseline.py` — NSGA-II via pymoo on the one MVP scenario.
-- **Done when:** NSGA-II returns a feasible Pareto front on the MVP scenario; `test_decoder`, `test_repair`, optimizer feasibility tests pass.
+| Option | Approach | Trade-off |
+|--------|----------|-----------|
+| **A. Physics-informed, MRV-calibrated** *(recommended)* | Keep the cubic speed-power form; fit its coefficients (k, SFOC) **per ship type** to real MRV fuel-per-distance. Derive an annual-average speed per ship = distance ÷ time-at-sea. XGBoost learns a correction/residual over `(type, size proxy, derived speed, EEDI)`. | Scientifically defensible, uses real data for calibration + validation, preserves speed-dependence. More design work. Matches master doc §5.3 (physics baseline + ML) + §8.1 (MRV as validation context). |
+| **B. Pure-MRV aggregate model** | XGBoost predicts `fuel-per-distance` from `(type, EEDI, ice class, derived avg speed)`. Convert to t/h via distance & speed. | Simpler, fully data-driven, but speed signal is weak (one avg point/ship) and no engine-power feature → speed optimization less credible. |
+| **C. Enrich MRV with a vessel register** | Join IMO→DWT/engine-power from an external register (e.g. a ship particulars dataset) to recover the engine features. | Best features, but needs another dataset you'd have to supply; licensing/time risk. |
 
-### Phase 5 — MO-QPSO ⬜
-- `optimization/mo_qpso.py` — explicit quantum-inspired update: attractor/mean-best, contraction-expansion coefficient schedule, sampling rule (§7.6).
-- Mixed-variable decoder reuse, external archive, convergence log, seed reproducibility.
-- **Done when:** fixed seed → reproducible output; MO-QPSO runs the same scenario/budget/constraints as NSGA-II; we can state exactly how it differs from plain PSO/NSGA-II.
+**Either way:** MRV is also our **real-data benchmark** for the prediction report
+(master doc §5.5) and for honest provenance (§8.1) regardless of which training
+path we pick. The synthetic vessel pool stays for the *optimizer* scenarios
+(labelled synthetic), while MRV grounds the *predictor*.
 
-### Phase 6 — Integration ⬜ *(frontend plugs in here)*
-- `POST /api/optimize/fleet`, `GET /api/benchmarks/{run_id}`, `POST/GET /api/scenarios`, metadata routes — all per §10.
-- `experiments/results_store.py` — persist each run with the full §16 manifest (seed, dataset hash, model version, budget, metrics).
-- Wire predictor + lifecycle engine inside candidate evaluation; error handling + infeasibility messages.
-- Hand the frontend the live API; smoke-test the five screens' data needs (§13).
-- **Done when:** end-to-end loop runs from a scenario POST to a Pareto + benchmark response; frontend renders against it.
-
-### Phase 7 — Benchmark & freeze ⬜
-- Experiments A–E (§14): prediction benchmark, generalization, optimizer benchmark (≥10 seeds), scenario analysis, scalability (5/10/25/50 vessels).
-- Reports: hypervolume, feasible rate, runtime, convergence, mean±std; provenance + limitations docs.
-- Clean-start demo (`make install/train/benchmark/run`) + screenshots per the §21 demo script.
-- **Done when:** every DoD item in master doc §20 is true; no chart comes from an unrecorded run.
+👉 **I need your pick (A/B/C)** before writing Model 1. I recommend **A**.
 
 ---
 
-## 3. Things I need from you (to unblock each phase)
+## 2. Revised remaining work
 
-1. **Dataset (unblocks Phase 2+):** files + a short note on columns, units, and whether fuel is per-voyage or hourly. I'll confirm it against the schema I define in Phase 2.
-2. **Frontend (plugs in at Phase 6):** repo/location and the API base URL it expects. Since we locked §10, it should target those routes — flag any mismatch early.
-3. **Factor sources:** confirm which fuel/emissions factor source to cite (IMO LCA defaults vs. scenario assumptions), so provenance labels are honest.
+### Phase 0 — Scaffold & absorb the handoff ⬜
+- Create `backend/` tree (master doc §11). Move `fleet_engine.py` → split into
+  `optimization/` (decoder, repair, archive, mo_qpso, nsga2, selection, objectives)
+  and `emissions/` (energy, lifecycle, shore_power, cost, compliance) **without
+  changing behaviour** — port the handoff tests first so refactors stay green.
+- `requirements.txt` (numpy, pandas, pymoo, scikit-learn, xgboost, shap, fastapi, uvicorn, openpyxl), `Makefile`, pytest + ruff, CI.
+- Port `config_default.json` → `configs/{fuels,vessels,routes,scenarios}.json`.
+- **Done when:** `make install` works and the 8 handoff tests pass from the new layout.
 
-## 4. Risks the plan actively guards against (master doc §22)
+### Phase 1 — Harden the deterministic engine (split from handoff) ⬜
+- Extract the inlined `evaluate_plan` math into tested `emissions/*` modules; add the
+  unit tests master doc §15 lists (energy, lifecycle, shore-power, cost, compliance cap).
+- Replace PLACEHOLDER fuel factors with **sourced** IMO/scenario values + version tag; keep the source label in provenance.
+- Add explicit compliance constraint (GHG cap / CII) as a first-class, togglable check.
+- **Done when:** emissions/cost/compliance each have passing unit tests with hand-checked numbers.
 
-- *Quantum as a label only* → ship the update equation, pseudocode, and benchmark.
-- *Prediction not used by optimizer* → objectives.py calls the predictor; enforced by test.
-- *Optimizer exploits model error* → out-of-domain guard + uncertainty penalty + physics sanity check.
-- *Synthetic shown as measured* → provenance label on every field.
-- *One lucky run* → multi-seed benchmarks with std dev.
+### Phase 2 — Data & provenance layer (MRV) ⬜
+- `data/loaders.py` — read the 7 MRV `.xlsx` (header row 2, sheet = year), concat years, normalize the 62 columns.
+- `data/validation.py` + `data/provenance.py` — label every field `measured`(MRV)/`derived`/`synthetic`, with source (`EMSA THETIS-MRV <year> <version>`) + formula.
+- `data/feature_engineering.py` — derived avg speed (distance÷time-at-sea), size/efficiency proxies, laden ratios; document each formula.
+- Splits (master doc §5.4): by **year** (chronological) and by **vessel/IMO holdout** — no random-only.
+- **Done when:** a clean, documented, split training frame + provenance table are produced from `Datasets/`.
+
+### Phase 3 — Model 1: fuel predictor (the real gap) ⬜
+- Implement the chosen strategy (A/B/C). Baselines: physics (handoff's), linear, random forest, untuned XGBoost.
+- `prediction/tune_qpso.py` — reuse the handoff QPSO to tune XGBoost hyperparameters (fixed eval budget).
+- `prediction/validation.py` — MAE/RMSE/R²/sMAPE + train/infer time + sample/ship counts; `explainability.py` — SHAP.
+- Guardrails (§5.6): no negative fuel (engine already clamps), out-of-domain flag, uncertainty band.
+- **Plug into the engine** via `fe.set_predictor(make_xgb_predictor(model, cols))` and re-run a scenario to confirm the optimizer now uses the trained model.
+- **Done when:** prediction benchmark table is generated from a recorded run and the optimizer consumes the trained predictor end-to-end.
+
+### Phase 4 — FastAPI backend (wrap, don't rebuild) ⬜
+- Routes per master doc §10: `POST /api/predict/fuel`, `POST /api/optimize/fleet`
+  (thin wrapper over `optimize_fleet`, run **in a thread/background** per the handoff note), `GET /api/benchmarks/{run_id}`, scenarios + metadata routes.
+- `experiments/results_store.py` — persist each run with the full §16 manifest (seed, dataset hash, model version, budget, metrics). Reshape engine output to the §10 response schema (pareto_solutions, balanced_solution, feasibility_rate, runtime).
+- Flag: these endpoints are unauthenticated — fine for a local hackathon demo; note it, don't expose publicly without auth.
+- **Done when:** the five frontend screens' data can be served from live endpoints.
+
+### Phase 5 — Integration, benchmark freeze & demo ⬜
+- Wire the provided frontend to the API; smoke-test the §13 screens.
+- Re-run experiments A–E (§14) with the **trained** predictor (not the stand-in); regenerate `benchmark_results.csv`, scalability, case studies, convergence.
+- Provenance panel, limitations doc, clean-start `make install/train/benchmark/run`, screenshots per §21.
+- **Done when:** every master doc §20 Definition-of-Done item is true.
 
 ---
 
-*Next action: you send the dataset → I start Phase 0 scaffold + Phase 1 deterministic
-core (which need no data) in parallel while I define the Phase 2 dataset schema.*
+## 3. Repo & data hygiene
+- Raw `Datasets/*.xlsx` and the handoff `.zip` are **git-ignored** (large/binary, reproducible public data); documented in README with the EMSA source + how to place them.
+- Processed/feature files go to `data/processed/` (also ignored); only small configs + provenance CSV are committed.
 
+## 4. What I need from you
+1. **Predictor strategy A/B/C** (§1) — I recommend **A**. *(blocks Phase 3)*
+2. Confirm it's fine to **restructure the handoff** into the backend tree (behaviour-preserving, tests ported). *(blocks Phase 0)*
+3. Which **fuel-factor source** to cite for Phase 1 (IMO MEPC.391(81) defaults vs. a scenario table you provide).
+4. The **frontend** repo/location + the API base URL it expects, when ready. *(Phase 5)*
+
+---
+
+*Recommended next action once you confirm §1 + §2: Phase 0 (scaffold + port tests)
+and Phase 2 (MRV loader) in parallel — neither needs the predictor decision resolved.*
