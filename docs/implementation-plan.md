@@ -3,9 +3,15 @@
 > **v2 update:** incorporates the `q_greenfleet_handoff` engine (Module B/C already
 > built) and the real **EU MRV** datasets now in `Datasets/`. Supersedes v1's
 > phase ordering. Still anchored to `SIH26138_Master_Implementation_Document.md`.
+>
+> **Dataset layers A/B/C status** is tracked separately in
+> [`dataset-layers.md`](dataset-layers.md) (Layer A complete: MRV + AIS + IMO + Indian ERA5).
 
 **Decisions locked:** API follows master doc §10 · the handoff engine is our
-Module B/C core · frontend + dataset are provided by you.
+Module B/C core · frontend + dataset are provided by you · **Model 1 = Strategy A
+(physics cubic law calibrated to MRV per ship type + XGBoost residual)** · **the
+handoff engine will be restructured into the backend module tree (behaviour-
+preserving, tests ported first).**
 
 ---
 
