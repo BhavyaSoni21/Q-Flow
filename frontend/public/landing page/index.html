@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QFlow — Quantum-Inspired Maritime Fleet Optimization</title>
+  <meta name="description" content="QFlow uses quantum-inspired mathematics to predict fuel burn and dynamically optimize cargo routes, speeds, vessel types, and alternative clean fuels for maritime shipping." />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+
+  <!-- ========== NAV ========== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <circle cx="14" cy="14" r="12" stroke="url(#lg)" stroke-width="2"/>
+            <path d="M8 14 Q14 6 20 14 Q14 22 8 14Z" fill="url(#lg2)" opacity="0.9"/>
+            <circle cx="14" cy="14" r="3" fill="#00f0ff"/>
+            <defs>
+              <linearGradient id="lg" x1="0" y1="0" x2="28" y2="28">
+                <stop offset="0%" stop-color="#00f0ff"/>
+                <stop offset="100%" stop-color="#7b2fff"/>
+              </linearGradient>
+              <linearGradient id="lg2" x1="0" y1="0" x2="28" y2="28">
+                <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#7b2fff" stop-opacity="0.4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <span class="logo-text">Q<span class="logo-accent">Flow</span></span>
+      </a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#tech-stack">Tech Stack</a></li>
+        <li><a href="#metrics">Metrics</a></li>
+      </ul>
+      <a href="#cta" class="nav-cta">Get Early Access</a>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero" id="home">
+    <div class="hero-ship-bg"></div>
+    <div class="hero-ship-overlay"></div>
+    <div class="hero-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        SIH 2026 &middot; Clean &amp; Green Technology &middot; SIH26138
+      </div>
+
+      <!-- Slogan Pill -->
+      <div class="hero-slogan-pill">
+        <i class="fas fa-compass"></i>
+        <span>Navigate Smarter. Sail Greener. Arrive Faster.</span>
+      </div>
+
+      <h1 class="hero-title">
+        Quantum-Powered
+        <span class="gradient-text">Maritime Fleet</span>
+        Optimization
+      </h1>
+      <p class="hero-sub">
+        Maritime shipping companies burn massive amounts of fuel, driving up costs and carbon emissions.
+        <strong>QFlow</strong> uses quantum-inspired mathematics to predict fuel burn and dynamically optimize
+        cargo routes, speeds, vessel types, and alternative clean fuels like
+        <em>green hydrogen</em> or <em>methanol</em>.
+      </p>
+      <div class="hero-actions">
+        <a href="#features" class="btn-glow" id="hero-explore-btn">Explore Features <i class="fas fa-arrow-right"></i></a>
+        <a href="#fleet" class="btn-ghost" id="hero-fleet-btn"><i class="fas fa-ship"></i> View Fleet Telemetry</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-pill">
+          <i class="fas fa-chart-line"></i>
+          <span>8/10 Technical Complexity</span>
+        </div>
+        <div class="stat-pill">
+          <i class="fas fa-database"></i>
+          <span>7/10 Dataset Accessibility</span>
+        </div>
+        <div class="stat-pill">
+          <i class="fas fa-bolt"></i>
+          <span>9/10 Hackathon Viability</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="ship-card">
+        <!-- Live Vessel Viewport Thumbnail -->
+        <div class="ship-viewport">
+          <img src="ship-aerial.jpg" alt="Aerial Vessel Telemetry" class="ship-viewport-img" />
+          <div class="viewport-hud">
+            <span class="hud-pill"><span class="radar-dot"></span> 14.8 KTS</span>
+            <span class="hud-pill alt">GREEN METHANOL</span>
+          </div>
+        </div>
+
+        <div class="ship-header">
+          <span class="ship-label">Live Quantum Optimization</span>
+          <span class="ship-status"><span class="pulse-dot"></span> Active</span>
+        </div>
+        <div class="ship-chart">
+          <svg viewBox="0 0 260 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 80 Q40 70 70 60 Q100 50 130 65 Q160 75 190 55 Q210 45 250 30" stroke="#ff6b6b" stroke-width="1.5" stroke-dasharray="4 2" fill="none" opacity="0.6"/>
+            <path d="M10 80 Q40 55 70 45 Q100 35 130 38 Q160 40 190 28 Q210 22 250 15" stroke="url(#chart-grad)" stroke-width="2.5" fill="none"/>
+            <defs>
+              <linearGradient id="chart-grad" x1="0" y1="0" x2="260" y2="0">
+                <stop offset="0%" stop-color="#00f0ff"/>
+                <stop offset="100%" stop-color="#7b2fff"/>
+              </linearGradient>
+            </defs>
+            <circle cx="130" cy="38" r="4" fill="#00f0ff"/>
+            <circle cx="190" cy="28" r="4" fill="#7b2fff"/>
+            <circle cx="250" cy="15" r="5" fill="#00f0ff" opacity="0.8"/>
+          </svg>
+        </div>
+        <div class="ship-metrics">
+          <div class="ship-metric">
+            <span class="metric-label">Fuel Saved</span>
+            <span class="metric-val green">&#8595; 34.2%</span>
+          </div>
+          <div class="ship-metric">
+            <span class="metric-label">CO&#8322; Reduced</span>
+            <span class="metric-val green">&#8595; 28.7%</span>
+          </div>
+          <div class="ship-metric">
+            <span class="metric-label">Cost Delta</span>
+            <span class="metric-val green">&#8595; $12.4k</span>
+          </div>
+        </div>
+        <div class="fuel-legend">
+          <span class="legend-dot cyan"></span><span>QFlow Optimized</span>
+          <span class="legend-dot red"></span><span>Classical Route</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <i class="fas fa-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- ========== SLOGAN BANNER ========== -->
+  <section class="slogan-strip">
+    <div class="container slogan-container">
+      <div class="slogan-card">
+        <div class="slogan-badge-tag"><i class="fas fa-leaf"></i> MISSION MOTTO</div>
+        <h2 class="slogan-quote">&ldquo;Quantum Intelligence for a Zero-Emission Ocean.&rdquo;</h2>
+        <p class="slogan-sub">Bridging classical maritime navigation and quantum-inspired surrogate optimization to eliminate bunker fuel waste across global shipping corridors.</p>
+        <div class="slogan-pills">
+          <span class="slogan-feature"><i class="fas fa-check-circle"></i> Up to 34% Fuel Reduction</span>
+          <span class="slogan-feature"><i class="fas fa-check-circle"></i> Clean Hydrogen &amp; Methanol Pathways</span>
+          <span class="slogan-feature"><i class="fas fa-check-circle"></i> IMO CII Grade A Assurance</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FLEET SHOWCASE SECTION ========== -->
+  <section class="fleet-section" id="fleet">
+    <div class="container">
+      <div class="section-tag">Step 01 &middot; Real-Time Telemetry &amp; Fleet Profiling</div>
+      <h2 class="section-title">Autonomous <span class="gradient-text">Vessel Telemetry</span> &amp; Dynamic Routing</h2>
+      <p class="section-sub">
+        Live hydrodynamic sensor feeds and satellite AIS combine with quantum QUBO solvers to re-optimize headings, throttle speeds, and fuel mixes every 15 minutes.
+      </p>
+
+      <div class="fleet-grid">
+        <!-- Card 1: Frontal Ship with Live Quantum Routing HUD -->
+        <div class="fleet-card card-large">
+          <div class="fleet-img-wrap">
+            <img src="ship-hero.jpg" alt="Container Vessel Navigating Waves" class="fleet-img" />
+            <div class="fleet-img-overlay"></div>
+            <div class="telemetry-badge top-left">
+              <span class="pulse-dot"></span> AIS LIVE: IMO 9821034 &bull; MV QFLOW HORIZON
+            </div>
+            <div class="telemetry-badge top-right green">
+              <i class="fas fa-shield-alt"></i> CII RATING: GRADE A
+            </div>
+            <div class="fleet-hud-grid">
+              <div class="hud-item">
+                <span class="hud-lbl">Corridor</span>
+                <span class="hud-val">Mumbai &rarr; Dubai &rarr; Rotterdam</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-lbl">Wave Drag Avoidance</span>
+                <span class="hud-val cyan">-22.4% Resistance</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-lbl">Clean Fuel Transition</span>
+                <span class="hud-val green">Green H&#8322; / Methanol Ready</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-lbl">QUBO Convergence</span>
+                <span class="hud-val purple">99.8% Optimal</span>
+              </div>
+            </div>
+          </div>
+          <div class="fleet-card-body">
+            <h3>Deep-Sea Hydrodynamic Routing Engine</h3>
+            <p>Our surrogate machine learning models ingest real-time wave height, wind drag, and ocean currents to dynamically compute fuel burn curves across 12,000+ corridor permutations simultaneously.</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Aerial Ship with Deck & Cargo Payload Optimizer -->
+        <div class="fleet-card card-small">
+          <div class="fleet-img-wrap">
+            <img src="ship-aerial.jpg" alt="Aerial Vessel Bow View" class="fleet-img" />
+            <div class="fleet-img-overlay"></div>
+            <div class="telemetry-badge top-left">
+              <span class="radar-dot"></span> TOP-DOWN BOW TRIM SENSOR
+            </div>
+            <div class="fleet-hud-grid mini">
+              <div class="hud-item">
+                <span class="hud-lbl">Dynamic Trim</span>
+                <span class="hud-val cyan">+1.4&deg; Bow Level</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-lbl">Net Fuel Burn</span>
+                <span class="hud-val green">34.2 MT/day (&darr;34%)</span>
+              </div>
+            </div>
+          </div>
+          <div class="fleet-card-body">
+            <h3>Payload &amp; Draft Trim Synthesis</h3>
+            <p>Calculates dynamic hull resistance based on container weight distribution, ballast water trim, and ISO 19030 propeller efficiency metrics.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ABOUT ========== -->
+  <section class="about-section" id="about">
+    <div class="container">
+      <div class="section-tag">Step 0 &middot; Zero-Jargon Summary</div>
+      <h2 class="section-title">What is <span class="gradient-text">QFlow</span>?</h2>
+      <div class="about-grid">
+        <div class="about-text">
+          <p class="about-lead">
+            Maritime shipping companies burn massive amounts of fuel, driving up costs and carbon emissions.
+          </p>
+          <p>
+            This platform uses <strong>quantum-inspired mathematics</strong> to predict fuel burn and dynamically
+            optimize cargo routes, speeds, vessel types, and alternative clean fuels like
+            <strong>green hydrogen</strong> or <strong>methanol</strong> &mdash; in real-time, even at sea.
+          </p>
+          <div class="for-whom">
+            <h4>Built For</h4>
+            <ul>
+              <li><i class="fas fa-ship"></i> Commercial maritime fleet operators</li>
+              <li><i class="fas fa-boxes-stacked"></i> Logistics managers</li>
+              <li><i class="fas fa-leaf"></i> Sustainability officers</li>
+              <li><i class="fas fa-anchor"></i> Port authorities tracking carbon compliance</li>
+            </ul>
+          </div>
+        </div>
+        <div class="why-card">
+          <div class="why-icon"><i class="fas fa-exclamation-triangle"></i></div>
+          <h3>Why Does It Exist?</h3>
+          <p>
+            Traditional logistics route planning <strong>fails</strong> to handle the multi-variable complexity of combining
+            alternative energy sources, vessel capacities, dynamic weather currents, and stringent
+            international emission limits simultaneously.
+          </p>
+          <div class="why-tags">
+            <span>&#127754; Dynamic Weather</span>
+            <span>&#9889; Alt. Fuels</span>
+            <span>&#127757; Emission Limits</span>
+            <span>&#128230; Cargo Constraints</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PIPELINE ========== -->
+  <section class="pipeline-section" id="how-it-works">
+    <div class="container">
+      <div class="section-tag">Step 4 &middot; Architecture Pipeline</div>
+      <h2 class="section-title">Input &#8594; Process &#8594; <span class="gradient-text">Output</span></h2>
+      <div class="pipeline-grid">
+        <div class="pipeline-card" data-step="01" id="pipeline-inputs">
+          <div class="pipeline-step">01</div>
+          <div class="pipeline-icon"><i class="fas fa-satellite-dish"></i></div>
+          <h3>Inputs &amp; Telemetry</h3>
+          <ul>
+            <li>Historical vessel telemetry logs</li>
+            <li>Cargo weight matrices</li>
+            <li>Port schedule data</li>
+            <li>Real-time weather &amp; ocean current feeds</li>
+            <li>Alternative fuel pricing &amp; availability</li>
+          </ul>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="pipeline-card featured" data-step="02" id="pipeline-ai">
+          <div class="pipeline-step">02</div>
+          <div class="pipeline-icon"><i class="fas fa-atom"></i></div>
+          <h3>Quantum-Inspired AI Core</h3>
+          <ul>
+            <li>Quantum Annealing simulation</li>
+            <li>Quantum Particle Swarm Optimization (QPSO)</li>
+            <li>XGBoost / LightGBM fuel prediction</li>
+            <li>Deep learning for non-linear conditions</li>
+            <li>Multi-objective constraint optimization</li>
+          </ul>
+          <div class="featured-badge">Core Engine</div>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="pipeline-card" data-step="03" id="pipeline-output">
+          <div class="pipeline-step">03</div>
+          <div class="pipeline-icon"><i class="fas fa-chart-bar"></i></div>
+          <h3>Actionable Deliverables</h3>
+          <ul>
+            <li>Optimized deployment schedules</li>
+            <li>Recommended cruising speeds per leg</li>
+            <li>Optimal alternative fuel mix selections</li>
+            <li>Carbon lifecycle emissions reports</li>
+            <li>Interactive command dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FEATURES ========== -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-tag">Killer Features</div>
+      <h2 class="section-title">Built to <span class="gradient-text">Impress the Jury</span></h2>
+      <div class="features-grid">
+        <div class="feature-card" id="feature-sandbox">
+          <div class="feature-icon" style="background: linear-gradient(135deg,#00f0ff18,#00f0ff33);">
+            <i class="fas fa-flask" style="color:#00f0ff"></i>
+          </div>
+          <h3>Alternative Fuel Sandbox</h3>
+          <p>Interactive "What-If" simulator letting operators instantly test <strong>LNG vs. Green Ammonia vs. Shore Power vs. Methanol</strong> cost &amp; emission impacts.</p>
+          <div class="feature-tag">Interactive</div>
+        </div>
+        <div class="feature-card" id="feature-reroute">
+          <div class="feature-icon" style="background: linear-gradient(135deg,#7b2fff18,#7b2fff33);">
+            <i class="fas fa-route" style="color:#7b2fff"></i>
+          </div>
+          <h3>Real-Time Route Rerouting</h3>
+          <p>Live simulator reacting to synthetic storm alerts, recalculating routes and carbon penalties &mdash; even with intermittent satellite connectivity at sea.</p>
+          <div class="feature-tag">Live Simulation</div>
+        </div>
+        <div class="feature-card" id="feature-compare">
+          <div class="feature-icon" style="background: linear-gradient(135deg,#00ff9d18,#00ff9d33);">
+            <i class="fas fa-code-compare" style="color:#00ff9d"></i>
+          </div>
+          <h3>Dual-Engine Comparison</h3>
+          <p>Watch Classical Genetic Algorithm convergence race against the Quantum-Inspired optimizer live &mdash; see the efficiency delta in real-time.</p>
+          <div class="feature-tag">Live Demo</div>
+        </div>
+        <div class="feature-card" id="feature-predict">
+          <div class="feature-icon" style="background: linear-gradient(135deg,#ff6b6b18,#ff6b6b33);">
+            <i class="fas fa-brain" style="color:#ff6b6b"></i>
+          </div>
+          <h3>Fuel Burn Prediction</h3>
+          <p>ML models (XGBoost + Neural Networks) trained on vessel telemetry, predicting fuel consumption with low RMSE/MAE across varying cargo loads.</p>
+          <div class="feature-tag">AI/ML</div>
+        </div>
+        <div class="feature-card" id="feature-carbon">
+          <div class="feature-icon" style="background: linear-gradient(135deg,#ffb30018,#ffb30033);">
+            <i class="fas fa-leaf" style="color:#ffb300"></i>
+          </div>
+          <h3>Carbon Lifecycle Reports</h3>
+          <p>Comprehensive lifecycle carbon accounting helping sustainability officers meet international compliance standards with downloadable PDF reports.</p>
+          <div class="feature-tag">Compliance</div>
+        </div>
+        <div class="feature-card" id="feature-dashboard">
+          <div class="feature-icon" style="background: linear-gradient(135deg,#f06cff18,#f06cff33);">
+            <i class="fas fa-gauge-high" style="color:#f06cff"></i>
+          </div>
+          <h3>Command Dashboard</h3>
+          <p>Mapbox GL JS-powered maritime route visualization with real-time telemetry overlays, vessel tracking, and scenario comparison panels.</p>
+          <div class="feature-tag">Interactive UI</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CONSTRAINTS ========== -->
+  <section class="constraints-section" id="constraints">
+    <div class="container">
+      <div class="section-tag">Step 5 &middot; Constraints</div>
+      <h2 class="section-title">Engineering <span class="gradient-text">Challenges</span></h2>
+      <div class="constraints-grid">
+        <div class="constraint-card" id="constraint-highdim">
+          <div class="c-icon"><i class="fas fa-infinity"></i></div>
+          <h4>High-Dimensional Non-Linear Constraints</h4>
+          <p>Handle hundreds of simultaneous variables without excessive computation time.</p>
+        </div>
+        <div class="constraint-card" id="constraint-multiobjective">
+          <div class="c-icon"><i class="fas fa-scale-balanced"></i></div>
+          <h4>Multi-Objective Trade-offs</h4>
+          <p>Balance cost minimization vs. carbon reduction vs. strict delivery deadlines simultaneously.</p>
+        </div>
+        <div class="constraint-card" id="constraint-offline">
+          <div class="c-icon"><i class="fas fa-wifi"></i></div>
+          <h4>Offline Resilience at Sea</h4>
+          <p>Operate reliably even with intermittent satellite/cellular connectivity mid-voyage.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TECH STACK ========== -->
+  <section class="tech-section" id="tech-stack">
+    <div class="container">
+      <div class="section-tag">Recommended Stack</div>
+      <h2 class="section-title">Built With <span class="gradient-text">Modern Tools</span></h2>
+      <div class="tech-cols">
+        <div class="tech-group" id="tech-frontend">
+          <div class="tech-group-header"><i class="fas fa-desktop"></i> Frontend</div>
+          <div class="tech-pills">
+            <span>Next.js</span><span>Tailwind CSS</span><span>Mapbox GL JS</span><span>Chart.js</span><span>Recharts</span>
+          </div>
+        </div>
+        <div class="tech-group" id="tech-backend">
+          <div class="tech-group-header"><i class="fas fa-server"></i> Backend &amp; APIs</div>
+          <div class="tech-pills">
+            <span>FastAPI (Python)</span><span>NetworkX</span><span>Qiskit</span><span>NumPy QPSO</span><span>Simulated Annealing</span>
+          </div>
+        </div>
+        <div class="tech-group" id="tech-aiml">
+          <div class="tech-group-header"><i class="fas fa-brain"></i> AI / ML</div>
+          <div class="tech-pills">
+            <span>XGBoost</span><span>LightGBM</span><span>Neural Networks</span><span>Scikit-learn</span>
+          </div>
+        </div>
+        <div class="tech-group" id="tech-db">
+          <div class="tech-group-header"><i class="fas fa-database"></i> Database &amp; Cloud</div>
+          <div class="tech-pills">
+            <span>PostgreSQL</span><span>PostGIS</span><span>Redis</span><span>Spatial Tracking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== JURY METRICS ========== -->
+  <section class="metrics-section" id="metrics">
+    <div class="container">
+      <div class="section-tag">Step 6 &middot; Jury Evaluation</div>
+      <h2 class="section-title">How We're <span class="gradient-text">Evaluated</span></h2>
+      <div class="metrics-grid">
+        <div class="metric-card" id="metric-accuracy">
+          <div class="metric-number">01</div>
+          <i class="fas fa-bullseye"></i>
+          <h4>Prediction Accuracy</h4>
+          <p>RMSE / MAE on fuel consumption estimates across real vessel scenarios.</p>
+        </div>
+        <div class="metric-card" id="metric-speed">
+          <div class="metric-number">02</div>
+          <i class="fas fa-gauge-simple-high"></i>
+          <h4>Optimization Speed</h4>
+          <p>Convergence time compared to classical genetic algorithms under same conditions.</p>
+        </div>
+        <div class="metric-card" id="metric-carbon">
+          <div class="metric-number">03</div>
+          <i class="fas fa-smog"></i>
+          <h4>Carbon Reduction</h4>
+          <p>Total lifecycle carbon emission reduction percentage across full voyages.</p>
+        </div>
+        <div class="metric-card" id="metric-ux">
+          <div class="metric-number">04</div>
+          <i class="fas fa-display"></i>
+          <h4>UI/UX Clarity</h4>
+          <p>Ease of scenario comparison for logistics operators &mdash; clarity &amp; usability score.</p>
+        </div>
+      </div>
+
+      <div class="pros-cons">
+        <div class="pros" id="pros-section">
+          <h3><i class="fas fa-circle-check"></i> Why Choose This PS</h3>
+          <ul>
+            <li>Extremely high relevance to global net-zero targets and clean tech themes</li>
+            <li>Creative integration of cutting-edge Quantum Annealing / QAOA simulations in software</li>
+            <li>Clear, measurable output metrics that make judging straightforward and impactful</li>
+          </ul>
+        </div>
+        <div class="cons" id="cons-section">
+          <h3><i class="fas fa-triangle-exclamation"></i> Challenges to Watch</h3>
+          <ul>
+            <li>Requires solid understanding of multi-objective optimization mathematics</li>
+            <li>Simulating quantum effects on classical hardware needs careful algorithmic framing</li>
+            <li>Public maritime datasets can be sparse &mdash; robust synthetic data generation needed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA ========== -->
+  <section class="cta-section" id="cta">
+    <div class="cta-glow-1"></div>
+    <div class="cta-glow-2"></div>
+    <div class="container cta-inner">
+      <div class="cta-badge">SIH 2026 &middot; &#8377;1,50,000 Prize &middot; Deadline: 20 September 2026</div>
+      <h2 class="cta-title">Ready to <span class="gradient-text">Optimize the Oceans</span>?</h2>
+      <p class="cta-sub">
+        Join the QFlow mission &mdash; zero carbon emissions, smarter routes, cleaner seas.
+        Built for SIH 2026 by <strong>Egreen Quanta</strong>.
+      </p>
+      <div class="cta-buttons">
+        <a href="https://sih.gov.in/sih2026PS" target="_blank" class="btn-glow" id="cta-portal-btn">
+          View SIH Official Portal <i class="fas fa-external-link-alt"></i>
+        </a>
+        <a href="https://sih.decodex.live/sih2026/Public/Open" target="_blank" class="btn-ghost" id="cta-dataset-btn">
+          Dataset Repository <i class="fas fa-folder-open"></i>
+        </a>
+      </div>
+      <div class="cta-meta">
+        <span><i class="fas fa-code"></i> Software Track</span>
+        <span><i class="fas fa-leaf"></i> Clean &amp; Green Technology</span>
+        <span><i class="fas fa-trophy"></i> &#8377;75k Joint Prize</span>
+        <span><i class="fas fa-layer-group"></i> 0 / 500 Ideas Submitted</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo">
+          <div class="logo-icon">
+            <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+              <circle cx="14" cy="14" r="12" stroke="url(#flg)" stroke-width="2"/>
+              <path d="M8 14 Q14 6 20 14 Q14 22 8 14Z" fill="url(#flg2)" opacity="0.9"/>
+              <circle cx="14" cy="14" r="3" fill="#00f0ff"/>
+              <defs>
+                <linearGradient id="flg" x1="0" y1="0" x2="28" y2="28">
+                  <stop offset="0%" stop-color="#00f0ff"/>
+                  <stop offset="100%" stop-color="#7b2fff"/>
+                </linearGradient>
+                <linearGradient id="flg2" x1="0" y1="0" x2="28" y2="28">
+                  <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#7b2fff" stop-opacity="0.4"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">Q<span class="logo-accent">Flow</span></span>
+        </a>
+        <p>Quantum-Inspired Maritime Fleet Optimization.<br/>Built for SIH 2026 &mdash; Clean &amp; Green Technology.</p>
+      </div>
+      <div class="footer-links">
+        <h5>Platform</h5>
+        <a href="#about">About</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#features">Features</a>
+        <a href="#tech-stack">Tech Stack</a>
+      </div>
+      <div class="footer-links">
+        <h5>Resources</h5>
+        <a href="https://sih.gov.in/" target="_blank">Official SIH Portal</a>
+        <a href="https://sih.gov.in/sih2026PS" target="_blank">SIH 2026 Live PS</a>
+        <a href="https://sih.decodex.live/sih2026/Public/Open" target="_blank">Dataset Repository</a>
+        <a href="https://sih.decodex.live/sih2026/SIH26138" target="_blank">Problem Statement</a>
+      </div>
+      <div class="footer-links">
+        <h5>Problem</h5>
+        <a href="#metrics">Jury Metrics</a>
+        <a href="#constraints">Constraints</a>
+        <a href="#features">Killer Features</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 QFlow &middot; SIH26138 &middot; Egreen Quanta</span>
+      <span>Software Track &middot; Clean &amp; Green Technology</span>
+    </div>
+  </footer>
+
+  <script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    hamburger.addEventListener('click', () => {
+      navLinks.classList.toggle('open');
+      hamburger.classList.toggle('active');
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+          navLinks.classList.remove('open');
+          hamburger.classList.remove('active');
+        }
+      });
+    });
+
+    const revealEls = document.querySelectorAll(
+      '.pipeline-card, .feature-card, .metric-card, .constraint-card, .tech-group, .about-grid > *, .pros, .cons'
+    );
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('revealed');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => { el.classList.add('reveal'); observer.observe(el); });
+  </script>
+</body>
+</html>
