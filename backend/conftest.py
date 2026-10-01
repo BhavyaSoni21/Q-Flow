@@ -1,0 +1,11 @@
+"""Pytest bootstrap: make the ported engine importable as `fleet_engine`.
+
+Phase 0 keeps the handoff engine and its tests UNCHANGED (the test does
+`import fleet_engine as fe`). Phase 1 will split the engine into the
+`emissions/` + `optimization/` modules per master doc §11 and switch to
+package imports; until then we put the engine dir on sys.path here.
+"""
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "optimization"))

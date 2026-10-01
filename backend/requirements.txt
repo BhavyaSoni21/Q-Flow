@@ -1,0 +1,24 @@
+# Q-Flow backend — Python dependencies
+# Phase 0: engine + tests. Later phases add prediction + API deps (already listed).
+
+# Core numerics
+numpy>=1.26
+pandas>=2.1
+openpyxl>=3.1            # read EU MRV .xlsx
+
+# Optimizer baseline + multi-objective indicators (NSGA-II, hypervolume, IGD+)
+pymoo>=0.6.1
+
+# Prediction (Phase 3)
+scikit-learn>=1.4
+xgboost>=2.0
+shap>=0.44
+
+# API (Phase 4)
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.6
+
+# Dev / test
+pytest>=8.0
+ruff>=0.4

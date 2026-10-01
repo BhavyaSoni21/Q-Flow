@@ -1,0 +1,290 @@
+{
+  "route": {
+    "route_id": "R1",
+    "distance_nm": 600.0,
+    "cargo_demand_t": 90000.0,
+    "deadline_h": 72.0,
+    "port_time_h": 8.0,
+    "buffer_h": 4.0,
+    "weather": "normal",
+    "fuel_available": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+    ],
+    "port_ops_available": 1.0,
+    "grid_ef_g_per_kwh": 650.0,
+    "shore_price_usd_per_kwh": 0.12,
+    "carbon_price_usd_per_t": 0.0
+  },
+  "vessels": [
+    {
+      "vessel_id": "V001",
+      "vessel_type": "Large",
+      "type_code": 4,
+      "capacity_t": 72237,
+      "design_speed_kn": 15.0,
+      "min_speed_kn": 9,
+      "max_speed_kn": 18,
+      "engine_power_kw": 17337,
+      "charter_usd_day": 26005,
+      "fuel_compatibility": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "shore_power_compatible": 0,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V002",
+      "vessel_type": "Midsize",
+      "type_code": 3,
+      "capacity_t": 51836,
+      "design_speed_kn": 14.5,
+      "min_speed_kn": 9,
+      "max_speed_kn": 18,
+      "engine_power_kw": 13477,
+      "charter_usd_day": 20734,
+      "fuel_compatibility": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        1
+      ],
+      "shore_power_compatible": 0,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V003",
+      "vessel_type": "Handy",
+      "type_code": 2,
+      "capacity_t": 31102,
+      "design_speed_kn": 14.0,
+      "min_speed_kn": 8,
+      "max_speed_kn": 17,
+      "engine_power_kw": 9331,
+      "charter_usd_day": 14514,
+      "fuel_compatibility": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shore_power_compatible": 1,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V004",
+      "vessel_type": "Coaster",
+      "type_code": 0,
+      "capacity_t": 7396,
+      "design_speed_kn": 12.0,
+      "min_speed_kn": 7,
+      "max_speed_kn": 15,
+      "engine_power_kw": 3236,
+      "charter_usd_day": 6009,
+      "fuel_compatibility": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shore_power_compatible": 1,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V005",
+      "vessel_type": "Handy",
+      "type_code": 2,
+      "capacity_t": 32308,
+      "design_speed_kn": 14.0,
+      "min_speed_kn": 8,
+      "max_speed_kn": 17,
+      "engine_power_kw": 9692,
+      "charter_usd_day": 15077,
+      "fuel_compatibility": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shore_power_compatible": 1,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V006",
+      "vessel_type": "Large",
+      "type_code": 4,
+      "capacity_t": 77658,
+      "design_speed_kn": 15.0,
+      "min_speed_kn": 9,
+      "max_speed_kn": 18,
+      "engine_power_kw": 18638,
+      "charter_usd_day": 27957,
+      "fuel_compatibility": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "shore_power_compatible": 0,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V007",
+      "vessel_type": "Handy",
+      "type_code": 2,
+      "capacity_t": 30343,
+      "design_speed_kn": 14.0,
+      "min_speed_kn": 8,
+      "max_speed_kn": 17,
+      "engine_power_kw": 9103,
+      "charter_usd_day": 14160,
+      "fuel_compatibility": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "shore_power_compatible": 0,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V008",
+      "vessel_type": "Feeder",
+      "type_code": 1,
+      "capacity_t": 14345,
+      "design_speed_kn": 13.0,
+      "min_speed_kn": 8,
+      "max_speed_kn": 16,
+      "engine_power_kw": 5738,
+      "charter_usd_day": 9085,
+      "fuel_compatibility": [
+        1,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "shore_power_compatible": 1,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V009",
+      "vessel_type": "Midsize",
+      "type_code": 3,
+      "capacity_t": 46469,
+      "design_speed_kn": 14.5,
+      "min_speed_kn": 9,
+      "max_speed_kn": 18,
+      "engine_power_kw": 12082,
+      "charter_usd_day": 18587,
+      "fuel_compatibility": [
+        1,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "shore_power_compatible": 1,
+      "availability": 1
+    },
+    {
+      "vessel_id": "V010",
+      "vessel_type": "Large",
+      "type_code": 4,
+      "capacity_t": 69624,
+      "design_speed_kn": 15.0,
+      "min_speed_kn": 9,
+      "max_speed_kn": 18,
+      "engine_power_kw": 16710,
+      "charter_usd_day": 25065,
+      "fuel_compatibility": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
+      "shore_power_compatible": 1,
+      "availability": 1
+    }
+  ],
+  "fuels": [
+    {
+      "fuel_id": "vlsfo",
+      "name": "VLSFO (reference)",
+      "lhv": 40.2,
+      "price": 620,
+      "wtw": 91.0,
+      "source": "PLACEHOLDER"
+    },
+    {
+      "fuel_id": "lng",
+      "name": "LNG (fossil)",
+      "lhv": 49.0,
+      "price": 560,
+      "wtw": 86.0,
+      "source": "PLACEHOLDER"
+    },
+    {
+      "fuel_id": "methanol_grey",
+      "name": "Methanol (fossil)",
+      "lhv": 19.9,
+      "price": 430,
+      "wtw": 100.0,
+      "source": "PLACEHOLDER"
+    },
+    {
+      "fuel_id": "methanol_green",
+      "name": "Methanol (bio/e-)",
+      "lhv": 19.9,
+      "price": 1050,
+      "wtw": 18.0,
+      "source": "PLACEHOLDER"
+    },
+    {
+      "fuel_id": "ammonia_green",
+      "name": "Ammonia (renewable)",
+      "lhv": 18.6,
+      "price": 820,
+      "wtw": 20.0,
+      "source": "PLACEHOLDER"
+    },
+    {
+      "fuel_id": "hydrogen_green",
+      "name": "Hydrogen (electrolysis)",
+      "lhv": 120.0,
+      "price": 5200,
+      "wtw": 12.0,
+      "source": "PLACEHOLDER"
+    }
+  ],
+  "weather_factors": {
+    "normal": 1.0,
+    "adverse": 1.15,
+    "severe": 1.35
+  }
+}
