@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
 export default function LandingUtilityBar() {
-    const [lang, setLang] = useState("English");
-
     const changeFontSize = (delta) => {
         const root = document.documentElement;
         const currentSize = parseFloat(window.getComputedStyle(root).fontSize) || 16;
@@ -27,20 +25,7 @@ export default function LandingUtilityBar() {
         <div className="bg-[#f8f8f8] dark:bg-[#1a2330] border-b border-[#ddd] dark:border-[#334155] text-[#666] dark:text-[#94a3b8] text-[12px] py-1.5 px-4 font-['Open_Sans',sans-serif]">
             <div className="max-w-[1200px] mx-auto flex justify-between items-center">
                 {/* Left */}
-                <div className="flex items-center gap-4">
-                    <a href="#main-content" className="hover:text-[#0076a8] transition-colors">
-                        Skip to main content
-                    </a>
-                    <span className="opacity-40">|</span>
-                    <button
-                        type="button"
-                        onClick={() => changeFontSize(0)}
-                        title="Accessibility"
-                        className="hover:text-[#0076a8]"
-                    >
-                        <i className="fas fa-wheelchair text-[13px]" />
-                    </button>
-                </div>
+                <div className="flex items-center gap-4" />
 
                 {/* Right */}
                 <div className="flex items-center gap-4">
@@ -90,20 +75,6 @@ export default function LandingUtilityBar() {
                             className="w-4 h-4 bg-[#333] border border-[#ccc] rounded-sm hover:scale-105 transition-transform"
                             title="Dark Theme"
                         />
-                    </div>
-
-                    <span className="opacity-30">|</span>
-
-                    {/* Language Selection */}
-                    <div className="language-select">
-                        <select
-                            value={lang}
-                            onChange={(e) => setLang(e.target.value)}
-                            className="bg-transparent text-[12px] border border-[#ccc] dark:border-[#475569] rounded px-1.5 py-0.5 text-[#555] dark:text-[#cbd5e1] focus:outline-none"
-                        >
-                            <option value="English">English</option>
-                            <option value="Hindi">हिन्दी (Hindi)</option>
-                        </select>
                     </div>
                 </div>
             </div>

@@ -3,7 +3,7 @@ import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Responsive
 
 const AXIS_LABELS = {
     fuel: "Fuel (t)",
-    cost: "Cost (USD k)",
+    cost: "Cost (INR k)",
     wtw: "WtW GHG (tCO₂e)",
     speed: "Speed (kn)",
 };

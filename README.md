@@ -54,25 +54,46 @@ Scenario input → validation → feature layer → fuel prediction
 - **Data:** CSV/Parquet, JSON scenario configs, SQLite if persistence is needed
 - **Frontend:** React, TypeScript, Recharts/Plotly/ECharts
 
-## Quick start
+## Quick start (reproduce)
 
 ```bash
-make install
-make train
-make benchmark
-make run
+make install      # backend (pip) + frontend (npm) deps
+make train        # train + persist prediction models (intensity + power)  -> models/
+make benchmark    # prediction + optimizer benchmarks                        -> results/metrics/
+make test         # backend test suite (48 tests)
+make run          # FastAPI backend on http://localhost:8000
+```
+Then, in a second terminal, start the live dashboard:
+```bash
+make run-frontend     # React dev server on :5173, proxied to the backend
 ```
 
-The demo runs from a clean checkout with a preloaded scenario.
+No `make`? Run the same steps directly (Windows PowerShell):
+```powershell
+cd backend;  python -m pip install -r requirements.txt;  python -m pytest -q
+python experiments/train_models.py;  python experiments/run_prediction_benchmark.py
+python -m uvicorn app:app --port 8000
+# frontend (new terminal):  cd frontend;  npm install;  npm run dev
+```
+The dashboard reads live data when `frontend/.env.local` has `VITE_USE_MOCK=false` (default here).
 
 ---
 
 ## Status
 
-🚧 Early scaffolding. See
-[`SIH26138_Master_Implementation_Document.md`](SIH26138_Master_Implementation_Document.md)
-for the full architecture, mathematical formulation, API design, experiment plan,
-and execution phases.
+Backend complete and verified (master-doc Phases 1–6); **48 tests green**. The three
+models are built, tested, and wired; the React dashboard runs on the live API.
+
+- **Prediction:** MRV fleet-intensity model (XGBoost + QPSO) *and* a speed-resolved
+  **power model (R² ≈ 0.98, real-data validated on FuelCast)**.
+- **Emissions & cost:** deterministic, unit-tested, sourced lifecycle factors + GHG cap.
+- **Optimizer:** MO-QPSO vs NSGA-II / MOPSO, independent constraint verification, multi-seed benchmarks.
+
+Docs: [implementation plan](docs/implementation-plan.md) · [dataset layers](docs/dataset-layers.md)
+· [model versions & accuracy](docs/model-versions.md) · [data sources](docs/references.md)
+· full blueprint in [`SIH26138_Master_Implementation_Document.md`](SIH26138_Master_Implementation_Document.md).
+
+Remaining: Phase-7 packaging (clean-start demo capture, screenshots, final freeze).
 
 ## Data integrity commitments
 

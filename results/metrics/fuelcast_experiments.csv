@@ -1,0 +1,8 @@
+experiment,test_on,mae,rmse,r2,smape,n
+E1_source_specific,CPS_Poseidon,0.0612,0.0869,0.9707,7.5614,20599
+E1_source_specific,CPS_Triton,0.0217,0.0275,0.7753,16.3234,5062
+E1_source_specific,OSS_Ceto,0.045,0.0647,0.5984,22.3327,8630
+E2_pooled_id,all,0.047,0.0713,0.9833,11.6013,34291
+E3_leave_one_vessel_out,CPS_Poseidon,0.5218,0.6216,-0.9259,99.8426,102994
+E3_leave_one_vessel_out,CPS_Triton,0.4706,0.489,-55.8522,116.5137,25308
+E3_leave_one_vessel_out,OSS_Ceto,0.2663,0.2775,-6.0802,88.6077,43149

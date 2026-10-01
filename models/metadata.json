@@ -1,0 +1,146 @@
+{
+  "fuel_intensity_xgb": {
+    "model_version": "fuel_intensity_xgb_v1",
+    "task": "fuel_per_dist_kg_nm",
+    "features": [
+      "tech_efficiency_num",
+      "year",
+      "time_at_sea_h",
+      "type_Bulk carrier",
+      "type_Chemical tanker",
+      "type_Combination carrier",
+      "type_Container ship",
+      "type_Container/ro-ro cargo ship",
+      "type_Gas carrier",
+      "type_General cargo ship",
+      "type_LNG carrier",
+      "type_Oil tanker",
+      "type_Other ship types",
+      "type_Other ship types (Offshore)",
+      "type_Passenger ship",
+      "type_Passenger ship (Cruise Passenger ship)",
+      "type_Refrigerated cargo carrier",
+      "type_Ro-pax ship",
+      "type_Ro-ro ship",
+      "type_Vehicle carrier"
+    ],
+    "train_years": [
+      2020,
+      2021,
+      2022,
+      2024,
+      2025
+    ],
+    "holdout_year": 2025,
+    "holdout_metrics": {
+      "mae": 28.922,
+      "rmse": 142.4443,
+      "r2": 0.2553,
+      "smape": 24.8667,
+      "n": 15104
+    },
+    "qpso_params": {
+      "max_depth": 4,
+      "learning_rate": 0.2909403020401361,
+      "n_estimators": 446,
+      "min_child_weight": 6,
+      "subsample": 0.7743393371957874,
+      "colsample_bytree": 0.6160723848921726,
+      "reg_alpha": 0.5978674762341346,
+      "reg_lambda": 3.0
+    },
+    "qpso_evals": 110,
+    "saved_at": "2026-10-01T16:32:42Z"
+  },
+  "engine_calibration": {
+    "scale": 0.9254,
+    "model_version": "physics-mrv-cal-v1",
+    "basis": "physics fuel/dist scaled to MRV fleet median"
+  },
+  "power_shifts_xgb": {
+    "model_version": "power_shifts_xgb_v1",
+    "task": "power_kw",
+    "data": "Shifts marine (synthetic subset)",
+    "features": [
+      "draft_aft_telegram",
+      "draft_fore_telegram",
+      "stw",
+      "diff_speed_overground",
+      "awind_vcomp_provider",
+      "awind_ucomp_provider",
+      "rcurrent_vcomp",
+      "rcurrent_ucomp",
+      "comb_wind_swell_wave_height",
+      "timeSinceDryDock"
+    ],
+    "in_domain_metrics": {
+      "mae": 681.5939,
+      "rmse": 901.7258,
+      "r2": 0.9863,
+      "smape": 4.6404,
+      "n": 18108
+    },
+    "shifted_metrics": {
+      "mae": 1127.3779,
+      "rmse": 1482.1342,
+      "r2": 0.924,
+      "smape": 8.7697,
+      "n": 18108
+    },
+    "qpso_params": {
+      "max_depth": 9,
+      "learning_rate": 0.14529943055769823,
+      "n_estimators": 491,
+      "min_child_weight": 3,
+      "subsample": 0.958321311373028,
+      "colsample_bytree": 0.9289264225963724,
+      "reg_alpha": 0.9185778275297579,
+      "reg_lambda": 2.019273096788707
+    },
+    "sfoc_g_per_kwh": 180.0,
+    "saved_at": "2026-10-01T19:23:21Z"
+  },
+  "fuel_road_trip_xgb": {
+    "model_version": "fuel_road_trip_xgb_v1",
+    "mode": "road",
+    "task": "fuel_per_km (L/km)",
+    "data": "VED trips (Apache-2.0)",
+    "features": [
+      "avg_speed_kmh",
+      "speed_std",
+      "moving_frac",
+      "dist_km",
+      "oat_c",
+      "weight_lb",
+      "veh_type_HEV",
+      "veh_type_ICE",
+      "veh_class_Car",
+      "veh_class_NO DATA"
+    ],
+    "pooled_metrics": {
+      "mae": 0.013,
+      "rmse": 0.0184,
+      "r2": 0.7354,
+      "smape": 16.7109,
+      "n": 1859
+    },
+    "leave_vehicle_out_metrics": {
+      "mae": 0.0119,
+      "rmse": 0.0172,
+      "r2": 0.7623,
+      "smape": 16.9496,
+      "n": 1733
+    },
+    "qpso_params": {
+      "max_depth": 8,
+      "learning_rate": 0.28554821069587494,
+      "n_estimators": 277,
+      "min_child_weight": 2,
+      "subsample": 0.9709151767197056,
+      "colsample_bytree": 0.6122945826395236,
+      "reg_alpha": 0.5081183257922718,
+      "reg_lambda": 0.8768404933619798
+    },
+    "saved_at": "2026-10-01T21:19:24Z"
+  }
+}

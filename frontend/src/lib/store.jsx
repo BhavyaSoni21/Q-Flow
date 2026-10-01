@@ -30,6 +30,7 @@ export function StoreProvider({ children }) {
     const [contrastMode, setContrastMode] = useState("normal"); // normal | high-contrast | dark
     const [fontScale, setFontScale] = useState(1); // 0.9 | 1 | 1.1
     const [config, setConfig] = useState(DEFAULT_CONFIG);
+    const [mode, setMode] = useState("ship");        // ship | road
     const [results, setResults] = useState(null);
     const [running, setRunning] = useState(false);
     const [progress, setProgress] = useState(0);
@@ -41,6 +42,18 @@ export function StoreProvider({ children }) {
 
     const updateConfig = useCallback((patch) => {
         setConfig((c) => ({ ...c, ...patch }));
+    }, []);
+
+    const changeMode = useCallback((m) => {
+        setMode(m);
+        setResults(null);
+        setSelectedPoint(null);
+        if (m === "road") {
+            setConfig((c) => ({ ...c, distance: 300, cargoDemand: 4000, deadline: 8,
+                selectedVessels: [], selectedFuels: ["DIESEL"] }));
+        } else {
+            setConfig(DEFAULT_CONFIG);
+        }
     }, []);
 
     useEffect(() => {
@@ -69,7 +82,7 @@ export function StoreProvider({ children }) {
             setProgress(Math.min(95, Math.round((cur / total) * 100)));
         }, 28);
         try {
-            const res = await api.runOptimization(config);
+            const res = await (mode === "road" ? api.runRoadOptimization(config) : api.runOptimization(config));
             clearInterval(timer);
             setProgress(100);
             setResults(res);
@@ -82,7 +95,7 @@ export function StoreProvider({ children }) {
         } finally {
             setRunning(false);
         }
-    }, [config]);
+    }, [config, mode]);
 
     const reset = useCallback(() => {
         setConfig(DEFAULT_CONFIG);
@@ -95,6 +108,7 @@ export function StoreProvider({ children }) {
     const value = {
         contrastMode, cycleContrast, fontScale, setFontScale,
         config, updateConfig,
+        mode, setMode: changeMode,
         results, running, progress, runId,
         selectedPoint, setSelectedPoint,
         caseStudy, setCaseStudy,

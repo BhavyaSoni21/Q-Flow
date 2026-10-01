@@ -12,7 +12,7 @@ export default function SiteHeader() {
                 {/* Brand Area */}
                 <Link to="/" className="flex items-center gap-3 shrink-0">
                     <img
-                        src="/logo.jpeg"
+                        src="/logo.png"
                         alt="QFlow Logo"
                         className="h-8 w-8 rounded-full object-contain"
                     />
@@ -63,7 +63,7 @@ export default function SiteHeader() {
                         {isAuthenticated ? (
                             <>
                                 <span className="text-[11px] font-medium text-[#0076a8] dark:text-[#38bdf8] bg-[#e6f7ff] dark:bg-[#1e293b] px-2.5 py-1 rounded-[15px] border border-[#bae7ff]">
-                                    {user?.full_name || "Demo Officer"}
+                                    {user?.full_name || "Fleet Officer"}
                                 </span>
                                 <button
                                     onClick={logout}

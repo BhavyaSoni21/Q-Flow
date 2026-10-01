@@ -1,0 +1,115 @@
+{
+  "kind": "table",
+  "rows": 523190,
+  "columns": 12,
+  "fields": [
+    {
+      "column": "draft_aft_telegram",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": 7.246647168986052,
+      "max": 15.209576547413732,
+      "mean": 12.2931
+    },
+    {
+      "column": "draft_fore_telegram",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": 6.488698737449452,
+      "max": 15.394315831499386,
+      "mean": 12.0609
+    },
+    {
+      "column": "stw",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": 4.470900704020962,
+      "max": 24.085846681358053,
+      "mean": 17.3134
+    },
+    {
+      "column": "diff_speed_overground",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -2.460732777603186,
+      "max": 2.6238259187347843,
+      "mean": 0.0016
+    },
+    {
+      "column": "awind_vcomp_provider",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -12.98823071042068,
+      "max": 41.26963115398138,
+      "mean": 16.4412
+    },
+    {
+      "column": "awind_ucomp_provider",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -1.3082561483900943,
+      "max": 20.23304115899093,
+      "mean": 6.0149
+    },
+    {
+      "column": "rcurrent_vcomp",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -2.0709975892461787,
+      "max": 2.106008786299805,
+      "mean": 0.0069
+    },
+    {
+      "column": "rcurrent_ucomp",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -2.022286676100266,
+      "max": 2.0382809801443407,
+      "mean": 0.0007
+    },
+    {
+      "column": "comb_wind_swell_wave_height",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -0.3654310132838145,
+      "max": 5.566446308327013,
+      "mean": 1.5683
+    },
+    {
+      "column": "timeSinceDryDock",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": 10776.0,
+      "max": 1735545.0,
+      "mean": 977774.079
+    },
+    {
+      "column": "time_id",
+      "dtype": "int64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": 0.0,
+      "max": 1724769.0,
+      "mean": 966998.079
+    },
+    {
+      "column": "power",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 523190,
+      "min": -708.8894082416588,
+      "max": 40723.26177623529,
+      "mean": 18007.7738
+    }
+  ]
+}

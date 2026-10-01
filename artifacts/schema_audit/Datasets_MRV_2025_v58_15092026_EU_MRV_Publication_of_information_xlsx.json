@@ -1,0 +1,8 @@
+{
+  "kind": "excel",
+  "sheets": [
+    "2025 Full ERs",
+    "2025 Partial ERs"
+  ],
+  "note": "column semantics handled in data/mrv.py"
+}

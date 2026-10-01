@@ -1,0 +1,58 @@
+{
+  "kind": "table",
+  "rows": 59064,
+  "columns": 6,
+  "fields": [
+    {
+      "column": "valid_time",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 59064
+    },
+    {
+      "column": "mwd",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 58825,
+      "min": 3.241832,
+      "max": 359.00977,
+      "mean": 146.3517
+    },
+    {
+      "column": "mwp",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 58580,
+      "min": 4.2552013,
+      "max": 11.419344,
+      "mean": 6.6311
+    },
+    {
+      "column": "swh",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 58948,
+      "min": 0.42398733,
+      "max": 5.652203,
+      "mean": 1.1993
+    },
+    {
+      "column": "latitude",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1,
+      "min": 13.0,
+      "max": 13.0,
+      "mean": 13.0
+    },
+    {
+      "column": "longitude",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1,
+      "min": 81.5,
+      "max": 81.5,
+      "mean": 81.5
+    }
+  ]
+}

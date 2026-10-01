@@ -83,7 +83,7 @@ export default function Optimization() {
 
     const comparisonRows = [
         { metric: "Fuel (t)", baseline: baseline?.fuel, selected: deployment[0]?.fuel, unit: "t" },
-        { metric: "Cost (USD)", baseline: baseline?.cost, selected: deployment[0]?.cost, unit: "USD" },
+        { metric: "Cost (INR)", baseline: baseline?.cost, selected: deployment[0]?.cost, unit: "INR" },
         { metric: "WtW GHG (tCO2e)", baseline: baseline?.wtw, selected: deployment[0]?.wtw, unit: "tCO2e" },
     ];
 
@@ -132,7 +132,7 @@ export default function Optimization() {
                             <table className="w-full text-xs">
                                 <thead>
                                     <tr className="border-b bg-[hsl(var(--panel-header))]">
-                                        {["Vessel", "Speed kn", "Fuel", "OPS", "Cargo t", "Sail h", "Fuel t ±err", "Cost USD", "WtW tCO2e", "Feas"].map((h) => (
+                                        {["Vessel", "Speed kn", "Fuel", "OPS", "Cargo t", "Sail h", "Fuel t ±err", "Cost INR", "WtW tCO2e", "Feas"].map((h) => (
                                             <th key={h} className={cn("px-1.5 py-1.5 text-[10px] uppercase text-muted-foreground", h === "Vessel" ? "text-left" : "text-right num")}>{h}</th>
                                         ))}
                                     </tr>
@@ -199,7 +199,7 @@ export default function Optimization() {
                         <span className="text-xs text-muted-foreground">Recommended (TOPSIS):</span>
                         <div className="flex gap-4 text-xs num">
                             <span>Fuel {weightedPoint.fuel.toFixed(1)} t</span>
-                            <span>Cost {weightedPoint.cost.toLocaleString()} USD</span>
+                            <span>Cost {weightedPoint.cost.toLocaleString()} INR</span>
                             <span>WtW {weightedPoint.wtw.toFixed(2)} tCO2e</span>
                             <SquareButton variant="secondary" onClick={() => setSelectedPoint(weightedPoint)}>Select</SquareButton>
                         </div>
@@ -261,7 +261,7 @@ export default function Optimization() {
                     columns={[
                         { key: "tag", header: "Tag", render: (r) => r.tag ? <Badge tone="accent">{r.tag}</Badge> : "" },
                         { key: "fuel", header: "Fuel (t)", numeric: true, render: (r) => r.fuel.toFixed(1) },
-                        { key: "cost", header: "Cost (USD)", numeric: true, render: (r) => r.cost.toLocaleString() },
+                        { key: "cost", header: "Cost (INR)", numeric: true, render: (r) => r.cost.toLocaleString() },
                         { key: "wtw", header: "WtW (tCO2e)", numeric: true, render: (r) => r.wtw.toFixed(2) },
                         { key: "fuelId", header: "Fuel" },
                         { key: "feasible", header: "Feasible", align: "center", render: (r) => <StatusDot status={r.feasible} /> },

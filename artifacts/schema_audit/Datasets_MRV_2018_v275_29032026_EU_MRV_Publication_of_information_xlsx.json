@@ -1,0 +1,7 @@
+{
+  "kind": "excel",
+  "sheets": [
+    "2018"
+  ],
+  "note": "column semantics handled in data/mrv.py"
+}

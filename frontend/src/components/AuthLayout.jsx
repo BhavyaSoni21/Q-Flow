@@ -23,7 +23,7 @@ export default function AuthLayout({ icon: Icon, title, subtitle, footer, childr
                     <div className="text-center mb-6">
                         <Link to="/" className="inline-flex items-center gap-3 justify-center mb-4 group">
                             <img
-                                src="/logo.jpeg"
+                                src="/logo.png"
                                 alt="QFlow Logo"
                                 className="h-11 w-11 rounded-full object-contain"
                             />

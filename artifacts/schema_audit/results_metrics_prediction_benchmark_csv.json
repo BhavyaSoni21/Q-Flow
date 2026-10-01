@@ -1,0 +1,109 @@
+{
+  "kind": "table",
+  "rows": 9,
+  "columns": 12,
+  "fields": [
+    {
+      "column": "evaluations",
+      "dtype": "float64",
+      "missing_fraction": 0.8889,
+      "unique_count": 1,
+      "min": 110.0,
+      "max": 110.0,
+      "mean": 110.0
+    },
+    {
+      "column": "infer_s",
+      "dtype": "float64",
+      "missing_fraction": 0.1111,
+      "unique_count": 7,
+      "min": 0.0002,
+      "max": 0.1351,
+      "mean": 0.0357
+    },
+    {
+      "column": "mae",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 9,
+      "min": 28.5924,
+      "max": 56.7114,
+      "mean": 38.8041
+    },
+    {
+      "column": "model",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 5
+    },
+    {
+      "column": "n",
+      "dtype": "int64",
+      "missing_fraction": 0.0,
+      "unique_count": 2,
+      "min": 12864.0,
+      "max": 15104.0,
+      "mean": 14108.4444
+    },
+    {
+      "column": "n_test",
+      "dtype": "int64",
+      "missing_fraction": 0.0,
+      "unique_count": 2,
+      "min": 12864.0,
+      "max": 15104.0,
+      "mean": 14108.4444
+    },
+    {
+      "column": "n_train",
+      "dtype": "int64",
+      "missing_fraction": 0.0,
+      "unique_count": 2,
+      "min": 49695.0,
+      "max": 51935.0,
+      "mean": 50690.5556
+    },
+    {
+      "column": "r2",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 9,
+      "min": -0.1504,
+      "max": 0.2553,
+      "mean": 0.0503
+    },
+    {
+      "column": "rmse",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 9,
+      "min": 142.4443,
+      "max": 576.1946,
+      "mean": 341.8658
+    },
+    {
+      "column": "smape",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 9,
+      "min": 20.4794,
+      "max": 48.5744,
+      "mean": 29.8772
+    },
+    {
+      "column": "split",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 2
+    },
+    {
+      "column": "train_s",
+      "dtype": "float64",
+      "missing_fraction": 0.1111,
+      "unique_count": 7,
+      "min": 0.002,
+      "max": 6.464,
+      "mean": 1.7331
+    }
+  ]
+}

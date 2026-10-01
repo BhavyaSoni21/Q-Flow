@@ -2,11 +2,11 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AuthContext = createContext();
 
-// ─── Default Demo User ─────────────────────────────────────────────────────────
+// ─── Default User ─────────────────────────────────────────────────────────
 export const DEMO_USER = {
-    id: 'demo-user-1',
-    email: 'demo@shipopt.india',
-    full_name: 'Fleet Officer (Demo)',
+    id: 'user-1',
+    email: 'fleet@qflow.app',
+    full_name: 'Fleet Officer',
     role: 'admin',
 };
 

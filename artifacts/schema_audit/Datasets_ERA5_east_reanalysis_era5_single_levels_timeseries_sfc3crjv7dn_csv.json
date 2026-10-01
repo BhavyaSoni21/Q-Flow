@@ -1,0 +1,85 @@
+{
+  "kind": "table",
+  "rows": 59064,
+  "columns": 9,
+  "fields": [
+    {
+      "column": "valid_time",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 59064
+    },
+    {
+      "column": "u10",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 57378,
+      "min": -19.222076,
+      "max": 17.396332,
+      "mean": -0.0294
+    },
+    {
+      "column": "v10",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 57368,
+      "min": -16.062881,
+      "max": 17.589584,
+      "mean": 1.6886
+    },
+    {
+      "column": "fg10",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 58953,
+      "min": 1.0356026,
+      "max": 29.209578,
+      "mean": 8.2644
+    },
+    {
+      "column": "msl",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 21999,
+      "min": 99093.81,
+      "max": 101952.06,
+      "mean": 100886.3529
+    },
+    {
+      "column": "sst",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 2253,
+      "min": 299.6631,
+      "max": 304.93384,
+      "mean": 302.234
+    },
+    {
+      "column": "sp",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 48461,
+      "min": 99097.19,
+      "max": 101955.875,
+      "mean": 100889.8119
+    },
+    {
+      "column": "latitude",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1,
+      "min": 13.0,
+      "max": 13.0,
+      "mean": 13.0
+    },
+    {
+      "column": "longitude",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1,
+      "min": 81.5,
+      "max": 81.5,
+      "mean": 81.5
+    }
+  ]
+}

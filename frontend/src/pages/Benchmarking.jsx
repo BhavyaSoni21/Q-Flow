@@ -66,8 +66,8 @@ export default function Benchmarking() {
                         { key: "rmse", header: "RMSE", numeric: true, render: (r) => <span className={cn(predBest.rmse === r.rmse && "font-bold")}>{r.rmse.toFixed(2)}</span> },
                         { key: "r2", header: "R²", numeric: true, render: (r) => <span className={cn(predBest.r2 === r.r2 && "font-bold")}>{r.r2.toFixed(3)}</span> },
                         { key: "smape", header: "sMAPE %", numeric: true, render: (r) => <span className={cn(predBest.smape === r.smape && "font-bold")}>{r.smape.toFixed(1)}</span> },
-                        { key: "trainTime", header: "Train (s)", numeric: true, render: (r) => <span className={cn(predBest.trainTime === r.trainTime && "font-bold")}>{r.trainTime.toFixed(1)}</span> },
-                        { key: "inferTime", header: "Infer (ms)", numeric: true, render: (r) => <span className={cn(predBest.inferTime === r.inferTime && "font-bold")}>{r.inferTime.toFixed(1)}</span> },
+                        { key: "trainTime", header: "Train (s)", numeric: true, render: (r) => <span className={cn(predBest.trainTime === r.trainTime && "font-bold")}>{r.trainTime != null ? r.trainTime.toFixed(1) : "—"}</span> },
+                        { key: "inferTime", header: "Infer (ms)", numeric: true, render: (r) => <span className={cn(predBest.inferTime === r.inferTime && "font-bold")}>{r.inferTime != null ? r.inferTime.toFixed(1) : "—"}</span> },
                         { key: "protocol", header: "Validation" },
                     ]}
                     rows={predRows || []}

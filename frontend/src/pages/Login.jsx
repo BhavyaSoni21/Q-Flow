@@ -9,8 +9,8 @@ import { useAuth } from "@/lib/AuthContext";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 export default function Login() {
-    const [email, setEmail] = useState("demo@shipopt.india");
-    const [password, setPassword] = useState("demo1234");
+    const [email, setEmail] = useState("fleet@qflow.app");
+    const [password, setPassword] = useState("qflow1234");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const { loginDemo } = useAuth();
@@ -22,20 +22,20 @@ export default function Login() {
         setError("");
         setLoading(true);
         try {
-            // Log in with provided email or fallback to demo
-            const userEmail = email.trim() || "demo@shipopt.india";
+            // Log in with provided email or fallback default
+            const userEmail = email.trim() || "fleet@qflow.app";
             loginDemo({ email: userEmail, full_name: userEmail.split('@')[0] });
             const target = returnTo && returnTo !== "/" ? returnTo : "/scenario";
             navigate(target, { replace: true });
         } catch (err) {
-            setError(err.message || "Login failed. Please click 'Instant Demo Access'.");
+            setError(err.message || "Login failed. Please click 'Instant Access'.");
         } finally {
             setLoading(false);
         }
     };
 
     const handleDemoLogin = () => {
-        loginDemo({ email: "demo@shipopt.india", full_name: "Fleet Officer (Demo)" });
+        loginDemo({ email: "fleet@qflow.app", full_name: "Fleet Officer" });
         const target = returnTo && returnTo !== "/" ? returnTo : "/scenario";
         navigate(target, { replace: true });
     };
@@ -69,25 +69,25 @@ export default function Login() {
                 </div>
             }
         >
-            {/* ─── Instant Demo Access ─────────────────────────── */}
+            {/* ─── Instant Access ─────────────────────────── */}
             <div className="mb-6 p-4 rounded-lg border-2 border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-950/20">
                 <div className="flex items-center gap-2 mb-2">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase tracking-wide">
-                        Demo Account Ready
+                        Account Ready
                     </span>
                 </div>
                 <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
-                    Demo credentials have been preconfigured with full admin access to all optimization, benchmarking, and prediction modules.
+                    Credentials have been preconfigured with full admin access to all optimization, benchmarking, and prediction modules.
                 </p>
                 <Button
-                    id="demo-login-btn"
+                    id="instant-login-btn"
                     type="button"
                     className="w-full h-11 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center justify-center gap-2"
                     onClick={handleDemoLogin}
                 >
                     <Zap className="w-4 h-4" />
-                    Instant Demo Access (All Modules)
+                    Instant Access (All Modules)
                 </Button>
             </div>
 
@@ -166,7 +166,7 @@ export default function Login() {
 
             <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Demo account active
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Account active
                 </span>
                 <span>Role: Fleet Admin</span>
             </div>

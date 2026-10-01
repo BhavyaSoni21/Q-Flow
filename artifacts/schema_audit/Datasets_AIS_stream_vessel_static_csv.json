@@ -1,0 +1,49 @@
+{
+  "kind": "table",
+  "rows": 0,
+  "columns": 7,
+  "fields": [
+    {
+      "column": "mmsi",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "imo",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "name",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "ship_type",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "draught",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "length_m",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "beam_m",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    }
+  ]
+}

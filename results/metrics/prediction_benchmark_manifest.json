@@ -1,0 +1,22 @@
+{
+  "years": [
+    2020,
+    2021,
+    2022,
+    2024,
+    2025
+  ],
+  "test_year": 2025,
+  "n_rows": 64799,
+  "qpso_params": {
+    "max_depth": 7,
+    "learning_rate": 0.1765499067384295,
+    "n_estimators": 206,
+    "min_child_weight": 6,
+    "subsample": 0.6450926564831042,
+    "colsample_bytree": 0.8339114878472231,
+    "reg_alpha": 0.2648104663001293,
+    "reg_lambda": 2.4690785220062192
+  },
+  "qpso_evals": 110
+}

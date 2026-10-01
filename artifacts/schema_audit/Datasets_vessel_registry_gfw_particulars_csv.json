@@ -1,0 +1,55 @@
+{
+  "kind": "table",
+  "rows": 3750,
+  "columns": 6,
+  "fields": [
+    {
+      "column": "imo",
+      "dtype": "int64",
+      "missing_fraction": 0.0,
+      "unique_count": 3750,
+      "min": 6602898.0,
+      "max": 9342504.0,
+      "mean": 9171354.3667
+    },
+    {
+      "column": "status",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 1
+    },
+    {
+      "column": "gt",
+      "dtype": "float64",
+      "missing_fraction": 0.2232,
+      "unique_count": 1788,
+      "min": 517.0,
+      "max": 171542.0,
+      "mean": 33484.8446
+    },
+    {
+      "column": "length_m",
+      "dtype": "float64",
+      "missing_fraction": 0.8771,
+      "unique_count": 256,
+      "min": 99.9,
+      "max": 334.1,
+      "mean": 170.4152
+    },
+    {
+      "column": "engine_power_kw",
+      "dtype": "float64",
+      "missing_fraction": 1.0,
+      "unique_count": 0
+    },
+    {
+      "column": "imo_echo",
+      "dtype": "int64",
+      "missing_fraction": 0.0,
+      "unique_count": 3750,
+      "min": 6602898.0,
+      "max": 9376921.0,
+      "mean": 9171319.6232
+    }
+  ]
+}

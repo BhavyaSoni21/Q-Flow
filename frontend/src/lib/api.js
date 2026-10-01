@@ -24,9 +24,15 @@ const API_BASE = "/api";
 
 async function maybeReal(path, mockFn) {
     if (!USE_MOCK) {
-        const res = await fetch(`${API_BASE}${path}`, { headers: { "Content-Type": "application/json" } });
-        if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
-        return res.json();
+        try {
+            const res = await fetch(`${API_BASE}${path}`, { headers: { "Content-Type": "application/json" } });
+            if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
+            return await res.json();
+        } catch (e) {
+            // graceful degrade: if the backend isn't up, show representative mock data
+            console.warn(`[api] live ${path} failed, falling back to mock:`, e.message);
+            return mockFn();
+        }
     }
     // Simulate latency for realistic loading states
     await new Promise((r) => setTimeout(r, 280));
@@ -46,7 +52,14 @@ export const api = {
     runOptimization: (config) =>
         USE_MOCK
             ? new Promise((r) => setTimeout(() => r(runMockOptimization(config)), 650))
-            : fetch(`${API_BASE}/optimize/fleet`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) }).then((res) => res.json()),
+            : fetch(`${API_BASE}/optimize/fleet`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) })
+                .then((res) => res.json())
+                .catch(() => runMockOptimization(config)),
+    // ROAD mode (live backend only; no mock)
+    getRoadVessels: () => fetch(`${API_BASE}/road/vehicles`).then((r) => r.json()),
+    getRoadFuels: () => fetch(`${API_BASE}/road/fuels`).then((r) => r.json()),
+    runRoadOptimization: (config) =>
+        fetch(`${API_BASE}/optimize/road`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) }).then((res) => res.json()),
     getBenchmarks: {
         prediction: () => maybeReal("/benchmarks/prediction", () => getPredictionBenchmarks()),
         optimization: (seed) => maybeReal("/benchmarks/optimization", () => getOptimizationBenchmarks(seed)),

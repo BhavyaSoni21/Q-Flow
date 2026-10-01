@@ -1,0 +1,4 @@
+experiment,test_on,mae,rmse,r2,smape,n
+E1_pooled_random,all,0.955,1.7243,0.4175,182.4705,27306
+E2_leave_vehicles_out,2 vehicles,2.6622,3.9303,-0.4633,181.7688,7162
+AutoMPG_baseline,mpg,2.4774,3.809,0.77,9.6612,80

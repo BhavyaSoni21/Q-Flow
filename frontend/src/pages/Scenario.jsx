@@ -9,15 +9,20 @@ import { cn } from "@/lib/utils";
 import { AlertTriangle, Play, RotateCcw } from "lucide-react";
 
 export default function Scenario() {
-    const { config, updateConfig, runOptimization, running, progress, results, error, reset } = useStore();
+    const { config, updateConfig, runOptimization, running, progress, results, error, reset, mode, setMode } = useStore();
     const [fuels, setFuels] = useState(null);
     const [vessels, setVessels] = useState(null);
     const [validation, setValidation] = useState({});
 
     React.useEffect(() => {
-        api.getFuels().then(setFuels);
-        api.getVessels().then(setVessels);
-    }, []);
+        if (mode === "road") {
+            api.getRoadFuels().then(setFuels);
+            api.getRoadVessels().then(setVessels);
+        } else {
+            api.getFuels().then(setFuels);
+            api.getVessels().then(setVessels);
+        }
+    }, [mode]);
 
     const fuelList = fuels || [];
     const vesselList = vessels || [];
@@ -62,15 +67,32 @@ export default function Scenario() {
 
     return (
         <div className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+                <span className="text-[13px] font-semibold text-slate-600 dark:text-slate-300">Mode:</span>
+                {["ship", "road"].map((m) => (
+                    <button
+                        key={m}
+                        type="button"
+                        onClick={() => setMode(m)}
+                        className={cn("px-3 py-1 rounded text-[12px] font-medium border transition-colors",
+                            mode === m ? "bg-[#E86A00] text-white border-[#E86A00]"
+                                : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600")}
+                    >
+                        {m === "ship" ? "Ship / Waterway" : "Road / Vehicle"}
+                    </button>
+                ))}
+            </div>
             <div className="grid grid-cols-12 gap-4">
                 {/* Form 35% */}
                 <div className="col-span-12 lg:col-span-5 flex flex-col gap-3">
                     <Panel title="Route">
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="col-span-2">
-                                <LabeledSelect label="Route" value={config.routeId} onChange={(v) => updateConfig({ routeId: v })} options={ROUTES.map((r) => ({ value: r.id, label: r.label }))} />
-                            </div>
-                            <LabeledInput label="Distance" unit="nm" type="number" value={config.distance} onChange={(v) => updateConfig({ distance: v })} error={validation.distance} min={1} />
+                            {mode === "ship" && (
+                                <div className="col-span-2">
+                                    <LabeledSelect label="Route" value={config.routeId} onChange={(v) => updateConfig({ routeId: v })} options={ROUTES.map((r) => ({ value: r.id, label: r.label }))} />
+                                </div>
+                            )}
+                            <LabeledInput label="Distance" unit={mode === "road" ? "km" : "nm"} type="number" value={config.distance} onChange={(v) => updateConfig({ distance: v })} error={validation.distance} min={1} />
                             {distWarn && (
                                 <div className="col-span-2 text-[11px] text-status-amber border border-status-amber/50 bg-status-amber/5 px-2 py-1 flex items-center gap-1.5">
                                     <AlertTriangle size={12} strokeWidth={1.5} /> {distWarn}
@@ -79,14 +101,16 @@ export default function Scenario() {
                             <LabeledInput label="Deadline" unit="h" type="number" value={config.deadline} onChange={(v) => updateConfig({ deadline: v })} error={validation.deadline} min={1} />
                             <LabeledInput label="Port time" unit="h" type="number" value={config.portTime} onChange={(v) => updateConfig({ portTime: v })} min={0} />
                             <LabeledInput label="Buffer time" unit="h" type="number" value={config.bufferTime} onChange={(v) => updateConfig({ bufferTime: v })} min={0} />
-                            <div className="col-span-2">
-                                <LabeledSelect label="Weather scenario" value={config.weather} onChange={(v) => updateConfig({ weather: v })} options={WEATHER_SCENARIOS} />
-                            </div>
+                            {mode === "ship" && (
+                                <div className="col-span-2">
+                                    <LabeledSelect label="Weather scenario" value={config.weather} onChange={(v) => updateConfig({ weather: v })} options={WEATHER_SCENARIOS} />
+                                </div>
+                            )}
                         </div>
                     </Panel>
 
                     <Panel title="Cargo">
-                        <LabeledInput label="Demand" unit="tonnes" type="number" value={config.cargoDemand} onChange={(v) => updateConfig({ cargoDemand: v })} error={validation.cargoDemand} min={1} />
+                        <LabeledInput label="Demand" unit={mode === "road" ? "kg" : "tonnes"} type="number" value={config.cargoDemand} onChange={(v) => updateConfig({ cargoDemand: v })} error={validation.cargoDemand} min={1} />
                     </Panel>
 
                     <Panel title="Fleet pool" actions={<Badge tone={config.selectedVessels.length ? "neutral" : "red"}>{config.selectedVessels.length} selected</Badge>}>
@@ -131,7 +155,7 @@ export default function Scenario() {
                                         <th className="text-left px-2 py-1.5 text-[10px] uppercase text-muted-foreground"></th>
                                         <th className="text-left px-2 py-1.5 text-[10px] uppercase text-muted-foreground">Fuel</th>
                                         <th className="text-left px-2 py-1.5 text-[10px] uppercase text-muted-foreground">Pathway</th>
-                                        <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Price USD/t</th>
+                                        <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Price INR</th>
                                         <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">LHV MJ/kg</th>
                                         <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">WtW gCO2e/MJ</th>
                                     </tr>
@@ -173,12 +197,14 @@ export default function Scenario() {
                         {validation.fuels && <p className="text-[11px] text-status-red mt-1">{validation.fuels}</p>}
                     </Panel>
 
-                    <Panel title="Shore power (OPS)">
-                        <div className="flex flex-col gap-2">
-                            <Checkbox checked={config.shorePowerEnabled} onChange={(v) => updateConfig({ shorePowerEnabled: v })} label="Enable shore power (OPS) at berth" />
-                            <LabeledInput label="Grid emission factor" unit="gCO2e/kWh" type="number" value={config.gridEmissionFactor} onChange={(v) => updateConfig({ gridEmissionFactor: v })} disabled={!config.shorePowerEnabled} min={0} />
-                        </div>
-                    </Panel>
+                    {mode === "ship" && (
+                        <Panel title="Shore power (OPS)">
+                            <div className="flex flex-col gap-2">
+                                <Checkbox checked={config.shorePowerEnabled} onChange={(v) => updateConfig({ shorePowerEnabled: v })} label="Enable shore power (OPS) at berth" />
+                                <LabeledInput label="Grid emission factor" unit="gCO2e/kWh" type="number" value={config.gridEmissionFactor} onChange={(v) => updateConfig({ gridEmissionFactor: v })} disabled={!config.shorePowerEnabled} min={0} />
+                            </div>
+                        </Panel>
+                    )}
 
                     <Panel title="Optimizer">
                         <div className="grid grid-cols-2 gap-3">
@@ -196,10 +222,10 @@ export default function Scenario() {
                         <div className="flex flex-col gap-2">
                             <div className="flex gap-4">
                                 <Checkbox checked label="Fuel (t)" disabled />
-                                <Checkbox checked label="Cost (USD)" disabled />
+                                <Checkbox checked label="Cost (INR)" disabled />
                                 <Checkbox checked label="WtW GHG (tCO2e)" disabled />
                             </div>
-                            <LabeledInput label="Carbon price" unit="USD/tCO2e" type="number" value={config.carbonPrice} onChange={(v) => updateConfig({ carbonPrice: v })} min={0} />
+                            <LabeledInput label="Carbon price" unit="INR/tCO2e" type="number" value={config.carbonPrice} onChange={(v) => updateConfig({ carbonPrice: v })} min={0} />
                         </div>
                     </Panel>
 

@@ -1,0 +1,106 @@
+{
+  "kind": "table",
+  "rows": 3240132,
+  "columns": 11,
+  "fields": [
+    {
+      "column": "lon",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3601,
+      "min": -180.0,
+      "max": 180.0,
+      "mean": -7.7691
+    },
+    {
+      "column": "lat",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1738,
+      "min": -83.7,
+      "max": 90.0,
+      "mean": 4.9206
+    },
+    {
+      "column": "PM",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3084443,
+      "min": 0.0,
+      "max": 411.89615,
+      "mean": 0.1282
+    },
+    {
+      "column": "NOx",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3085833,
+      "min": 0.0,
+      "max": 11950.306,
+      "mean": 4.972
+    },
+    {
+      "column": "SOx",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3086976,
+      "min": 0.0,
+      "max": 3052.6853,
+      "mean": 0.7243
+    },
+    {
+      "column": "CO",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3086706,
+      "min": 0.0,
+      "max": 607.31354,
+      "mean": 0.2442
+    },
+    {
+      "column": "HC",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3085535,
+      "min": 0.0,
+      "max": 500.7118,
+      "mean": 0.2276
+    },
+    {
+      "column": "CO2",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3087279,
+      "min": 0.0,
+      "max": 1034289.75,
+      "mean": 261.4635
+    },
+    {
+      "column": "N2O",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3085491,
+      "min": 0.0,
+      "max": 53.660427,
+      "mean": 0.0139
+    },
+    {
+      "column": "CH4",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3097624,
+      "min": 0.0,
+      "max": 317.5325,
+      "mean": 0.0649
+    },
+    {
+      "column": "BC",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 3084094,
+      "min": 0.0,
+      "max": 82.26266,
+      "mean": 0.019
+    }
+  ]
+}

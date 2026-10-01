@@ -11,7 +11,7 @@ Decision vector x in [0,1]^(4N), for N candidate vessels:
 
 Objectives (all minimised):
     [0] fuel energy (GJ)            main engine + auxiliary
-    [1] operating cost (USD)        fuel + charter/time + shore electricity + carbon price
+    [1] operating cost (INR)        fuel + charter/time + shore electricity + carbon price
     [2] lifecycle GHG (tCO2e)       Well-to-Wake: fuel energy * EF_WtW + grid electricity * grid EF
 
 Lifecycle factors are defined and sourced in emissions/factors.py (WtW grounded in
@@ -47,25 +47,31 @@ def default_route(**kw):
              fuel_available=[1] * len(DEFAULT_FUELS),      # bunkering availability per fuel
              port_ops_available=1.0,                        # share of berth time with shore power (0..1)
              grid_ef_g_per_kwh=DEFAULT_GRID_EF_G_PER_KWH,   # sourced grid factor (emissions/factors.py)
-             shore_price_usd_per_kwh=0.12,
-             carbon_price_usd_per_t=0.0)
+             shore_price_usd_per_kwh=10.0,                  # INR/kWh (key name legacy; value is INR)
+             carbon_price_usd_per_t=0.0)                    # INR/tCO2e
     r.update(kw)
     return r
 
 
 def make_vessel_pool(n=10, seed=0):
-    """Transparent SYNTHETIC vessel pool (label as synthetic in provenance table)."""
+    """Transparent SYNTHETIC vessel pool (label as synthetic in provenance table).
+    10 distinct vessel classes (no repeated types); charter in INR/day."""
     rng = np.random.default_rng(seed)
-    types = [  # name, capacity_t, design_kn, min_kn, max_kn, power_kw, charter_usd_day
-        ("Coaster", 8000, 12.0, 7, 15, 3500, 6500),
-        ("Feeder", 15000, 13.0, 8, 16, 6000, 9500),
-        ("Handy", 30000, 14.0, 8, 17, 9000, 14000),
-        ("Midsize", 50000, 14.5, 9, 18, 13000, 20000),
-        ("Large", 75000, 15.0, 9, 18, 18000, 27000),
+    types = [  # name, capacity_t, design_kn, min_kn, max_kn, power_kw, charter_INR_day (USD*83)
+        ("Coaster", 8000, 12.0, 7, 15, 3500, 539500),
+        ("Feeder", 15000, 13.0, 8, 16, 6000, 788500),
+        ("Handysize", 28000, 14.0, 8, 17, 8500, 1079000),
+        ("Handymax", 40000, 14.5, 9, 17, 11000, 1411000),
+        ("Supramax", 52000, 14.5, 9, 18, 13000, 1660000),
+        ("Panamax", 65000, 15.0, 9, 18, 15000, 1909000),
+        ("Aframax", 80000, 15.0, 9, 18, 18000, 2241000),
+        ("LR2 Tanker", 90000, 15.0, 9, 18, 19000, 2407000),
+        ("Suezmax", 110000, 15.5, 10, 18, 21000, 2656000),
+        ("Capesize", 150000, 15.0, 10, 18, 24000, 3154000),
     ]
     rows = []
     for i in range(n):
-        t = types[rng.integers(len(types))]
+        t = types[i % len(types)]                           # distinct classes, no repetition for n<=10
         j = rng.uniform(0.92, 1.08)  # individual variation
         compat = np.zeros(len(DEFAULT_FUELS), dtype=int)
         compat[0] = 1
@@ -74,7 +80,7 @@ def make_vessel_pool(n=10, seed=0):
         compat[4] = int(rng.random() < 0.20)                # ammonia-ready
         compat[5] = int(rng.random() < 0.10)                # hydrogen-ready
         rows.append(dict(
-            vessel_id=f"V{i+1:03d}", vessel_type=t[0], type_code=types.index(t),
+            vessel_id=f"V{i+1:03d}", vessel_type=t[0], type_code=i % len(types),
             capacity_t=round(t[1] * j), design_speed_kn=t[2], min_speed_kn=t[3], max_speed_kn=t[4],
             engine_power_kw=round(t[5] * j), charter_usd_day=round(t[6] * j),
             fuel_compatibility=compat.tolist(), shore_power_compatible=int(rng.random() < 0.6),
@@ -459,6 +465,12 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
     res = run_algo(algo, pr, pop, iters, seed)
     k = select_balanced(res["F"], weights)
     base_f = pr.evaluate_plan(pr.baseline_plan())
+    # hypervolume convergence curve (normalised to the run's own final front)
+    try:
+        ideal, nadir = res["F"].min(0), res["F"].max(0)
+        convergence = [[i, round(hypervolume(F, ideal, nadir), 4)] for i, (_, F) in enumerate(res.get("history", []))]
+    except Exception:
+        convergence = []
     sols = []
     for x, f in zip(res["X"], res["F"]):
         plan = pr.decode(x, count=False)
@@ -468,10 +480,10 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
                          plan=rows, constraints=_constraints.constraint_report(pr, plan, ghg_real)))
     return dict(status="ok", algorithm=res["algo"], seed=seed, runtime_s=res["runtime"],
                 baseline=dict(fuel_energy_gj=float(base_f[0]), cost_usd=float(base_f[1]), wtw_ghg_t=float(base_f[2])),
-                balanced_index=k, pareto=sols,
+                balanced_index=k, pareto=sols, convergence=convergence,
                 constraints=dict(cargo_demand_t=route["cargo_demand_t"], deadline_h=route["deadline_h"],
                                  min_speed_for_schedule_kn=round(pr.s_req, 2)),
-                units=dict(fuel_energy="GJ", cost="USD", ghg="tCO2e (well-to-wake)"),
+                units=dict(fuel_energy="GJ", cost="INR", ghg="tCO2e (well-to-wake)"),
                 warnings=["Fuel prices are indicative scenario assumptions; WtW factors are IMO-LCA-based representatives (see emissions/factors.py)."] if any(
                     "scenario_assumption" in str(f.get("price_source", "")) for f in pr.fuels) else [])
 

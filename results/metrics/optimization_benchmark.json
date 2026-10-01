@@ -1,0 +1,481 @@
+{
+  "table": [
+    {
+      "algorithm": "NSGA-II",
+      "hypervolumeMean": 0.76,
+      "hypervolumeStd": 0.047,
+      "median": 0.791,
+      "best": 0.805,
+      "worst": 0.695,
+      "feasibleRate": 32.9,
+      "itersTo95": 16.8,
+      "runtime": 0.68
+    },
+    {
+      "algorithm": "Classical PSO",
+      "hypervolumeMean": 0.698,
+      "hypervolumeStd": 0.058,
+      "median": 0.709,
+      "best": 0.771,
+      "worst": 0.593,
+      "feasibleRate": 59.3,
+      "itersTo95": 13.0,
+      "runtime": 0.35
+    },
+    {
+      "algorithm": "QPSO",
+      "hypervolumeMean": 0.755,
+      "hypervolumeStd": 0.036,
+      "median": 0.748,
+      "best": 0.796,
+      "worst": 0.695,
+      "feasibleRate": 49.9,
+      "itersTo95": 19.2,
+      "runtime": 0.34
+    }
+  ],
+  "boxplot": [
+    {
+      "algorithm": "NSGA-II",
+      "min": 0.695,
+      "q1": 0.71,
+      "median": 0.791,
+      "q3": 0.798,
+      "max": 0.805,
+      "outliers": []
+    },
+    {
+      "algorithm": "Classical PSO",
+      "min": 0.593,
+      "q1": 0.694,
+      "median": 0.709,
+      "q3": 0.72,
+      "max": 0.771,
+      "outliers": []
+    },
+    {
+      "algorithm": "QPSO",
+      "min": 0.695,
+      "q1": 0.747,
+      "median": 0.748,
+      "q3": 0.789,
+      "max": 0.796,
+      "outliers": []
+    }
+  ],
+  "hv_curves": [
+    {
+      "iteration": 0,
+      "NSGA-II": 0.0818,
+      "Classical PSO": 0.0818,
+      "QPSO": 0.0818
+    },
+    {
+      "iteration": 1,
+      "NSGA-II": 0.1636,
+      "Classical PSO": 0.1294,
+      "QPSO": 0.2006
+    },
+    {
+      "iteration": 2,
+      "NSGA-II": 0.2063,
+      "Classical PSO": 0.3694,
+      "QPSO": 0.3217
+    },
+    {
+      "iteration": 3,
+      "NSGA-II": 0.2629,
+      "Classical PSO": 0.4451,
+      "QPSO": 0.4063
+    },
+    {
+      "iteration": 4,
+      "NSGA-II": 0.37,
+      "Classical PSO": 0.5016,
+      "QPSO": 0.4708
+    },
+    {
+      "iteration": 5,
+      "NSGA-II": 0.4638,
+      "Classical PSO": 0.5845,
+      "QPSO": 0.4805
+    },
+    {
+      "iteration": 6,
+      "NSGA-II": 0.5222,
+      "Classical PSO": 0.6029,
+      "QPSO": 0.5459
+    },
+    {
+      "iteration": 7,
+      "NSGA-II": 0.5765,
+      "Classical PSO": 0.6157,
+      "QPSO": 0.5807
+    },
+    {
+      "iteration": 8,
+      "NSGA-II": 0.6103,
+      "Classical PSO": 0.6337,
+      "QPSO": 0.6078
+    },
+    {
+      "iteration": 9,
+      "NSGA-II": 0.6508,
+      "Classical PSO": 0.6387,
+      "QPSO": 0.6248
+    },
+    {
+      "iteration": 10,
+      "NSGA-II": 0.6897,
+      "Classical PSO": 0.6564,
+      "QPSO": 0.6411
+    },
+    {
+      "iteration": 11,
+      "NSGA-II": 0.7023,
+      "Classical PSO": 0.6598,
+      "QPSO": 0.6581
+    },
+    {
+      "iteration": 12,
+      "NSGA-II": 0.7065,
+      "Classical PSO": 0.6605,
+      "QPSO": 0.6688
+    },
+    {
+      "iteration": 13,
+      "NSGA-II": 0.7138,
+      "Classical PSO": 0.6681,
+      "QPSO": 0.6778
+    },
+    {
+      "iteration": 14,
+      "NSGA-II": 0.7157,
+      "Classical PSO": 0.6693,
+      "QPSO": 0.6907
+    },
+    {
+      "iteration": 15,
+      "NSGA-II": 0.717,
+      "Classical PSO": 0.6698,
+      "QPSO": 0.6973
+    },
+    {
+      "iteration": 16,
+      "NSGA-II": 0.7248,
+      "Classical PSO": 0.6799,
+      "QPSO": 0.7021
+    },
+    {
+      "iteration": 17,
+      "NSGA-II": 0.726,
+      "Classical PSO": 0.6811,
+      "QPSO": 0.7043
+    },
+    {
+      "iteration": 18,
+      "NSGA-II": 0.7266,
+      "Classical PSO": 0.6813,
+      "QPSO": 0.716
+    },
+    {
+      "iteration": 19,
+      "NSGA-II": 0.7324,
+      "Classical PSO": 0.6838,
+      "QPSO": 0.7178
+    },
+    {
+      "iteration": 20,
+      "NSGA-II": 0.7324,
+      "Classical PSO": 0.6839,
+      "QPSO": 0.7296
+    },
+    {
+      "iteration": 21,
+      "NSGA-II": 0.7337,
+      "Classical PSO": 0.6899,
+      "QPSO": 0.7317
+    },
+    {
+      "iteration": 22,
+      "NSGA-II": 0.7337,
+      "Classical PSO": 0.6907,
+      "QPSO": 0.7449
+    },
+    {
+      "iteration": 23,
+      "NSGA-II": 0.7407,
+      "Classical PSO": 0.6907,
+      "QPSO": 0.7476
+    },
+    {
+      "iteration": 24,
+      "NSGA-II": 0.7439,
+      "Classical PSO": 0.6908,
+      "QPSO": 0.7478
+    },
+    {
+      "iteration": 25,
+      "NSGA-II": 0.7456,
+      "Classical PSO": 0.6956,
+      "QPSO": 0.7482
+    },
+    {
+      "iteration": 26,
+      "NSGA-II": 0.7503,
+      "Classical PSO": 0.6957,
+      "QPSO": 0.7489
+    },
+    {
+      "iteration": 27,
+      "NSGA-II": 0.7566,
+      "Classical PSO": 0.6964,
+      "QPSO": 0.749
+    },
+    {
+      "iteration": 28,
+      "NSGA-II": 0.7567,
+      "Classical PSO": 0.6966,
+      "QPSO": 0.7494
+    },
+    {
+      "iteration": 29,
+      "NSGA-II": 0.7573,
+      "Classical PSO": 0.6966,
+      "QPSO": 0.7495
+    },
+    {
+      "iteration": 30,
+      "NSGA-II": 0.7575,
+      "Classical PSO": 0.6967,
+      "QPSO": 0.75
+    },
+    {
+      "iteration": 31,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6968,
+      "QPSO": 0.7503
+    },
+    {
+      "iteration": 32,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.697,
+      "QPSO": 0.7518
+    },
+    {
+      "iteration": 33,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6971,
+      "QPSO": 0.7519
+    },
+    {
+      "iteration": 34,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6972,
+      "QPSO": 0.752
+    },
+    {
+      "iteration": 35,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6973,
+      "QPSO": 0.752
+    },
+    {
+      "iteration": 36,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6973,
+      "QPSO": 0.7525
+    },
+    {
+      "iteration": 37,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6973,
+      "QPSO": 0.7525
+    },
+    {
+      "iteration": 38,
+      "NSGA-II": 0.7578,
+      "Classical PSO": 0.6973,
+      "QPSO": 0.7525
+    },
+    {
+      "iteration": 39,
+      "NSGA-II": 0.7579,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.7526
+    },
+    {
+      "iteration": 40,
+      "NSGA-II": 0.7579,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.7526
+    },
+    {
+      "iteration": 41,
+      "NSGA-II": 0.7579,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.7526
+    },
+    {
+      "iteration": 42,
+      "NSGA-II": 0.7579,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.7527
+    },
+    {
+      "iteration": 43,
+      "NSGA-II": 0.7584,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.7527
+    },
+    {
+      "iteration": 44,
+      "NSGA-II": 0.7584,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.7529
+    },
+    {
+      "iteration": 45,
+      "NSGA-II": 0.7584,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.753
+    },
+    {
+      "iteration": 46,
+      "NSGA-II": 0.7584,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.753
+    },
+    {
+      "iteration": 47,
+      "NSGA-II": 0.7581,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.753
+    },
+    {
+      "iteration": 48,
+      "NSGA-II": 0.7582,
+      "Classical PSO": 0.6974,
+      "QPSO": 0.753
+    },
+    {
+      "iteration": 49,
+      "NSGA-II": 0.7596,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.753
+    },
+    {
+      "iteration": 50,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.753
+    },
+    {
+      "iteration": 51,
+      "NSGA-II": 0.7596,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7531
+    },
+    {
+      "iteration": 52,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7531
+    },
+    {
+      "iteration": 53,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 54,
+      "NSGA-II": 0.7596,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 55,
+      "NSGA-II": 0.7595,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 56,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 57,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6975,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 58,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6976,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 59,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6976,
+      "QPSO": 0.7532
+    },
+    {
+      "iteration": 60,
+      "NSGA-II": 0.7597,
+      "Classical PSO": 0.6976,
+      "QPSO": 0.7549
+    }
+  ],
+  "scalability": [
+    {
+      "vessels": 10,
+      "NSGA-II": {
+        "runtime": 0.7,
+        "hv": 0.771
+      },
+      "Classical PSO": {
+        "runtime": 0.4,
+        "hv": 0.674
+      },
+      "QPSO": {
+        "runtime": 0.3,
+        "hv": 0.743
+      }
+    },
+    {
+      "vessels": 25,
+      "NSGA-II": {
+        "runtime": 0.7,
+        "hv": 0.687
+      },
+      "Classical PSO": {
+        "runtime": 0.3,
+        "hv": 0.695
+      },
+      "QPSO": {
+        "runtime": 0.3,
+        "hv": 0.719
+      }
+    },
+    {
+      "vessels": 50,
+      "NSGA-II": {
+        "runtime": 0.7,
+        "hv": 0.509
+      },
+      "Classical PSO": {
+        "runtime": 0.3,
+        "hv": 0.475
+      },
+      "QPSO": {
+        "runtime": 0.3,
+        "hv": 0.575
+      }
+    }
+  ]
+}

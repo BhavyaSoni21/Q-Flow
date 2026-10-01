@@ -31,7 +31,7 @@ export default function PageNotFound() {
 
                     {isAuthenticated && (
                         <div className="p-3 bg-muted/60 rounded-md border border-border text-xs text-muted-foreground">
-                            Logged in as: <span className="font-medium text-foreground">{user?.email || "Demo User"}</span>
+                            Logged in as: <span className="font-medium text-foreground">{user?.email || "Fleet Officer"}</span>
                         </div>
                     )}
 

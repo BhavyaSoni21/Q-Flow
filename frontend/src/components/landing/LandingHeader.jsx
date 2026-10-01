@@ -11,7 +11,7 @@ export default function LandingHeader() {
                 {/* Logo */}
                 <Link to="/" className="flex items-center gap-3 shrink-0">
                     <img
-                        src="/logo.jpeg"
+                        src="/logo.png"
                         alt="QFlow Logo"
                         className="h-9 w-9 rounded-full object-contain"
                     />
@@ -56,7 +56,7 @@ export default function LandingHeader() {
                         {isAuthenticated ? (
                             <>
                                 <span className="text-[12px] font-medium text-[#334155] bg-[#f1f5f9] px-3 py-1.5 border border-[#e2e8f0]">
-                                    {user?.full_name || "Demo User"}
+                                    {user?.full_name || "Fleet Officer"}
                                 </span>
                                 <button
                                     onClick={logout}
@@ -70,7 +70,7 @@ export default function LandingHeader() {
                                 to="/login"
                                 className="text-[12px] font-bold px-4 py-1.5 bg-[#E86A00] text-white hover:bg-[#c45a00] transition-colors uppercase tracking-wide"
                             >
-                                Login / Demo
+                                Login
                             </Link>
                         )}
                     </div>

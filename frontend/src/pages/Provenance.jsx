@@ -55,9 +55,9 @@ export default function Provenance() {
                         { key: "population", header: "Pop", numeric: true },
                         { key: "iterations", header: "Iters", numeric: true },
                         { key: "datasetVersion", header: "Dataset" },
-                        { key: "runtime", header: "Runtime (s)", numeric: true, render: (r) => r.runtime.toFixed(1) },
-                        { key: "hypervolume", header: "HV", numeric: true, render: (r) => r.hypervolume.toFixed(3) },
-                        { key: "feasibleRate", header: "Feasible %", numeric: true, render: (r) => r.feasibleRate.toFixed(1) },
+                        { key: "runtime", header: "Runtime (s)", numeric: true, render: (r) => r.runtime != null ? r.runtime.toFixed(1) : "—" },
+                        { key: "hypervolume", header: "HV", numeric: true, render: (r) => r.hypervolume != null ? r.hypervolume.toFixed(3) : "—" },
+                        { key: "feasibleRate", header: "Feasible %", numeric: true, render: (r) => r.feasibleRate != null ? r.feasibleRate.toFixed(1) : "—" },
                         { key: "timestamp", header: "Timestamp", numeric: true },
                     ]}
                     rows={experiments || []}

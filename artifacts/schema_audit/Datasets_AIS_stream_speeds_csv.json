@@ -1,0 +1,43 @@
+{
+  "kind": "table",
+  "rows": 0,
+  "columns": 6,
+  "fields": [
+    {
+      "column": "mmsi",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "sog_kn",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "cog",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "lat",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "lon",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    },
+    {
+      "column": "t",
+      "dtype": "object",
+      "missing_fraction": NaN,
+      "unique_count": 0
+    }
+  ]
+}

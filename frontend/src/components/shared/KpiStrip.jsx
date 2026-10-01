@@ -63,7 +63,7 @@ export default function KpiStrip() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 px-4 py-3">
             <KpiCell label="Fuel consumption" unit="t" baseline={base?.fuel} optimized={opt?.fuel} delta={fuelDelta} deltaPct={pct(fuelDelta, base?.fuel)} improved={fuelDelta <= 0} state={state} />
-            <KpiCell label="Operating cost" unit="USD" baseline={base?.cost} optimized={opt?.cost} delta={costDelta} deltaPct={pct(costDelta, base?.cost)} improved={costDelta <= 0} state={state} />
+            <KpiCell label="Operating cost" unit="INR" baseline={base?.cost} optimized={opt?.cost} delta={costDelta} deltaPct={pct(costDelta, base?.cost)} improved={costDelta <= 0} state={state} />
             <KpiCell label="Lifecycle WtW GHG" unit="tCO2e" baseline={base?.wtw} optimized={opt?.wtw} delta={wtwDelta} deltaPct={pct(wtwDelta, base?.wtw)} improved={wtwDelta <= 0} state={state} />
             <div className="border bg-card px-3 py-2 flex flex-col gap-1">
                 <span className="label-eyebrow">Constraint status</span>

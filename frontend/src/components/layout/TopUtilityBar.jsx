@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 
 export default function TopUtilityBar() {
-    const [lang, setLang] = useState("English");
-
     const changeFontSize = (delta) => {
         const root = document.documentElement;
         const currentSize = parseFloat(window.getComputedStyle(root).fontSize) || 16;
@@ -26,24 +24,7 @@ export default function TopUtilityBar() {
     return (
         <div className="bg-[#f8f8f8] dark:bg-[#1a2330] border-b border-[#ddd] dark:border-[#334155] text-[#666] dark:text-[#94a3b8] text-[12px] py-1 px-4 font-['Open_Sans',sans-serif] shrink-0">
             <div className="max-w-[1440px] mx-auto flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <span className="font-bold text-[#0076a8] dark:text-[#38bdf8] text-[11px] tracking-wide">
-                        GOVERNMENT OF INDIA
-                    </span>
-                    <span className="opacity-40">|</span>
-                    <a href="#main-content" className="hover:text-[#0076a8] transition-colors text-[11px]">
-                        Skip to main content
-                    </a>
-                    <span className="opacity-40">|</span>
-                    <button
-                        type="button"
-                        onClick={() => changeFontSize(0)}
-                        title="Accessibility"
-                        className="hover:text-[#0076a8]"
-                    >
-                        <i className="fas fa-wheelchair text-[12px]" />
-                    </button>
-                </div>
+                <div className="flex items-center gap-3" />
 
                 <div className="flex items-center gap-3">
                     {/* Font Resize */}
@@ -93,17 +74,6 @@ export default function TopUtilityBar() {
                             title="Dark Theme"
                         />
                     </div>
-
-                    <span className="opacity-30">|</span>
-
-                    <select
-                        value={lang}
-                        onChange={(e) => setLang(e.target.value)}
-                        className="bg-transparent text-[11px] border border-[#ccc] dark:border-[#475569] rounded px-1 text-[#555] dark:text-[#cbd5e1] focus:outline-none"
-                    >
-                        <option value="English">English</option>
-                        <option value="Hindi">हिन्दी</option>
-                    </select>
                 </div>
             </div>
         </div>

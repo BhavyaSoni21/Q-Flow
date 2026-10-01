@@ -11,3 +11,17 @@ import sys
 _HERE = os.path.dirname(__file__)
 sys.path.insert(0, _HERE)                              # backend/  -> `emissions`, package imports
 sys.path.insert(0, os.path.join(_HERE, "optimization"))  # -> `import fleet_engine`
+
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _reset_engine_predictor():
+    """Keep tests isolated: importing the API installs a calibrated predictor into the
+    engine's module global; reset to the default physics predictor before each test."""
+    try:
+        import fleet_engine as fe
+        fe.set_predictor(fe.physics_predictor)
+    except Exception:
+        pass
+    yield

@@ -1,7 +1,8 @@
 
 import { createRng, gaussian, randRange, randInt, pick } from "@/lib/prng";
 
-export const USE_MOCK = true;
+// Mock by default; set VITE_USE_MOCK=false to call the live FastAPI backend.
+export const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
 
 // ---------------------------------------------------------------------------
 // Static reference data
@@ -45,12 +46,12 @@ export const VESSELS = [
 
 // Fuel pathways. WtW = WtT + TtW. No fuel is labelled "green" / "zero emission".
 export const FUELS = [
-    { id: "HFO", name: "Conventional marine fuel", pathway: "Reference (HFO)", price: 520, lhv: 40.5, wtt: 13.5, ttw: 77.3, wtw: 90.8, source: "IMO MEPC.391(81)", version: "2024" },
-    { id: "VLSFO", name: "VLSFO", pathway: "Fossil (VLSFO)", price: 610, lhv: 42.0, wtt: 14.1, ttw: 73.0, wtw: 87.1, source: "IMO MEPC.391(81)", version: "2024" },
-    { id: "LNG", name: "LNG", pathway: "Fossil (methane slip)", price: 680, lhv: 50.0, wtt: 24.5, ttw: 56.0, wtw: 80.5, source: "Sphera / ICCT", version: "2023" },
-    { id: "METHANOL", name: "Methanol", pathway: "Bio", price: 740, lhv: 19.9, wtt: 18.0, ttw: 67.0, wtw: 85.0, source: "CONCAWE / IEA", version: "2024" },
-    { id: "HYDROGEN", name: "Hydrogen", pathway: "Renewable electrolysis", price: 1450, lhv: 120.0, wtt: 5.0, ttw: 0.0, wtw: 5.0, source: "JRC Well-to-Tank", version: "2023" },
-    { id: "AMMONIA", name: "Ammonia", pathway: "Blue", price: 980, lhv: 18.6, wtt: 22.0, ttw: 0.0, wtw: 22.0, source: "IEA / IRENA", version: "2024" },
+    { id: "HFO", name: "Conventional marine fuel", pathway: "Reference (HFO)", price: 43160, lhv: 40.5, wtt: 13.5, ttw: 77.3, wtw: 90.8, source: "IMO MEPC.391(81)", version: "2024" },
+    { id: "VLSFO", name: "VLSFO", pathway: "Fossil (VLSFO)", price: 50630, lhv: 42.0, wtt: 14.1, ttw: 73.0, wtw: 87.1, source: "IMO MEPC.391(81)", version: "2024" },
+    { id: "LNG", name: "LNG", pathway: "Fossil (methane slip)", price: 56440, lhv: 50.0, wtt: 24.5, ttw: 56.0, wtw: 80.5, source: "Sphera / ICCT", version: "2023" },
+    { id: "METHANOL", name: "Methanol", pathway: "Bio", price: 61420, lhv: 19.9, wtt: 18.0, ttw: 67.0, wtw: 85.0, source: "CONCAWE / IEA", version: "2024" },
+    { id: "HYDROGEN", name: "Hydrogen", pathway: "Renewable electrolysis", price: 120350, lhv: 120.0, wtt: 5.0, ttw: 0.0, wtw: 5.0, source: "JRC Well-to-Tank", version: "2023" },
+    { id: "AMMONIA", name: "Ammonia", pathway: "Blue", price: 81340, lhv: 18.6, wtt: 22.0, ttw: 0.0, wtw: 22.0, source: "IEA / IRENA", version: "2024" },
 ];
 
 export const FUEL_PATHWAY_OPTIONS = {
@@ -75,7 +76,7 @@ export const PROVENANCE_LEDGER = [
     { field: "Route distance", type: "Scenario", source: "Internal routing", unit: "nm", status: "Reported", version: "v2.1" },
     { field: "Fuel consumption (target)", type: "Target", source: "EU THETIS-MRV", unit: "t", status: "Reported", version: "2024" },
     { field: "WtW emission factor", type: "Lifecycle", source: "IMO MEPC.391(81)", unit: "gCO2e/MJ", status: "Reported", version: "2024" },
-    { field: "Fuel price", type: "Scenario", source: "Market index", unit: "USD/t", status: "Reported", version: "2025-09" },
+    { field: "Fuel price", type: "Scenario", source: "Market index", unit: "INR/t", status: "Reported", version: "2025-09" },
     { field: "Cargo demand", type: "Scenario", source: "Operator schedule", unit: "t", status: "Reported", version: "v1.0" },
     { field: "Engine power", type: "Operational", source: "Vessel telemetry", unit: "kW", status: "Measured", version: "2025-Q3" },
     { field: "Predicted fuel (model)", type: "Derived", source: "Q-GreenFleet model", unit: "t", status: "Synthetic", version: "mock-v1" },

@@ -15,7 +15,6 @@ export default function Prediction() {
         vesselType: "Panamax",
         loadFactor: 0.7,
         speed: 14,
-        draft: 12,
         enginePower: 12000,
         wind: 8,
         waveHeight: 1.5,
@@ -59,7 +58,6 @@ export default function Prediction() {
                             <div className="col-span-2"><LabeledSelect label="Fuel type" value={input.fuelType} onChange={(v) => setInput({ ...input, fuelType: v })} options={FUEL_TYPES} /></div>
                             <LabeledInput label="Load factor" type="number" value={input.loadFactor} onChange={(v) => setInput({ ...input, loadFactor: v })} min={0} max={1} step={0.05} />
                             <LabeledInput label="Speed" unit="kn" type="number" value={input.speed} onChange={(v) => setInput({ ...input, speed: v })} min={0} step={0.5} />
-                            <LabeledInput label="Draft" unit="m" type="number" value={input.draft} onChange={(v) => setInput({ ...input, draft: v })} step={0.5} />
                             <LabeledInput label="Engine power" unit="kW" type="number" value={input.enginePower} onChange={(v) => setInput({ ...input, enginePower: v })} step={500} />
                             <LabeledInput label="Wind" unit="m/s" type="number" value={input.wind} onChange={(v) => setInput({ ...input, wind: v })} step={0.5} />
                             <LabeledInput label="Wave height" unit="m" type="number" value={input.waveHeight} onChange={(v) => setInput({ ...input, waveHeight: v })} step={0.25} />

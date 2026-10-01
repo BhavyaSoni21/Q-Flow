@@ -1,0 +1,79 @@
+{
+  "kind": "table",
+  "rows": 1440,
+  "columns": 10,
+  "fields": [
+    {
+      "column": "ship_id",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 120
+    },
+    {
+      "column": "ship_type",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 4
+    },
+    {
+      "column": "route_id",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 4
+    },
+    {
+      "column": "month",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 12
+    },
+    {
+      "column": "distance",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1398,
+      "min": 20.08,
+      "max": 498.55,
+      "mean": 151.7534
+    },
+    {
+      "column": "fuel_type",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 2
+    },
+    {
+      "column": "fuel_consumption",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1439,
+      "min": 237.88,
+      "max": 24648.52,
+      "mean": 4844.2465
+    },
+    {
+      "column": "CO2_emissions",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1440,
+      "min": 615.68,
+      "max": 71871.21,
+      "mean": 13365.4549
+    },
+    {
+      "column": "weather_conditions",
+      "dtype": "object",
+      "missing_fraction": 0.0,
+      "unique_count": 3
+    },
+    {
+      "column": "engine_efficiency",
+      "dtype": "float64",
+      "missing_fraction": 0.0,
+      "unique_count": 1089,
+      "min": 70.01,
+      "max": 94.98,
+      "mean": 82.5829
+    }
+  ]
+}

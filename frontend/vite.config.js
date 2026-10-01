@@ -21,5 +21,11 @@ export default defineConfig({
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
         }
+    },
+    server: {
+        // dev proxy: forward /api to the FastAPI backend so src/lib/api.js "/api/..." works live
+        proxy: {
+            '/api': { target: 'http://localhost:8000', changeOrigin: true }
+        }
     }
 });

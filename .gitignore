@@ -38,6 +38,9 @@ data/processed/
 *.parquet
 models/*.json
 !models/metadata.json
+*.joblib
+*.pkl
+results/runs/
 
 # Raw datasets & handoff archive (large / reproducible public data)
 Datasets/

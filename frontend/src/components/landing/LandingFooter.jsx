@@ -22,7 +22,7 @@ export default function LandingFooter() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-7 pb-7 border-b border-[#0D2D4A]">
                     {/* Brand */}
                     <div className="flex items-center gap-3">
-                        <img src="/logo.jpeg" alt="QFlow Logo" className="h-9 w-9 rounded-full object-contain opacity-90" />
+                        <img src="/logo.png" alt="QFlow Logo" className="h-9 w-9 rounded-full object-contain opacity-90" />
                         <div>
                             <div className="text-[18px] font-extrabold tracking-tight leading-none">
                                 <span className="text-white">Q</span><span className="text-[#E86A00]">Flow</span>
