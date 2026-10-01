@@ -19,7 +19,9 @@ from prediction import benchmark, dataset as pdata, tune_qpso, models, validatio
 RESULTS_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "results", "metrics"))
 
 
-def main():
+def compute():
+    """Train the model lineup on the real in-scope MRV data and return (rows, manifest).
+    Raises if the training datasets are not present (handled by the caller)."""
     feat, _ = dd.build_training_frame()          # in-scope years 2020–2025 (+ GFW GT if fetched)
     years = sorted(int(y) for y in feat["year"].unique())
     test_year = years[-1]
@@ -45,6 +47,13 @@ def main():
                      train_s=None, infer_s=None, evaluations=tune["evaluations"],
                      **{k: round(v, 4) for k, v in mt.items()}))
 
+    manifest = dict(years=years, test_year=test_year, n_rows=len(feat),
+                    qpso_params=tune["params"], qpso_evals=tune["evaluations"])
+    return rows, manifest
+
+
+def main():
+    rows, manifest = compute()
     for r in rows:
         print(f"  {r['model']:14} {r['split']:13} MAE={r['mae']:.3f} RMSE={r['rmse']:.3f} "
               f"R2={r['r2']:.3f} sMAPE={r['smape']:.1f}%")
@@ -56,8 +65,6 @@ def main():
         w = csv.DictWriter(fh, fieldnames=keys)
         w.writeheader()
         w.writerows(rows)
-    manifest = dict(years=years, test_year=test_year, n_rows=len(feat),
-                    qpso_params=tune["params"], qpso_evals=tune["evaluations"])
     with open(os.path.join(RESULTS_DIR, "prediction_benchmark_manifest.json"), "w") as fh:
         json.dump(manifest, fh, indent=2)
     print("wrote", out)

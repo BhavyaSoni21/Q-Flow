@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { api } from "@/lib/api";
 import { useStore } from "@/lib/store";
 import { Panel } from "@/components/shared/Panel";
 import { DataTable } from "@/components/shared/DataTable";
 import { ExportCsv } from "@/components/shared/ExportButtons";
 import { HvCurveChart, ScalabilityChart, BoxPlotChart } from "@/components/charts/BenchmarkCharts";
+import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Benchmarking() {
@@ -15,23 +16,35 @@ export default function Benchmarking() {
     const [scalability, setScalability] = useState(null);
     const [boxplot, setBoxplot] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [source, setSource] = useState(null);
+
+    const load = useCallback((force) => {
+        setLoading(true);
+        return Promise.all([
+            api.getBenchmarks.prediction(force),
+            api.getBenchmarks.optimizer(force),
+        ]).then(([p, o]) => {
+            setPredRows(o.prediction || p);
+            setOptRows(o.table || []);
+            setHvCurves(o.hvCurves || []);
+            setScalability(o.scalability || []);
+            setBoxplot(o.boxplot || []);
+            setSource(o.source || null);
+            setLoading(false);
+        });
+    }, []);
 
     useEffect(() => {
         let alive = true;
-        setLoading(true);
-        Promise.all([
-            api.getBenchmarks.prediction(),
-            api.getBenchmarks.optimization(config.seed),
-            api.getBenchmarks.hypervolumeCurves(config.seed),
-            api.getBenchmarks.scalability(config.seed),
-            api.getBenchmarks.boxplot(config.seed),
-        ]).then(([p, o, h, s, b]) => {
-            if (!alive) return;
-            setPredRows(p); setOptRows(o); setHvCurves(h); setScalability(s); setBoxplot(b);
-            setLoading(false);
-        });
+        load(false).then(() => { if (!alive) setLoading(false); });
         return () => { alive = false; };
-    }, [config.seed]);
+    }, [load]);
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        load(true).finally(() => setRefreshing(false));
+    };
 
     // Best per column for prediction (lower is better for mae/rmse/smape/train/infer; higher for r2)
     const predBest = React.useMemo(() => {
@@ -58,6 +71,23 @@ export default function Benchmarking() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+                <p className="text-[11px] text-muted-foreground">
+                    {source && source !== "mock"
+                        ? <>Computed live by the engine{source.startsWith("file") ? " (served from saved results)" : ""}. Click Recompute to re-run.</>
+                        : "Representative benchmark data."}
+                </p>
+                <button
+                    type="button"
+                    onClick={onRefresh}
+                    disabled={refreshing || loading}
+                    className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 border rounded hover:bg-muted disabled:opacity-50"
+                    title="Re-run the benchmark on the backend"
+                >
+                    <RefreshCw size={12} strokeWidth={1.5} className={cn(refreshing && "animate-spin")} />
+                    {refreshing ? "Recomputing…" : "Recompute"}
+                </button>
+            </div>
             <Panel title="Table 1 — Prediction benchmark" loading={loading} actions={<ExportCsv rows={predRows || []} filename="prediction_bench.csv" />}>
                 <DataTable
                     columns={[

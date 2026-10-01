@@ -23,7 +23,9 @@ def _problem(n, demand):
     return lambda: fe.FleetProblem(fe.make_vessel_pool(n, 0), fe.default_route(cargo_demand_t=demand))
 
 
-def main(seeds=5, pop=60, iters=60):
+def compute(seeds=5, pop=60, iters=60, scalability_sizes=(10, 25, 50), scal_seeds=3):
+    """Run the real optimizer benchmark and return the frontend-shaped dict
+    (table / boxplot / hv_curves / scalability). All numbers come from live engine runs."""
     out = {}
     # main scenario (10 vessels) — table, hv curves, boxplot
     runs, rows, _ = fe.benchmark(_problem(10, 90000), seeds=range(seeds), pop=pop, iters=iters,
@@ -52,12 +54,17 @@ def main(seeds=5, pop=60, iters=60):
                         for i in range(min(len(curves[a]) for a in ALGOS))]
     # scalability sweep
     out["scalability"] = []
-    for n in (10, 25, 50):
-        _, rr, _ = fe.benchmark(_problem(n, 90000), seeds=range(3), pop=pop, iters=iters, algos=ALGOS, verbose=False)
+    for n in scalability_sizes:
+        _, rr, _ = fe.benchmark(_problem(n, 90000), seeds=range(scal_seeds), pop=pop, iters=iters,
+                                algos=ALGOS, verbose=False)
         by = {FE_NAME[x["algorithm"]]: x for x in rr}
         out["scalability"].append(dict(vessels=n, **{k: dict(runtime=round(v["runtime_s"], 1),
                                                              hv=round(v["hv_mean"], 3)) for k, v in by.items()}))
+    return out
 
+
+def main(seeds=5, pop=60, iters=60):
+    out = compute(seeds, pop, iters)
     os.makedirs(METRICS, exist_ok=True)
     with open(os.path.join(METRICS, "optimization_benchmark.json"), "w") as fh:
         json.dump(out, fh, indent=2)

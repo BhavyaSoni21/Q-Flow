@@ -64,7 +64,15 @@ export const api = {
     runRoadOptimization: (config) =>
         fetch(`${API_BASE}/optimize/road`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) }).then((res) => res.json()),
     getBenchmarks: {
-        prediction: () => maybeReal("/benchmarks/prediction", () => getPredictionBenchmarks()),
+        prediction: (force) => maybeReal(`/benchmarks/prediction${force ? "?force=true" : ""}`, () => getPredictionBenchmarks()),
+        // Combined optimizer benchmark (one backend compute). Live mode recomputes on
+        // the real engine; force=true recomputes instead of serving the cached run.
+        optimizer: (force) => maybeReal(`/benchmarks/optimizer${force ? "?force=true" : ""}`, () => ({
+            table: getOptimizationBenchmarks(), hvCurves: getHypervolumeCurves(),
+            scalability: getScalabilityData(), boxplot: getBoxPlotData(),
+            source: "mock", predictionSource: "mock",
+        })),
+        // Individual endpoints (served from the same cached optimizer run) — kept for compat.
         optimization: (seed) => maybeReal("/benchmarks/optimization", () => getOptimizationBenchmarks(seed)),
         hypervolumeCurves: (seed) => maybeReal("/benchmarks/hv-curves", () => getHypervolumeCurves(seed)),
         scalability: (seed) => maybeReal("/benchmarks/scalability", () => getScalabilityData(seed)),
