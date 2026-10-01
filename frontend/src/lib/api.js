@@ -20,7 +20,10 @@ import {
 
 export const isMock = USE_MOCK;
 
-const API_BASE = "/api";
+// Same-origin "/api" by default (dev proxy / reverse proxy). Set VITE_API_BASE
+// to an absolute URL (e.g. https://api.example.com) to target a backend on a
+// different host — the backend's CORS_ORIGINS must then include this frontend.
+const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
 async function maybeReal(path, mockFn) {
     if (!USE_MOCK) {
