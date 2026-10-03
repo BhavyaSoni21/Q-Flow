@@ -114,6 +114,7 @@ Three cooperating components turn a scenario into an explainable recommendation:
 
 - **5.1 Multi-objective Pareto optimization** — MO-QPSO returns a frontier of non-dominated plans (fuel ↔ cost ↔ GHG), with a balanced recommendation plus cost/GHG/fuel extremes tagged. The Optimization page renders a fixed cost-vs-WtW chart with a connected trade-off line, fuel-colored selectable plans, and a baseline marker. `IMPLEMENTED`
 - **5.2 Predictor-in-the-loop** — every candidate's fuel is predicted, then priced by the emissions engine; no hard-coded fuel. `IMPLEMENTED`
+- **5.2a Profit-preserving selection** — cargo/revenue is held constant and returned optimization plans must not exceed the baseline operating cost, preserving the baseline margin floor while still allowing cost reductions. `IMPLEMENTED`
 - **5.3 Independent benchmarking** — NSGA-II / classical PSO vs MO-QPSO over multiple seeds: hypervolume, convergence curves, scalability sweep, box plots. `IMPLEMENTED`
 - **5.4 Live, recomputable benchmarks** — the Benchmarking page computes from the real engine on demand (cached, with a Recompute button). `IMPLEMENTED`
 - **5.5 Provenance & experiment log** — every field tagged measured/derived/synthetic; every run recorded with seed, dataset, model version. `IMPLEMENTED`
@@ -213,6 +214,13 @@ The Optimization page presents the three decision objectives together:
 - The chart includes all returned fuel pathways in its legend and tooltip, rather than requiring an axis-pair toggle.
 - The Balanced selection sliders expose `Original` baseline and `Optimized` TOPSIS values for Fuel, Cost, and WtW GHG. Moving a slider recalculates the optimized value immediately.
 - Displayed costs are clamped to zero or above; optimization may reduce cost but never presents a negative cost.
+
+### Prediction page graphs `IMPLEMENTED`
+
+The Prediction page includes global/local SHAP, predicted-vs-actual, and residual
+graphs. The Time holdout and Vessel holdout controls reload distinct deterministic
+prototype validation samples; live mode uses the recorded prediction scatter
+artifact and clearly shows an empty-state message if validation points are absent.
 
 ## 13. Project structure
 
@@ -348,4 +356,3 @@ India Hackathon (SIH26138).
 ---
 
 > *Predict the fuel. Price the carbon. Optimize the fleet — auditably.*
-

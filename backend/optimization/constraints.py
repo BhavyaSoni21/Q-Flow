@@ -10,7 +10,7 @@ import numpy as np
 from emissions import compliance
 
 
-def constraint_report(problem, plan, ghg_total_t=None):
+def constraint_report(problem, plan, ghg_total_t=None, cost_total=None):
     """Return the §4 Step 8 feasibility vector for a decoded plan."""
     r = problem.route
     on = plan["on"]
@@ -30,6 +30,8 @@ def constraint_report(problem, plan, ghg_total_t=None):
 
     cap = getattr(problem, "ghg_cap", None)
     cap_ok = bool(ghg_total_t is None or compliance.ghg_cap_satisfied(ghg_total_t, cap))
+    cost_ceiling = getattr(problem, "max_operating_cost_inr", None)
+    profit_ok = bool(cost_ceiling is None or cost_total is None or cost_total <= cost_ceiling + 1e-6)
 
     viol = 0.0
     if not cargo_ok and demand > 0:
@@ -38,8 +40,11 @@ def constraint_report(problem, plan, ghg_total_t=None):
         viol += float(np.sum(np.maximum(0.0, problem.s_req - spd[on]))) / max(problem.s_req, 1e-9)
     if ghg_total_t is not None and cap is not None:
         viol += compliance.ghg_cap_violation(ghg_total_t, cap) / max(cap, 1e-9)
+    if cost_ceiling is not None and cost_total is not None and cost_total > cost_ceiling:
+        viol += (cost_total - cost_ceiling) / max(cost_ceiling, 1e-9)
 
     return dict(cargo_satisfied=cargo_ok, deadline_satisfied=deadline_ok, vessel_available=avail_ok,
                 speed_valid=speed_ok, fuel_compatible=compat_ok, fuel_available=bunker_ok,
                 shore_power_valid=shore_ok, emissions_cap_satisfied=cap_ok,
+                profit_preserved=profit_ok,
                 total_violation=round(float(viol), 6))

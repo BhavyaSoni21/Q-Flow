@@ -134,6 +134,7 @@ export function runMockOptimization(config) {
         iterations = 150,
         algorithm = "QPSO",
         carbonPrice = 0,
+        preserveProfit = true,
     } = config;
 
     const rng = createRng(seed);
@@ -177,13 +178,15 @@ export function runMockOptimization(config) {
         const wtw = wtwOf(fuelT, fuel.id, fuelPathways[fuel.id]);
         const cost = Math.max(0, costOf(fuelT, fuel.id, fuelPrices) + carbonPrice * wtw);
         const cargo = Math.min(cargoDemand, vessel.capacity);
-        const feasible = sailing <= deadline + bufferTime && cargo >= cargoDemand * 0.95 && vessel.available;
+        const operatingCost = Math.max(0, Math.round(cost));
+        const profitPreserved = !preserveProfit || !baseline.feasible || operatingCost <= baseline.cost;
+        const feasible = sailing <= deadline + bufferTime && cargo >= cargoDemand * 0.95 && vessel.available && profitPreserved;
         const shorePower = shorePowerEnabled && vessel.shorePower;
         let berthEmissions = 0;
         if (shorePower) berthEmissions = (portTime * 1200 * gridEmissionFactor) / 1e6; // tCO2e
         pareto.push({
             fuel: fuelT,
-            cost: Math.max(0, Math.round(cost)),
+            cost: operatingCost,
             wtw: +(wtw + berthEmissions).toFixed(2),
             fuelId: fuel.id,
             deployment: [
@@ -196,12 +199,14 @@ export function runMockOptimization(config) {
                     sailingTime: +sailing.toFixed(1),
                     fuel: +fuelT.toFixed(1),
                     fuelError: +(fuelT * 0.045).toFixed(1),
-                    cost: Math.max(0, Math.round(cost)),
+                    cost: operatingCost,
                     wtw: +(wtw + berthEmissions).toFixed(2),
                     feasible,
+                    profitPreserved,
                 },
             ],
             feasible,
+            profitPreserved,
             tag: "",
         });
     }
@@ -263,6 +268,7 @@ export function runMockOptimization(config) {
         progress,
         finalHypervolume: +finalHv.toFixed(4),
         runId: `RUN-${seed}-${Date.now().toString(36).slice(-4).toUpperCase()}`,
+        constraints: { profit_preserved: preserveProfit, max_operating_cost_inr: preserveProfit && baseline.feasible ? baseline.cost : null },
     };
 }
 
@@ -385,12 +391,14 @@ export const SHAP_GLOBAL = [
     { feature: "Fuel type", value: 0.03, unit: "t" },
 ];
 
-export function getPredictionScatter(seed = 42) {
-    const rng = createRng(seed);
+export function getPredictionScatter(seed = 42, split = "time") {
+    // Keep both validation views deterministic but visibly independent in the prototype.
+    const rng = createRng(seed + (split === "vessel" ? 173 : 0));
     const pts = [];
     for (let i = 0; i < 60; i++) {
         const actual = +randRange(rng, 30, 140).toFixed(1);
-        const predicted = +(actual + gaussian(rng) * actual * 0.06).toFixed(1);
+        const errorScale = split === "vessel" ? 0.075 : 0.06;
+        const predicted = +(actual + gaussian(rng) * actual * errorScale).toFixed(1);
         pts.push({ actual, predicted, residual: +(predicted - actual).toFixed(1) });
     }
     return pts;

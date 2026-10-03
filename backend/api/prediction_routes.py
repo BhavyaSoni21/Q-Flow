@@ -17,7 +17,7 @@ def predict_fuel(inp: dict):
 
 
 @router.get("/scatter")
-def prediction_scatter(seed: int = 42):
+def prediction_scatter(seed: int = 42, split: str = "time"):
     """Predicted-vs-actual points from the recorded holdout (empty until train_models runs)."""
     path = os.path.join(_METRICS, "prediction_scatter.json")
     if os.path.exists(path):

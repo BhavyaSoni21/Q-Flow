@@ -9,7 +9,7 @@ charts, a single data layer that toggles between mock and the live backend.
 |------|--------------|
 | `Scenario.jsx` | Build a scenario; Ship/Road mode toggle; pick fleet, fuels, distance, deadline, carbon price, and run Monte Carlo weather/risk tests |
 | `Optimization.jsx` | Run the optimizer; connected cost-vs-WtW Pareto frontier, deployment plan, balanced slider selection, and KPIs (INR) |
-| `Prediction.jsx` | Single-prediction tool with physics sanity check and current-input explanation |
+| `Prediction.jsx` | Single-prediction tool with physics sanity check, current-input explanation, SHAP graphs, and holdout validation graphs |
 | `Benchmarking.jsx` | Live, recomputable optimizer + prediction benchmarks (Recompute button) |
 | `Provenance.jsx` | Data-provenance ledger, experiment log, and MRV/ERA5/AIS/GFW availability |
 | API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, and EACF contracts are exposed through `src/lib/api.js` |
@@ -65,6 +65,30 @@ request. Cost formatting is non-negative and uses INR values; fuel is shown in
 tonnes and WtW GHG in tCO2e. The case-study buttons also update the scenario inputs
 and rerun the optimizer for their respective baseline, speed, green-fleet, and
 adverse-weather contexts.
+
+## Prediction graphs and validation splits `IMPLEMENTED`
+
+The Prediction page renders:
+
+- Global SHAP feature importance.
+- Local SHAP contribution waterfall for the current input.
+- Predicted-versus-actual validation points with a y=x reference line.
+- Residuals against actual fuel with a zero-error reference line.
+
+The Time holdout and Vessel holdout controls request different deterministic
+prototype samples in mock mode. In live mode, the graphs use
+`GET /api/predict/scatter`; if a recorded validation artifact is unavailable, the
+charts show `No validation points available` instead of rendering a blank graph.
+
+## Profit preservation `IMPLEMENTED`
+
+Optimization keeps the scenario cargo demand—and therefore the assumed cargo
+revenue—constant. The backend evaluates the baseline operating cost first and,
+when `preserve_profit` is enabled (the default), rejects candidate plans above
+that cost ceiling. This preserves the baseline profit/margin floor while allowing
+lower-cost plans. The Optimization page reports this as the `Profit floor`
+constraint. A real revenue-per-tonne model is still required before claiming an
+absolute monetary profit value.
 
 ## Build & run
 

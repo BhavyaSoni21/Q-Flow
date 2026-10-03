@@ -39,7 +39,7 @@ The implementation is not yet a production fleet-management product. Vessel and 
 | 3 | Quantum-inspired fleet optimizer | **Implemented** | `backend/optimization/mo_qpso.py` and `fleet_engine.py` implement MO-QPSO with mixed-variable decoding, repair, and a Pareto archive. | Continue algorithm validation; this is quantum-inspired classical software and must not be described as quantum speedup. |
 | 4 | Lifecycle emissions calculator | **Implemented** | `backend/emissions/energy.py`, `lifecycle.py`, `factors.py`, `cost.py`, and `compliance.py`; unit tests cover WtT/TtW/WtW, shore power, cost, and caps. | Replace representative assumptions where necessary with approved, versioned pathway datasets and formal regulatory review. |
 | 5 | Constraint and feasibility engine | **Implemented** | `backend/optimization/constraints.py` independently verifies cargo, deadline, speed, availability, fuel, shore power, and emissions-cap constraints; tests cover repair and infeasibility. | Expand domain rules for real port calls, bunkering inventory, route/network constraints, and persistent audit records. |
-| 6 | Multi-objective dashboard / Pareto comparison | **Implemented** | `frontend/src/pages/Optimization.jsx`, `ParetoChart`, API optimizer contract, balanced selection and tagged extremes. The chart now uses fixed cost-vs-WtW axes, draws a connected cost-ordered trade-off line, shows fuel-colored selectable plans, and the balanced sliders show live Original/Optimized fuel, cost, and WtW values. | Add saved scenario comparison, richer trade-off analysis, and user-facing result export/audit bundles. |
+| 6 | Multi-objective dashboard / Pareto comparison | **Implemented** | `frontend/src/pages/Optimization.jsx`, `ParetoChart`, API optimizer contract, balanced selection and tagged extremes. The chart now uses fixed cost-vs-WtW axes, draws a connected cost-ordered trade-off line, shows fuel-colored selectable plans, and the balanced sliders show live Original/Optimized fuel, cost, and WtW values. The optimizer also applies a baseline operating-cost ceiling by default to preserve the same-cargo profit floor. | Add saved scenario comparison, richer trade-off analysis, user-facing result export/audit bundles, and an explicit revenue-per-tonne model for absolute profit reporting. |
 | 7 | Uncertainty-aware optimization | **Partial** | `/api/optimize/robustness` runs fixed-seed Monte Carlo samples with calibrated parameters derived from the synthetic telemetry, fuel-price, and port-delay files; it reports P05/P50/P95 intervals and feasibility probability. | Replace synthetic calibration with historical distributions and add robust objectives rather than post-hoc risk sampling. |
 | 8 | Fuel-pathway intelligence | **Partial** | Six fuel pathways, WtW factors, pathway display, provenance, and `POST /api/fuels/sensitivity` are available. | Replace representative availability/prices with region-specific production data and approved pathway alternatives. |
 | 9 | Adaptive vessel digital twin | **Partial** | `GET /api/digital-twins` and `GET /api/digital-twins/{vessel_id}` summarize synthetic telemetry and report baseline/recent fuel-rate drift. | Connect live AIS/telemetry identity, online state updates, and approval-controlled retraining. |
@@ -98,6 +98,8 @@ The first stabilization slice is now implemented:
 - `GET /api/digital-twins/{vessel_id}` provides a prototype telemetry summary and drift signal; `POST /api/corridors/optimize` ranks synthetic green-corridor alternatives.
 - Live optimization responses include `engineMetadata`, and the Optimization screen displays the calculation context.
 - The Optimization screen renders the cost-vs-WtW Pareto line and live Original/Optimized objective values for balanced slider selection.
+- The Prediction screen reloads distinct deterministic prototype samples for its Time holdout and Vessel holdout controls, and shows an explicit empty state when live validation data is unavailable.
+- Optimization requests default to `preserve_profit=true`; the baseline operating cost is exposed as the maximum cost ceiling and returned plans carry `profit_preserved` in their constraint report.
 - Scenario, Prediction, and Provenance screens display whether they are using representative mock data or live backend mode.
 - The frontend status banner reports the live model version and fleet-data status when `/api/status` responds; request-level fallback behavior remains visible as a limitation.
 - `/api/models` reports model artifact presence, SHA-256, dataset metadata, and holdout metrics for prediction governance; optimizer recommendations carry the same provenance hashes in `engineMetadata`.
@@ -175,6 +177,8 @@ The prototype telemetry model can be regenerated locally with `python prediction
 - [x] Robust/uncertainty stress analysis with explicit assumptions.
 - [x] Prototype digital-twin reporting and green-corridor route selection.
 - [x] EACF definition and explicit prototype implementation mapping.
+- [x] Prediction validation graphs with distinct prototype holdout views and empty-state handling.
+- [x] Baseline profit-floor protection through same-cargo operating-cost ceiling.
 
 ## Audit limitations
 

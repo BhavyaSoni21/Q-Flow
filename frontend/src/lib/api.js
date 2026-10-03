@@ -81,7 +81,7 @@ export const api = {
             .catch(() => ({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "fallback", unit: "gCO2e/dwt-nm" })),
     predictFuel: (input) => maybeReal("/predict/fuel", () => predictFuel(input)),
     getShapGlobal: () => SHAP_GLOBAL,
-    getPredictionScatter: (seed) => maybeReal("/predict/scatter", () => getPredictionScatter(seed)),
+    getPredictionScatter: (seed, split = "time") => maybeReal(`/predict/scatter?seed=${seed}&split=${split}`, () => getPredictionScatter(seed, split)),
     runOptimization: (config) =>
         USE_MOCK
             ? new Promise((r) => setTimeout(() => r(runMockOptimization(config)), 650))

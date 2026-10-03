@@ -29,9 +29,9 @@ export default function Prediction() {
     const [dataStatus, setDataStatus] = useState(null);
 
     useEffect(() => {
-        api.getPredictionScatter(42).then(setScatter);
+        api.getPredictionScatter(42, split).then(setScatter);
         api.getStatus().then(setDataStatus);
-    }, []);
+    }, [split]);
 
     const runPrediction = () => {
         setLoading(true);

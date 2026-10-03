@@ -188,6 +188,9 @@ class FleetProblem:
         vessels = self.V
         self.route = validate_route(route or default_route(), len(self.fuels))
         self.lamarckian = False
+        # Set by optimize_fleet after the baseline is evaluated. This protects the
+        # baseline cargo revenue/margin while still allowing lower-cost plans.
+        self.max_operating_cost_inr = None
         self.N, self.F = len(vessels), len(self.fuels)
         self.n_var, self.n_obj = 4 * self.N, 3
         g = lambda k: np.array([v[k] for v in vessels], float)
@@ -278,6 +281,9 @@ class FleetProblem:
         cost = _cost.operating_cost(cost_fuel, cost_time, cost_shore,
                                     _cost.carbon_cost(ghg_t, r["carbon_price_usd_per_t"]))
         objs = np.array([(main_gj + aux_gj).sum(), cost.sum(), ghg_t.sum()])
+        if self.max_operating_cost_inr is not None and objs[1] > self.max_operating_cost_inr + 1e-6:
+            if not detail:
+                return np.array([1e9, 1e9, 1e9])
         # lifecycle GHG cap: soft penalty so cap-violating plans get dominated (master doc §6.6, §7.5)
         if self.ghg_cap is not None:
             v = _comp.ghg_cap_violation(objs[2], self.ghg_cap)
@@ -462,9 +468,13 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
         algo = "MO-QPSO" if pr.N <= 50 else "NSGA-II"
     if algo not in ("MO-QPSO", "NSGA-II", "MOPSO"):
         return dict(status="error", reason=f"Unknown algo {algo}")
+    base_plan = pr.baseline_plan()
+    base_f = pr.evaluate_plan(base_plan)
+    preserve_profit = bool(request.get("preserve_profit", True))
+    if preserve_profit:
+        pr.max_operating_cost_inr = float(base_f[1])
     res = run_algo(algo, pr, pop, iters, seed)
     k = select_balanced(res["F"], weights)
-    base_f = pr.evaluate_plan(pr.baseline_plan())
     # hypervolume convergence curve (normalised to the run's own final front)
     try:
         ideal, nadir = res["F"].min(0), res["F"].max(0)
@@ -476,13 +486,16 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
         plan = pr.decode(x, count=False)
         _, rows = pr.evaluate_plan(plan, detail=True)
         ghg_real = float(sum(rw["wtw_ghg_t"] for rw in rows)) if rows else float(f[2])
+        cost_real = float(sum(rw["cost_usd"] for rw in rows)) if rows else float(f[1])
         sols.append(dict(objectives=dict(fuel_energy_gj=float(f[0]), cost_usd=float(f[1]), wtw_ghg_t=float(f[2])),
-                         plan=rows, constraints=_constraints.constraint_report(pr, plan, ghg_real)))
+                         plan=rows, constraints=_constraints.constraint_report(pr, plan, ghg_real, cost_real)))
     return dict(status="ok", algorithm=res["algo"], seed=seed, runtime_s=res["runtime"],
                 baseline=dict(fuel_energy_gj=float(base_f[0]), cost_usd=float(base_f[1]), wtw_ghg_t=float(base_f[2])),
                 balanced_index=k, pareto=sols, convergence=convergence,
                 constraints=dict(cargo_demand_t=route["cargo_demand_t"], deadline_h=route["deadline_h"],
-                                 min_speed_for_schedule_kn=round(pr.s_req, 2)),
+                                 min_speed_for_schedule_kn=round(pr.s_req, 2),
+                                 profit_preserved=preserve_profit,
+                                 max_operating_cost_inr=round(float(base_f[1]), 2) if preserve_profit else None),
                 units=dict(fuel_energy="GJ", cost="INR", ghg="tCO2e (well-to-wake)"),
                 warnings=["Fuel prices are indicative scenario assumptions; WtW factors are IMO-LCA-based representatives (see emissions/factors.py)."] if any(
                     "scenario_assumption" in str(f.get("price_source", "")) for f in pr.fuels) else [])

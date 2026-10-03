@@ -66,7 +66,8 @@ export function ShapWaterfall({ data }) {
 }
 
 export function PredVsActualChart({ data }) {
-    const max = Math.max(...data.map((d) => Math.max(d.actual, d.predicted)));
+    if (!data?.length) return <div className="h-[280px] flex items-center justify-center text-sm text-muted-foreground">No validation points available</div>;
+    const max = Math.max(...data.map((d) => Math.max(d.actual, d.predicted)), 1);
     return (
         <div style={{ height: 280 }}>
             <ResponsiveContainer width="100%" height="100%">
@@ -84,6 +85,7 @@ export function PredVsActualChart({ data }) {
 }
 
 export function ResidualChart({ data }) {
+    if (!data?.length) return <div className="h-[280px] flex items-center justify-center text-sm text-muted-foreground">No validation points available</div>;
     return (
         <div style={{ height: 280 }}>
             <ResponsiveContainer width="100%" height="100%">
