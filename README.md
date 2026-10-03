@@ -310,7 +310,7 @@ road fleet, API contract, and data layer.
 
 - MRV fleet-intensity R² is capped (~0.25) by the lack of a size feature; the strong predictor is the operational power model. `VERIFIED METRIC`
 - Synthetic components (e.g. the vessel/vehicle pools, some weather scenarios) are **labeled synthetic** — not presented as measured data. `DESIGN`
-- No authentication; CORS defaults to open — intended for a demo, lock down before public exposure (§17, handbook/09). `DESIGN`
+- Fleet APIs support optional bearer roles; CORS defaults to open for local development. Configure QFLOW tokens and restrict CORS before public exposure (§17, handbook/09). `DESIGN`
 - Road energy uses a physics surrogate calibrated to VED magnitudes, not a per-vehicle trained model in the loop. `DESIGN`
 
 ## 21. Future scope
@@ -338,6 +338,5 @@ India Hackathon (SIH26138).
 ---
 
 > *Predict the fuel. Price the carbon. Optimize the fleet — auditably.*
-
 
 

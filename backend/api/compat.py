@@ -2,6 +2,7 @@
 (src/data/mock.js) and the real engine so the dashboard runs on live data with
 USE_MOCK=false. The frontend's shapes are the contract we serve."""
 import numpy as np
+import pandas as pd
 
 from api import engine_state as es
 from prediction import physics_baseline as pb
@@ -96,7 +97,8 @@ def optimize_result_to_frontend(out, cfg):
     return dict(pareto=pareto, baseline=baseline, deployment=deployment, feasible=bool(pareto),
                 violated=None, progress=progress,
                 finalHypervolume=progress[-1]["hypervolume"] if progress else None,
-                runId=out.get("run_id"), feasibilityRate=out.get("feasibility_rate"))
+                runId=out.get("run_id"), feasibilityRate=out.get("feasibility_rate"),
+                engineMetadata=out.get("engine_metadata"))
 
 
 def predict_fuel_frontend(inp):
@@ -112,8 +114,34 @@ def predict_fuel_frontend(inp):
     fuel = max(rate * hours, 0.0)
     physics_expected = float(pb.physics_fuel_rate_tph({**feats, "weather_factor": np.array([1.0])})[0] * es.SCALE) * hours
     sanity = "pass" if physics_expected > 0 and abs(fuel - physics_expected) / physics_expected < 0.3 else "flag"
+    speed_term = (speed / 14.0) ** 3
+    engine_term = float(inp.get("enginePower", 12000)) / 12000.0
+    load_term = 0.8 + float(inp.get("loadFactor", 0.7)) * 0.4
+    weather_term = max(weather, 0.5)
+    draft_term = 1.0 + (float(inp.get("draft", 12)) - 12.0) * 0.01
+    drivers = [
+        ("Speed (kn)", physics_expected * (speed_term - 1.0)),
+        ("Engine power (kW)", physics_expected * speed_term * (engine_term - 1.0)),
+        ("Load factor", physics_expected * speed_term * engine_term * (load_term - 1.0)),
+        ("Weather", physics_expected * speed_term * engine_term * load_term * (weather_term - 1.0)),
+        ("Draft (m)", physics_expected * speed_term * engine_term * load_term * weather_term * (draft_term - 1.0)),
+    ]
+    explanation = [dict(feature=k, value=round(float(v), 4), method="physics_counterfactual") for k, v in drivers]
+    if es.ACTIVE_MODEL is not None:
+        cols = ["speed_kn", "load_factor", "engine_power_kw", "weather_factor"]
+        current = pd.DataFrame([{ "speed_kn": speed, "load_factor": inp.get("loadFactor", 0.7),
+                                  "engine_power_kw": inp.get("enginePower", 12000), "weather_factor": max(weather, 0.5)}])
+        base = current.iloc[0].to_dict()
+        base.update(speed_kn=14.0, load_factor=0.7, engine_power_kw=12000, weather_factor=1.0)
+        current_rate = float(es.ACTIVE_MODEL.predict(current[cols])[0])
+        for col in cols:
+            counter = current.copy(); counter.loc[0, col] = base[col]
+            delta = (current_rate - float(es.ACTIVE_MODEL.predict(counter[cols])[0])) * hours
+            explanation.append(dict(feature=col, value=round(delta, 4), method="tree_counterfactual",
+                                    model_version=es.engine_metadata()["model_version"]))
     return dict(fuel=round(fuel, 2), error=round(fuel * 0.045, 2), sanity=sanity,
-                physicsExpected=round(physics_expected, 2))
+                physicsExpected=round(physics_expected, 2),
+                explanation=explanation, explanation_source="tree_counterfactual+physics" if es.ACTIVE_MODEL is not None else "physics_counterfactual")
 
 
 # ---------------------------------------------------------------------------

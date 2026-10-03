@@ -3,7 +3,7 @@ import { api } from "@/lib/api";
 import { FUELS, PATHWAY_WTW } from "@/data/mock";
 import { Panel } from "@/components/shared/Panel";
 import { DataTable } from "@/components/shared/DataTable";
-import { LabeledSelect } from "@/components/shared/Field";
+import { LabeledInput, LabeledSelect } from "@/components/shared/Field";
 import { ExportCsv } from "@/components/shared/ExportButtons";
 import {
     ResponsiveContainer,
@@ -28,8 +28,11 @@ export default function Emissions() {
     const [dataset, setDataset] = useState(DATASETS[0].value);
     const { config } = useStore();
     const [fuels, setFuels] = useState(null);
+    const [ciiInput, setCiiInput] = useState({ ghg_tonnes: 100, capacity_tonnes: 50000, distance_nm: 1000, cii_limit: 3 });
+    const [cii, setCii] = useState(null);
 
     useEffect(() => { api.getFuels().then(setFuels); }, []);
+    useEffect(() => { api.calculateCii(ciiInput).then(setCii); }, [ciiInput]);
     const fuelList = fuels || FUELS;
 
     // Build stacked bar data: WtT, TtW per fuel (gCO2e/MJ)
@@ -105,6 +108,21 @@ export default function Emissions() {
                     rows={[...factorRows, ...shorePowerRow]}
                     emptyMessage="No factors"
                 />
+            </Panel>
+
+            <Panel title="Regulatory KPI - indicative CII-style check">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <LabeledInput label="GHG" unit="tCO2e" type="number" value={ciiInput.ghg_tonnes} onChange={(v) => setCiiInput({ ...ciiInput, ghg_tonnes: v })} min={0} />
+                    <LabeledInput label="Capacity" unit="t" type="number" value={ciiInput.capacity_tonnes} onChange={(v) => setCiiInput({ ...ciiInput, capacity_tonnes: v })} min={1} />
+                    <LabeledInput label="Distance" unit="nm" type="number" value={ciiInput.distance_nm} onChange={(v) => setCiiInput({ ...ciiInput, distance_nm: v })} min={1} />
+                    <LabeledInput label="Limit" unit="gCO2e/dwt-nm" type="number" value={ciiInput.cii_limit} onChange={(v) => setCiiInput({ ...ciiInput, cii_limit: v })} min={0} />
+                </div>
+                {cii && <div className="mt-3 border-t pt-3 flex flex-wrap gap-4 text-xs">
+                    <span>Attained: <strong className="num">{cii.attained_cii}</strong> {cii.unit}</span>
+                    <span>Violation: <strong className="num">{cii.violation}</strong></span>
+                    <span className={cii.satisfied ? "text-status-green" : "text-status-red"}>{cii.satisfied ? "Within limit" : "Over limit"}</span>
+                </div>}
+                <p className="text-[10px] text-muted-foreground mt-2">Indicative calculation only. Confirm applicable IMO/CII rules, reference lines, vessel class, and reporting period before regulatory use.</p>
             </Panel>
 
             <div className="border bg-card p-3 text-[11px] text-muted-foreground">

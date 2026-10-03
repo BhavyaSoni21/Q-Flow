@@ -49,6 +49,7 @@ latent x in [0,1]^(4N)
   is not the fleet-loop predictor unless retrained on a normalized target.
 
 ## Service boundary
-`app.py` (FastAPI) wires the routers; CORS is open and there is **no auth** — local
-demo only. The optimizer runs in a threadpool (CPU-bound), never on the event loop.
+`app.py` (FastAPI) wires the routers. CORS is open by default for local development;
+fleet routes support optional bearer roles via QFLOW tokens. The optimizer runs in a
+threadpool (CPU-bound), never on the event loop.
 Each successful run is persisted with a reproducibility manifest (`experiments/results_store`).

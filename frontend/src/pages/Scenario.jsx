@@ -7,12 +7,18 @@ import { StatusDot, Badge } from "@/components/shared/StatusDot";
 import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, Play, RotateCcw } from "lucide-react";
+import DataStatus from "@/components/shared/DataStatus";
 
 export default function Scenario() {
     const { config, updateConfig, runOptimization, running, progress, results, error, reset, mode, setMode } = useStore();
     const [fuels, setFuels] = useState(null);
     const [vessels, setVessels] = useState(null);
     const [validation, setValidation] = useState({});
+    const [dataStatus, setDataStatus] = useState(null);
+    const [robustness, setRobustness] = useState(null);
+    const [robustnessRunning, setRobustnessRunning] = useState(false);
+
+    React.useEffect(() => { api.getStatus().then(setDataStatus); }, []);
 
     React.useEffect(() => {
         if (mode === "road") {
@@ -63,10 +69,18 @@ export default function Scenario() {
         if (validate()) runOptimization();
     };
 
+    const handleRobustness = async () => {
+        if (!validate()) return;
+        setRobustnessRunning(true);
+        try { setRobustness(await api.runRobustness(config)); }
+        finally { setRobustnessRunning(false); }
+    };
+
     const pathwayOptions = api.getFuelPathways();
 
     return (
         <div className="p-4">
+            <DataStatus status={dataStatus} />
             <div className="flex items-center gap-2 mb-3">
                 <span className="text-[13px] font-semibold text-slate-600 dark:text-slate-300">Mode:</span>
                 {["ship", "road"].map((m) => (
@@ -233,6 +247,9 @@ export default function Scenario() {
                         <SquareButton onClick={handleRun} disabled={running} className="flex-1 h-9">
                             <span className="inline-flex items-center gap-2"><Play size={13} strokeWidth={1.5} /> Run optimization</span>
                         </SquareButton>
+                        <SquareButton variant="secondary" onClick={handleRobustness} disabled={running || robustnessRunning} className="h-9">
+                            {robustnessRunning ? "Testing..." : "Stress test"}
+                        </SquareButton>
                         <SquareButton variant="secondary" onClick={reset} disabled={running} className="h-9">
                             <span className="inline-flex items-center gap-2"><RotateCcw size={13} strokeWidth={1.5} /> Reset</span>
                         </SquareButton>
@@ -255,6 +272,19 @@ export default function Scenario() {
                         <div className="border border-status-red/50 bg-status-red/5 p-3 text-xs text-status-red flex items-center gap-2">
                             <AlertTriangle size={14} strokeWidth={1.5} /> {error}
                         </div>
+                    )}
+                    {robustness && (
+                        <Panel title="Weather robustness">
+                            <div className="flex items-center justify-between mb-2 text-xs">
+                                <span className="text-muted-foreground">All tested weather states feasible</span>
+                                <StatusDot status={robustness.robust} label={robustness.robust ? "Robust" : "Review"} />
+                            </div>
+                            {robustness.scenarios.map((s) => <div key={s.name} className="border-b py-1.5 text-xs last:border-b-0">
+                                <div className="flex justify-between"><span>{s.name}</span><span className="num">{s.status === "ok" ? `${s.wtw_ghg_t} tCO2e · ${s.cost_inr} INR` : s.reason || "Unavailable"}</span></div>
+                                {s.monte_carlo && <div className="text-[10px] text-muted-foreground mt-1">P95 cost <span className="num">{s.monte_carlo.confidence_intervals.cost_inr.p95}</span> · P95 GHG <span className="num">{s.monte_carlo.confidence_intervals.wtw_ghg_t.p95}</span> · feasible probability <span className="num">{(s.monte_carlo.feasibility_probability * 100).toFixed(1)}%</span></div>}
+                            </div>)}
+                            <p className="text-[10px] text-muted-foreground mt-2">Monte Carlo uncertainty uses fixed seeds and explicit weather, prediction-error, fuel-price, and delay assumptions. Percentiles are risk intervals, not regulatory guarantees.</p>
+                        </Panel>
                     )}
                 </div>
 

@@ -22,6 +22,7 @@ export default function Optimization() {
     const [sortKey, setSortKey] = useState("cost");
     const [filterFeasible, setFilterFeasible] = useState(false);
     const pareto = results?.pareto || [];
+    const engineMetadata = results?.engineMetadata;
 
     const weightedPoint = useMemo(() => {
         if (!pareto.length) return null;
@@ -89,6 +90,16 @@ export default function Optimization() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            {engineMetadata && (
+                <div className="border bg-card px-3 py-2 text-[11px] text-muted-foreground">
+                    <span className="label-eyebrow mr-2">Calculation context</span>
+                    <span className="num">{engineMetadata.model_version}</span>
+                    <span className="mx-2">·</span>
+                    <span>{engineMetadata.fleet_data_status.replaceAll("_", " ")}</span>
+                    <span className="mx-2">·</span>
+                    <span>{engineMetadata.fuel_factor_status.replaceAll("_", " ")}</span>
+                </div>
+            )}
             {/* Case study tabs */}
             <div className="flex border bg-card">
                 {CASE_STUDIES.map((cs) => (

@@ -41,6 +41,9 @@ models/*.json
 *.joblib
 *.pkl
 results/runs/
+results/scenarios/
+results/fleet/
+results/fleet/*.db
 
 # Raw datasets & handoff archive (large / reproducible public data)
 Datasets/

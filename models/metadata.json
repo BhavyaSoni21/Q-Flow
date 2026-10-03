@@ -142,5 +142,24 @@
       "reg_lambda": 0.8768404933619798
     },
     "saved_at": "2026-10-01T21:19:24Z"
+  },
+  "synthetic_engine_xgb": {
+    "model_version": "synthetic-engine-xgb-v1",
+    "task": "fuel_rate_tph",
+    "features": [
+      "speed_kn",
+      "load_factor",
+      "engine_power_kw",
+      "weather_factor"
+    ],
+    "dataset": "Datasets/Synthetic/vessel_telemetry.csv",
+    "dataset_type": "synthetic_development_only",
+    "holdout_metrics": {
+      "mae": 0.092373,
+      "r2": 0.98199,
+      "holdout_rows": 2000
+    },
+    "seed": 20261003,
+    "saved_at": "2026-10-03T17:57:20Z"
   }
 }

@@ -7,6 +7,7 @@ import { Badge } from "@/components/shared/StatusDot";
 import { ExportCsv } from "@/components/shared/ExportButtons";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DataStatus from "@/components/shared/DataStatus";
 
 const TYPE_TONE = {
     Operational: "neutral",
@@ -22,14 +23,24 @@ export default function Provenance() {
     const [ledger, setLedger] = useState(null);
     const [experiments, setExperiments] = useState(null);
     const [drawer, setDrawer] = useState(null);
+    const [dataStatus, setDataStatus] = useState(null);
+    const [sourceStatus, setSourceStatus] = useState(null);
 
     useEffect(() => {
         api.getProvenance().then(setLedger);
         api.getExperimentLog(config.seed).then(setExperiments);
+        api.getStatus().then(setDataStatus);
+        api.getDataStatus().then(setSourceStatus);
     }, [config.seed]);
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            <DataStatus status={dataStatus} />
+            {sourceStatus && <div className="border bg-card px-3 py-2 text-[11px] text-muted-foreground">
+                <span className="label-eyebrow mr-2">Source availability</span>
+                {Object.entries(sourceStatus.datasets).map(([name, present]) => <span key={name} className={`mr-3 ${present ? "text-status-green" : "text-status-amber"}`}>{name.toUpperCase()}: {present ? "available" : "not loaded"}</span>)}
+                <span>Live credentials: {Object.values(sourceStatus.live_sources).some(Boolean) ? "configured" : "not configured"}</span>
+            </div>}
             <Panel title="Data provenance ledger" loading={!ledger} actions={<ExportCsv rows={ledger || []} filename="provenance.csv" />}>
                 <DataTable
                     columns={[

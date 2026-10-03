@@ -6,6 +6,7 @@ import { Badge } from "@/components/shared/StatusDot";
 import { ShapBarChart, ShapWaterfall, PredVsActualChart, ResidualChart } from "@/components/charts/PredictionCharts";
 import { cn } from "@/lib/utils";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
+import DataStatus from "@/components/shared/DataStatus";
 
 const VESSEL_TYPES = ["Panamax", "Aframax", "Capesize"];
 const FUEL_TYPES = ["HFO", "VLSFO", "LNG", "Methanol", "Hydrogen", "Ammonia"];
@@ -25,9 +26,11 @@ export default function Prediction() {
     const [loading, setLoading] = useState(false);
     const [scatter, setScatter] = useState(null);
     const [split, setSplit] = useState("time");
+    const [dataStatus, setDataStatus] = useState(null);
 
     useEffect(() => {
         api.getPredictionScatter(42).then(setScatter);
+        api.getStatus().then(setDataStatus);
     }, []);
 
     const runPrediction = () => {
@@ -49,6 +52,7 @@ export default function Prediction() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            <DataStatus status={dataStatus} />
             <div className="grid grid-cols-12 gap-4">
                 {/* Input form */}
                 <div className="col-span-12 lg:col-span-4">
@@ -91,7 +95,7 @@ export default function Prediction() {
                         <ShapBarChart data={shap} />
                     </Panel>
                     <Panel title="Local SHAP — waterfall for current input">
-                        <ShapWaterfall data={shap} />
+                        <ShapWaterfall data={result?.explanation || shap} />
                     </Panel>
                 </div>
             </div>

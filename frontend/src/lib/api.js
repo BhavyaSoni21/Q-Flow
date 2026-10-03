@@ -42,6 +42,20 @@ async function maybeReal(path, mockFn) {
     return mockFn();
 }
 
+async function maybeRealPost(path, input, mockFn) {
+    if (!USE_MOCK) {
+        try {
+            const res = await fetch(`${API_BASE}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+            if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
+            return await res.json();
+        } catch (e) {
+            console.warn(`[api] live ${path} failed, falling back to mock:`, e.message);
+            return mockFn();
+        }
+    }
+    return mockFn();
+}
+
 export const api = {
     isMock: USE_MOCK,
     getVessels: () => maybeReal("/vessels", () => VESSELS),
@@ -49,6 +63,19 @@ export const api = {
     getFuelPathways: () => FUEL_PATHWAY_OPTIONS,
     getPathwayWtw: () => PATHWAY_WTW,
     getProvenance: () => maybeReal("/provenance", () => PROVENANCE_LEDGER),
+    getStatus: () => maybeReal("/status", () => null),
+    getDataStatus: () => maybeReal("/data/status", () => null),
+    getModels: () => maybeReal("/models", () => []),
+    getDigitalTwins: () => maybeReal("/digital-twins", () => []),
+    getDigitalTwin: (vesselId) => maybeReal(`/digital-twins/${vesselId}`, () => null),
+    fuelSensitivity: (input) => maybeRealPost("/fuels/sensitivity", input, () => ({ status: "mock", scenarios: [] })),
+    annualCompliance: (input) => maybeRealPost("/compliance/annual", input, () => ({ status: "mock", results: [] })),
+    evaluateEacf: (input) => maybeRealPost("/eacf/evaluate", input, () => ({ status: "mock", name: "EACF" })),
+    calculateCii: (input) => USE_MOCK
+        ? Promise.resolve({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "mock", unit: "gCO2e/dwt-nm" })
+        : fetch(`${API_BASE}/compliance/cii`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) })
+            .then((res) => { if (!res.ok) throw new Error(`API /compliance/cii failed: ${res.status}`); return res.json(); })
+            .catch(() => ({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "fallback", unit: "gCO2e/dwt-nm" })),
     predictFuel: (input) => maybeReal("/predict/fuel", () => predictFuel(input)),
     getShapGlobal: () => SHAP_GLOBAL,
     getPredictionScatter: (seed) => maybeReal("/predict/scatter", () => getPredictionScatter(seed)),
@@ -58,6 +85,10 @@ export const api = {
             : fetch(`${API_BASE}/optimize/fleet`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) })
                 .then((res) => res.json())
                 .catch(() => runMockOptimization(config)),
+    runRobustness: (config) => USE_MOCK
+        ? Promise.resolve({ status: "ok", robust: true, scenarios: ["Normal", "Adverse", "Severe"].map((name) => ({ name, status: "mock", feasible: true })), assumptions: { weather_states: ["Normal", "Adverse", "Severe"] } })
+        : fetch(`${API_BASE}/optimize/robustness`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) })
+            .then((res) => { if (!res.ok) throw new Error(`API /optimize/robustness failed: ${res.status}`); return res.json(); }),
     // ROAD mode (live backend only; no mock)
     getRoadVessels: () => fetch(`${API_BASE}/road/vehicles`).then((r) => r.json()),
     getRoadFuels: () => fetch(`${API_BASE}/road/fuels`).then((r) => r.json()),

@@ -48,6 +48,5 @@ uvicorn app:app --reload --port 8000       # serves the §10 API (loads artifact
 Key routes: `POST /api/predict/fuel`, `POST /api/optimize/fleet` (+ `/runs/{id}`),
 `GET /api/benchmarks/prediction`, `GET /api/vessels|/fuels|/provenance`, `POST /api/scenarios`.
 
-> **Security:** CORS is open and there is no auth — local demo only. Lock CORS +
-> add auth before exposing it.
-
+> **Security:** CORS is open by default for local development. Fleet APIs support
+> optional bearer roles; configure QFLOW tokens and restrict CORS before exposure.

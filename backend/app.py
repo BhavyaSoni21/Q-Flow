@@ -15,7 +15,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api import engine_state as es
-from api import benchmark_routes, metadata_routes, optimization_routes, prediction_routes
+from api import benchmark_routes, metadata_routes, optimization_routes, prediction_routes, roadmap_routes
 
 app = FastAPI(title="Q-Flow API", version="0.6.0")
 
@@ -43,3 +43,4 @@ app.include_router(prediction_routes.router)
 app.include_router(optimization_routes.router)
 app.include_router(benchmark_routes.router)
 app.include_router(metadata_routes.router)
+app.include_router(roadmap_routes.router)

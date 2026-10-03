@@ -6,6 +6,7 @@ XGBoost/RF). Artifacts are version-sensitive — load only under matching
 scikit-learn / xgboost versions, and only load files we produced.
 """
 import json
+import hashlib
 import os
 import time
 
@@ -40,6 +41,20 @@ def load_model(name):
 
 def has_model(name):
     return os.path.exists(model_path(name))
+
+
+def describe_model(name):
+    """Return auditable metadata without loading the model into memory."""
+    meta = load_metadata(name) or {}
+    path = model_path(name)
+    digest = None
+    if os.path.exists(path):
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            for block in iter(lambda: fh.read(1024 * 1024), b""):
+                h.update(block)
+        digest = h.hexdigest()
+    return dict(name=name, artifact_exists=os.path.exists(path), artifact_sha256=digest, metadata=meta)
 
 
 def save_metadata(name, meta):

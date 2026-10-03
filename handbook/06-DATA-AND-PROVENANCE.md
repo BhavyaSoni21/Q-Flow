@@ -25,11 +25,24 @@ sourced, every reported number is traceable.
 | **FuelCast (real 3-vessel)** | Power-model validation | Cross-vessel transfer reported candidly |
 | **VED (road OBD)** | Road surrogate calibration | MAF-derived fuel rate |
 | **GLEC / DEFRA** | Road WtW factors | Diesel/petrol/electricity |
+| **Synthetic development extensions** | Uncertainty, twin, corridor, and integration testing | `Datasets/Synthetic/`; seeded fuel prices, port delays, vessel telemetry, and port network; never measured |
 
 > Raw datasets are **not committed** (large / licensed) — they live under
 > `Datasets/` locally and are git-ignored. The deployed server therefore cannot
 > retrain prediction models; it serves the committed real results instead
 > (see [03 · Backend](03-BACKEND.md) benchmark service). `DATA-DEPENDENT`
+
+## Synthetic development extensions `DATA-DEPENDENT`
+
+Run `python data/generate_synthetic_extensions.py` from `backend/` to create
+`Datasets/Synthetic/fuel_prices_monthly.csv`, `port_delays.csv`,
+`vessel_telemetry.csv`, `port_network.csv`, and `MANIFEST.json`. The manifest records seed, row
+counts, and limitations. These files support development calibration only;
+they are not measured, market-authoritative, or regulatory data. The telemetry powers `/api/digital-twins/{vessel_id}` and the network powers `/api/corridors/optimize`; both responses retain an explicit development-only status.
+
+The fuel sensitivity, annual KPI, and EACF endpoints are analytical prototype
+contracts. They preserve indicative labels and must not be used as regulatory
+certification without approved reference data and review.
 
 ## Provenance in the product `IMPLEMENTED`
 

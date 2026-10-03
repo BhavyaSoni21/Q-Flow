@@ -31,7 +31,8 @@ CANONICAL = {
     "total_co2_mt": ["Total CO₂ emissions [m tonnes]"],
     "fuel_per_dist_kg_nm": ["Annual average Fuel consumption per distance [kg / n mile]",
                             "Fuel consumption per distance [kg / n mile]"],
-    "time_at_sea_h": ["Time spent at sea [hours]"],
+    "time_at_sea_h": ["Time spent at sea [hours]", "Annual Total time spent at sea [hours]",
+                       "Total time spent at sea [hours]"],
     # for a leakage-free size proxy: DWT = CO2-per-distance / CO2-per-dwt (total CO2 cancels)
     "co2_per_dist_kg_nm": ["Annual average CO₂ emissions per distance [kg CO₂ / n mile]",
                            "CO₂ emissions per distance [kg CO₂ / n mile]"],

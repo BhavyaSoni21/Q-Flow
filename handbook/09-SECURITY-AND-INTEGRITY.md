@@ -6,7 +6,7 @@ This is a **demo/prototype**. It is honest about what is and isn't hardened.
 
 | Area | State | Note |
 |------|-------|------|
-| Authentication | None on the API | Frontend has an instant-access login flow only |
+| Authentication | Optional bearer-token roles on fleet APIs; disabled when no QFLOW tokens are configured | Set `QFLOW_VIEWER_TOKEN`, `QFLOW_OPERATOR_TOKEN`, and/or `QFLOW_ADMIN_TOKEN` before deployment; connect frontend identity to the selected token |
 | CORS | `CORS_ORIGINS`, defaults to `*` | Set to the real frontend origin in production |
 | Transport | HTTPS on Render + Vercel | — |
 | Secrets | None required to serve | Ingest scripts read optional API keys from env |
@@ -15,6 +15,10 @@ This is a **demo/prototype**. It is honest about what is and isn't hardened.
 > **Before any public exposure:** add authentication, lock `CORS_ORIGINS` to the
 > known frontend origin(s), and put the API behind rate limiting. The code is
 > structured to make this a configuration change, not a rewrite (see `app.py`).
+
+Browser code must not embed bearer secrets in `VITE_*` variables. Frontend/backend
+identity should use same-origin HttpOnly sessions or an external identity provider;
+the current frontend API layer remains intentionally token-neutral.
 
 ## Secrets handling `IMPLEMENTED`
 
