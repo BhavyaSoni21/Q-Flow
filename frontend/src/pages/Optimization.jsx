@@ -186,10 +186,10 @@ export default function Optimization() {
             <Panel title="Balanced selection — preference weights">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {(["fuel", "cost", "wtw"]).map((k) => (
-                        <div key={k} className="flex flex-col gap-1">
-                            <div className="flex justify-between">
-                                <label className="label-eyebrow">{k === "wtw" ? "GHG weight" : `${k[0].toUpperCase() + k.slice(1)} weight`}</label>
-                                <span className="num text-xs">{Number(weights[k]).toFixed(2)}</span>
+                        <div key={k} className="flex flex-col gap-2 min-w-0 border p-3">
+                            <div className="flex items-center justify-between gap-3">
+                                <label className="label-eyebrow whitespace-nowrap">{k === "wtw" ? "GHG weight" : `${k[0].toUpperCase() + k.slice(1)} weight`}</label>
+                                <span className="num text-xs whitespace-nowrap">Weight {Number(weights[k]).toFixed(2)}</span>
                             </div>
                             <input
                                 type="range"
@@ -200,12 +200,34 @@ export default function Optimization() {
                                 onChange={(e) => setWeights({ ...weights, [k]: Number(e.target.value) })}
                                 className="w-full accent-[hsl(var(--accent))]"
                             />
+                            <div className="grid grid-cols-2 gap-2 text-[11px] num">
+                                <div className="min-w-0">
+                                    <div className="text-muted-foreground uppercase tracking-wide text-[9px]">Original</div>
+                                    <div className="whitespace-nowrap truncate">
+                                        {k === "fuel"
+                                            ? `${Number(baseline?.fuel || 0).toFixed(1)} t`
+                                            : k === "cost"
+                                                ? `${Math.max(0, Number(baseline?.cost || 0)).toLocaleString()} INR`
+                                                : `${Number(baseline?.wtw || 0).toFixed(2)} tCO2e`}
+                                    </div>
+                                </div>
+                                <div className="min-w-0">
+                                    <div className="text-muted-foreground uppercase tracking-wide text-[9px]">Optimized</div>
+                                    <div className="whitespace-nowrap truncate text-accent">
+                                        {k === "fuel"
+                                            ? `${Number(weightedPoint?.fuel || 0).toFixed(1)} t`
+                                            : k === "cost"
+                                                ? `${Math.max(0, Number(weightedPoint?.cost || 0)).toLocaleString()} INR`
+                                                : `${Number(weightedPoint?.wtw || 0).toFixed(2)} tCO2e`}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>
                 {weightedPoint && (
                     <div className="mt-3 flex items-center justify-between border-t pt-2">
-                        <span className="text-xs text-muted-foreground">Recommended (TOPSIS):</span>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">Recommended (TOPSIS):</span>
                         <div className="flex gap-4 text-xs num">
                             <span>Fuel {weightedPoint.fuel.toFixed(1)} t</span>
                             <span>Cost {Math.max(0, Number(weightedPoint.cost || 0)).toLocaleString()} INR</span>

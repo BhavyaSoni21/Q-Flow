@@ -8,7 +8,7 @@ charts, a single data layer that toggles between mock and the live backend.
 | Page | What it does |
 |------|--------------|
 | `Scenario.jsx` | Build a scenario; Ship/Road mode toggle; pick fleet, fuels, distance, deadline, carbon price, and run Monte Carlo weather/risk tests |
-| `Optimization.jsx` | Run the optimizer; Pareto frontier, deployment plan, KPIs (INR) |
+| `Optimization.jsx` | Run the optimizer; connected cost-vs-WtW Pareto frontier, deployment plan, balanced slider selection, and KPIs (INR) |
 | `Prediction.jsx` | Single-prediction tool with physics sanity check and current-input explanation |
 | `Benchmarking.jsx` | Live, recomputable optimizer + prediction benchmarks (Recompute button) |
 | `Provenance.jsx` | Data-provenance ledger, experiment log, and MRV/ERA5/AIS/GFW availability |
@@ -46,8 +46,25 @@ health endpoint.
 ## Charts `IMPLEMENTED`
 
 `src/components/charts/` — `ParetoChart`, `BenchmarkCharts` (HV curve, scalability,
-box plot), `PredictionCharts`. Legends sit at the top of each benchmark chart so
-they don't collide with x-axis labels.
+box plot), `PredictionCharts`. The Pareto chart uses operating cost (INR) and WtW
+GHG (tCO2e) as fixed axes, connects returned plans in cost order, and keeps
+fuel-colored selectable markers with fuel, cost, WtW, and feasibility tooltips.
+Chart margins and axis widths reserve space for labels and tick values. Legends sit
+at the top of each benchmark chart so they don't collide with x-axis labels.
+
+## Optimization interaction details `IMPLEMENTED`
+
+`Optimization.jsx` keeps the balanced-selection controls tied to the current
+`weightedPoint` recommendation. Each objective slider shows two values:
+
+- `Original` — the baseline fuel, cost, or WtW GHG value.
+- `Optimized` — the current TOPSIS-selected value for the active preference weights.
+
+Changing a slider updates the optimized value without requiring a new optimization
+request. Cost formatting is non-negative and uses INR values; fuel is shown in
+tonnes and WtW GHG in tCO2e. The case-study buttons also update the scenario inputs
+and rerun the optimizer for their respective baseline, speed, green-fleet, and
+adverse-weather contexts.
 
 ## Build & run
 

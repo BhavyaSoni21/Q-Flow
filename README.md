@@ -112,7 +112,7 @@ Three cooperating components turn a scenario into an explainable recommendation:
 
 ## 5. Key features
 
-- **5.1 Multi-objective Pareto optimization** — MO-QPSO returns a frontier of non-dominated plans (fuel ↔ cost ↔ GHG), with a balanced recommendation plus cost/GHG/fuel extremes tagged. `IMPLEMENTED`
+- **5.1 Multi-objective Pareto optimization** — MO-QPSO returns a frontier of non-dominated plans (fuel ↔ cost ↔ GHG), with a balanced recommendation plus cost/GHG/fuel extremes tagged. The Optimization page renders a fixed cost-vs-WtW chart with a connected trade-off line, fuel-colored selectable plans, and a baseline marker. `IMPLEMENTED`
 - **5.2 Predictor-in-the-loop** — every candidate's fuel is predicted, then priced by the emissions engine; no hard-coded fuel. `IMPLEMENTED`
 - **5.3 Independent benchmarking** — NSGA-II / classical PSO vs MO-QPSO over multiple seeds: hypervolume, convergence curves, scalability sweep, box plots. `IMPLEMENTED`
 - **5.4 Live, recomputable benchmarks** — the Benchmarking page computes from the real engine on demand (cached, with a Recompute button). `IMPLEMENTED`
@@ -203,6 +203,16 @@ The optimizer core is mode-agnostic. A **ship** `FleetProblem` and a **road**
 frontend contract; the UI exposes a Ship/Road toggle. Road uses a physics-informed
 surrogate calibrated to VED magnitudes, GLEC/DEFRA WtW factors, India retail fuel
 prices, and EV range/grid handling. `IMPLEMENTED`
+
+### Optimization page behavior `IMPLEMENTED`
+
+The Optimization page presents the three decision objectives together:
+
+- The Pareto chart uses operating cost (INR) on the x-axis and WtW GHG (tCO2e) on the y-axis.
+- A line connects plans in cost order to make the trade-off frontier readable; markers remain fuel-colored and selectable so a deployment can be inspected.
+- The chart includes all returned fuel pathways in its legend and tooltip, rather than requiring an axis-pair toggle.
+- The Balanced selection sliders expose `Original` baseline and `Optimized` TOPSIS values for Fuel, Cost, and WtW GHG. Moving a slider recalculates the optimized value immediately.
+- Displayed costs are clamped to zero or above; optimization may reduce cost but never presents a negative cost.
 
 ## 13. Project structure
 
@@ -338,5 +348,4 @@ India Hackathon (SIH26138).
 ---
 
 > *Predict the fuel. Price the carbon. Optimize the fleet — auditably.*
-
 

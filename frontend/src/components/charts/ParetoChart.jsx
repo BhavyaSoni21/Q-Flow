@@ -1,5 +1,5 @@
 import React from "react";
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from "recharts";
+import { ScatterChart, Scatter, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceDot } from "recharts";
 
 const AXIS_LABELS = {
     fuel: "Fuel (t)",
@@ -46,19 +46,22 @@ export default function ParetoChart({ pareto = [], baseline = null, selected = n
                 </div>
             ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                    <ScatterChart margin={{ top: 10, right: 20, bottom: 20, left: 10 }}>
+                    <ScatterChart margin={{ top: 14, right: 28, bottom: 42, left: 34 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                         <XAxis
                             dataKey="x"
                             name={AXIS_LABELS[xKey] ?? xKey}
+                            height={42}
                             tick={{ fontSize: 10 }}
-                            label={{ value: AXIS_LABELS[xKey] ?? xKey, position: "insideBottom", offset: -10, fontSize: 10 }}
+                            tickFormatter={(value) => `${(Number(value) / 1000).toFixed(0)}k`}
+                            label={{ value: "Operating cost (INR)", position: "insideBottom", offset: -18, fontSize: 10 }}
                         />
                         <YAxis
                             dataKey="y"
                             name={AXIS_LABELS[yKey] ?? yKey}
+                            width={72}
                             tick={{ fontSize: 10 }}
-                            label={{ value: AXIS_LABELS[yKey] ?? yKey, angle: -90, position: "insideLeft", offset: 10, fontSize: 10 }}
+                            label={{ value: "WtW GHG (tCO2e)", angle: -90, position: "insideLeft", offset: -2, fontSize: 10 }}
                         />
                         <Tooltip
                             cursor={{ strokeDasharray: "3 3" }}
@@ -75,6 +78,15 @@ export default function ParetoChart({ pareto = [], baseline = null, selected = n
                                     </div>
                                 );
                             }}
+                        />
+                        <Line
+                            data={data.slice().sort((a, b) => a.x - b.x)}
+                            dataKey="y"
+                            type="monotone"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                            dot={false}
+                            isAnimationActive={false}
                         />
                         <Scatter data={data} shape={<CustomDot />} />
                         {baseline && (

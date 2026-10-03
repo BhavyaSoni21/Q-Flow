@@ -47,7 +47,9 @@ penalty** (soft, master doc §7.5): `J ← J·(1 + v/cap) + v` when the cap is e
 - External non-dominated archive, deduplicated, trimmed by crowding distance
   (`archive.update_archive`, size-bounded).
 - Balanced recommendation = TOPSIS-style min normalized distance to the ideal point
-  (`selection.select_balanced`); plus min-fuel / min-cost / min-GHG extremes.
+  (`selection.select_balanced`); plus min-fuel / min-cost / min-GHG extremes. The
+  frontend recomputes this recommendation as preference weights move and displays
+  the baseline and optimized values for fuel, cost, and WtW GHG side by side.
 
 ## Termination & reproducibility
 Fixed iteration budget (`iters`); fixed `(request, seed, vessels)` → identical output
