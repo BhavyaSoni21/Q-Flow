@@ -9,16 +9,42 @@ STORE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..",
 STORE_PATH = os.path.join(STORE_DIR, "fleet.db")
 LEGACY_PATH = os.path.join(STORE_DIR, "vessels.json")
 _LOCK = threading.RLock()
+SCHEMA_VERSION = 1
 
 def _now(): return datetime.now(timezone.utc).isoformat()
 
 def _connect():
     os.makedirs(STORE_DIR, exist_ok=True)
-    conn = sqlite3.connect(STORE_PATH, timeout=10)
+    conn = sqlite3.connect(STORE_PATH, timeout=10, isolation_level=None)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA busy_timeout = 10000")
     conn.execute("PRAGMA foreign_keys = ON")
-    conn.executescript("CREATE TABLE IF NOT EXISTS vessels (vessel_id TEXT PRIMARY KEY, payload TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS availability_history (id INTEGER PRIMARY KEY AUTOINCREMENT, vessel_id TEXT NOT NULL REFERENCES vessels(vessel_id) ON DELETE CASCADE, availability INTEGER NOT NULL, reason TEXT NOT NULL DEFAULT '', recorded_at TEXT NOT NULL); CREATE INDEX IF NOT EXISTS idx_availability_vessel_time ON availability_history(vessel_id, recorded_at);")
+    conn.executescript("CREATE TABLE IF NOT EXISTS schema_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS vessels (vessel_id TEXT PRIMARY KEY, payload TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL); CREATE TABLE IF NOT EXISTS availability_history (id INTEGER PRIMARY KEY AUTOINCREMENT, vessel_id TEXT NOT NULL REFERENCES vessels(vessel_id) ON DELETE CASCADE, availability INTEGER NOT NULL, reason TEXT NOT NULL DEFAULT '', recorded_at TEXT NOT NULL); CREATE INDEX IF NOT EXISTS idx_availability_vessel_time ON availability_history(vessel_id, recorded_at);")
+    conn.execute("INSERT OR REPLACE INTO schema_meta(key, value) VALUES ('schema_version', ?)", (str(SCHEMA_VERSION),))
     return conn
+
+def storage_status():
+    with _LOCK:
+        conn = _connect()
+        try:
+            count = conn.execute("SELECT COUNT(*) FROM vessels").fetchone()[0]
+            version = conn.execute("SELECT value FROM schema_meta WHERE key = 'schema_version'").fetchone()[0]
+            return dict(path=STORE_PATH, schema_version=int(version), vessel_count=count, backup_dir=os.path.join(STORE_DIR, "backups"))
+        finally: conn.close()
+
+def backup_database():
+    """Create a consistent SQLite backup and return its path/size."""
+    with _LOCK:
+        os.makedirs(os.path.join(STORE_DIR, "backups"), exist_ok=True)
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        target = os.path.join(STORE_DIR, "backups", f"fleet-{stamp}.db")
+        source = _connect()
+        try:
+            dest = sqlite3.connect(target)
+            try: source.backup(dest)
+            finally: dest.close()
+        finally: source.close()
+        return dict(path=target, schema_version=SCHEMA_VERSION, size_bytes=os.path.getsize(target))
 
 def _insert(conn, vessel, history=False):
     row = dict(vessel); now = row.get("updated_at") or _now(); row.setdefault("created_at", now); row["updated_at"] = now

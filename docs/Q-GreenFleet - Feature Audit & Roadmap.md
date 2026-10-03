@@ -34,8 +34,8 @@ The implementation is not yet a production fleet-management product. Vessel and 
 
 | # | Roadmap feature | Status | Evidence in repository | Remaining work |
 |---:|---|---|---|---|
-| 1 | Fleet and vessel management | **Partial** | `backend/data/fleet_db.py` provides SQLite-backed fleet records with one-time JSON migration; `/api/vessels` provides CRUD, `/availability` records changes, `/availability-history` exposes the audit trail, and optional viewer/operator/admin bearer roles protect the API when configured. | Connect frontend identity to backend tokens, add organization-level ownership/permissions, migrations/backups, and production database operations. |
-| 2 | AI fuel-consumption prediction | **Partial** | `backend/prediction/` contains physics and ML paths; the generated telemetry model is trained with holdout metrics and loaded when `models/synthetic_engine_xgb.joblib` exists; `/api/predict/fuel`, `/api/status`, and `/api/models` expose predictor/version/artifact/hash metadata, including tree counterfactuals when active. | Replace synthetic training with reviewed measured telemetry, connect model promotion to controlled deployment, and add monitoring/rollback policy. |
+| 1 | Fleet and vessel management | **Partial** | `backend/data/fleet_db.py` provides SQLite-backed fleet records with one-time JSON migration, schema versioning, consistent admin backups, and lock-safe access; `/api/vessels` provides CRUD, `/availability` records changes, `/availability-history` exposes the audit trail, and optional viewer/operator/admin bearer roles protect the API when configured. | Connect frontend identity/session management, add organization-level ownership/permissions, and configure off-host backup retention. |
+| 2 | AI fuel-consumption prediction | **Partial** | `backend/prediction/` contains physics and ML paths; the generated telemetry model is trained with holdout metrics and loaded when `models/synthetic_engine_xgb.joblib` exists; `/api/predict/fuel`, `/api/status`, `/api/models`, and `/api/models/health` expose predictor/version/artifact/hash/health metadata, including tree counterfactuals when active. Admins can archive artifacts before promotion. | Replace synthetic training with reviewed measured telemetry and connect archive selection/promotion/rollback to deployment monitoring. |
 | 3 | Quantum-inspired fleet optimizer | **Implemented** | `backend/optimization/mo_qpso.py` and `fleet_engine.py` implement MO-QPSO with mixed-variable decoding, repair, and a Pareto archive. | Continue algorithm validation; this is quantum-inspired classical software and must not be described as quantum speedup. |
 | 4 | Lifecycle emissions calculator | **Implemented** | `backend/emissions/energy.py`, `lifecycle.py`, `factors.py`, `cost.py`, and `compliance.py`; unit tests cover WtT/TtW/WtW, shore power, cost, and caps. | Replace representative assumptions where necessary with approved, versioned pathway datasets and formal regulatory review. |
 | 5 | Constraint and feasibility engine | **Implemented** | `backend/optimization/constraints.py` independently verifies cargo, deadline, speed, availability, fuel, shore power, and emissions-cap constraints; tests cover repair and infeasibility. | Expand domain rules for real port calls, bunkering inventory, route/network constraints, and persistent audit records. |
@@ -70,7 +70,7 @@ The first stabilization slice is now implemented:
 
 - `GET /api/status` exposes the active predictor version, calibration basis, synthetic-fleet status, fuel-factor status, and scenario-storage status.
 - Scenario records now persist to `results/scenarios/scenarios.json`, expose schema version/revision/timestamps, and support list/load endpoints.
-- Fleet records now persist to `results/fleet/vessels.json`; `/api/vessels` supports create, update, delete, and the optimizer uses the persisted pool.
+- Fleet records now persist to SQLite at `results/fleet/fleet.db`; `/api/vessels` supports create, update, delete, availability history, and the optimizer uses the persisted pool. `/api/fleet/storage` reports schema/readiness state and `/api/fleet/backups` creates admin-only consistent backups.
 - `/api/fuels/pathways` provides versioned pathway factors, source provenance, and representative availability labels.
 - `/api/scenarios/compare` compares persisted scenario records by ID and reports missing records.
 - `/api/predict/fuel` returns current-input counterfactual drivers for the local explanation chart.
@@ -84,6 +84,7 @@ The first stabilization slice is now implemented:
 - Scenario, Prediction, and Provenance screens display whether they are using representative mock data or live backend mode.
 - The frontend status banner reports the live model version and fleet-data status when `/api/status` responds; request-level fallback behavior remains visible as a limitation.
 - `/api/models` reports model artifact presence, SHA-256, dataset metadata, and holdout metrics for prediction governance; optimizer recommendations carry the same provenance hashes in `engineMetadata`.
+- `/api/health` includes fleet-storage readiness metadata; SQLite uses a busy timeout and autocommit initialization to tolerate concurrent health/backup access.
 - Backend regression coverage now includes the status endpoint and optimization metadata contract.
 
 Remaining work after this phase is frontend-to-backend identity/session integration, organization-level authorization, database migrations/backups, stronger live/fallback error presentation, and controlled model promotion/rollback.
@@ -149,7 +150,7 @@ The prototype telemetry model can be regenerated locally with `python prediction
 - [x] Persistent fleet and vessel storage with CRUD.
 - [x] Versioned fuel-pathway records with provenance and scenario comparison.
 - [x] Monte Carlo uncertainty intervals and feasibility probability reporting.
-- [x] Backend fleet roles and availability audit history.
+- [x] Backend fleet roles, availability audit history, schema versioning, and admin backups.
 - [ ] Frontend identity/token integration and organization-level authorization.
 - [x] Dataset/model provenance hashes attached to optimizer recommendations; prediction governance metadata is available through `/api/models`.
 - [x] Robust/uncertainty stress analysis with explicit assumptions.

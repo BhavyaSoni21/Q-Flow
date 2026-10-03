@@ -20,6 +20,10 @@ Browser code must not embed bearer secrets in `VITE_*` variables. Frontend/backe
 identity should use same-origin HttpOnly sessions or an external identity provider;
 the current frontend API layer remains intentionally token-neutral.
 
+Fleet SQLite storage exposes its schema version and vessel count for readiness
+checks. Admins can create consistent backups through `POST /api/fleet/backups`;
+backup retention and off-host replication remain deployment responsibilities.
+
 ## Secrets handling `IMPLEMENTED`
 
 - The serving backend needs **no secrets** — it runs offline from sourced factors

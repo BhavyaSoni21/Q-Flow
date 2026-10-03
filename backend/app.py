@@ -36,7 +36,9 @@ CALIBRATION_SCALE = es.init_predictor()
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "calibration_scale": es.SCALE, "vessels": len(es.POOL)}
+    from data import fleet_db
+    return {"status": "ok", "calibration_scale": es.SCALE, "vessels": len(es.POOL),
+            "fleet_storage": fleet_db.storage_status()}
 
 
 app.include_router(prediction_routes.router)

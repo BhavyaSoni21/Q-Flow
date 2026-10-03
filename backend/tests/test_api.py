@@ -26,6 +26,13 @@ def test_model_registry_reports_artifact_provenance():
     assert engine["metadata"]["model_version"] == "synthetic-engine-xgb-v1"
 
 
+def test_model_health_and_archive_boundary():
+    health = client.get("/api/models/health").json()
+    assert health["status"] == "ok" and health["models"]
+    archive = client.post("/api/models/synthetic_engine_xgb/archive").json()
+    assert archive["archive_path"].endswith(".joblib")
+
+
 def test_remaining_roadmap_prototype_contracts():
     assert client.get("/api/digital-twins").json()
     sensitivity = client.post("/api/fuels/sensitivity", json={"fuel_id": "methanol_green", "price_factor": 1.1}).json()
@@ -66,6 +73,13 @@ def test_vessel_availability_history():
     history = client.get(f"/api/vessels/{vessel_id}/availability-history").json()
     assert history[0]["reason"] == "maintenance"
     client.post(f"/api/vessels/{vessel_id}/availability", json={"available": True, "reason": "returned"})
+
+
+def test_fleet_storage_status_and_backup():
+    storage = client.get("/api/fleet/storage").json()
+    assert storage["schema_version"] == 1 and storage["vessel_count"] >= 10
+    backup = client.post("/api/fleet/backups").json()
+    assert backup["schema_version"] == 1 and backup["size_bytes"] > 0
 
 
 def test_fuels_frontend_shape():

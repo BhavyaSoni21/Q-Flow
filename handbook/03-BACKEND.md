@@ -20,9 +20,11 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 
 | Method · Path | Purpose |
 |---------------|---------|
-| `GET /api/health` | Liveness + calibration scale + pool size |
+| `GET /api/health` | Liveness, calibration scale, pool size, and fleet-storage readiness |
 | `GET /api/status` | Active predictor version plus fleet, factor, storage, artifact hash, and holdout-metric status |
+| `GET /api/fleet/storage` · `POST /api/fleet/backups` | Fleet SQLite schema status and admin-only consistent backup |
 | `GET /api/models` | Model registry metadata, artifact presence, SHA-256, and holdout metrics |
+| `GET /api/models/health` · `POST /api/models/{name}/archive` | Model health checks and admin-only rollback archive creation |
 | `GET /api/digital-twins` | Fleet-level synthetic twin summaries |
 | `POST /api/fuels/sensitivity` | Indicative fuel price/WtW sensitivity scenarios |
 | `POST /api/compliance/annual` | Indicative year-by-year CII-style checks |
@@ -41,6 +43,7 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 | `GET /api/benchmarks/optimizer` | Combined optimizer benchmark (`?force=true`) |
 | `GET /api/benchmarks/{optimization,hv-curves,scalability,boxplot}` | Individual sections |
 | `GET /api/vessels` · `POST/PUT/DELETE /api/vessels/{id}` · `/vessels/{id}/availability` · `/vessels/{id}/availability-history` | SQLite-backed fleet metadata, CRUD, and availability audit history |
+| `GET /api/fleet/storage` · `POST /api/fleet/backups` | Storage schema status and admin-only consistent SQLite backup |
 | `GET /api/fuels/pathways` | Versioned pathway factors, provenance, and availability labels |
 | `GET /api/provenance` · `/experiments` | Provenance ledger & run log |
 | `POST /api/scenarios` · `GET /api/scenarios` · `GET /api/scenarios/{id}` · `POST /api/scenarios/compare` | Persist, list, load, and compare versioned scenarios |

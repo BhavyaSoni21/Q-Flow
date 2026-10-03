@@ -85,10 +85,33 @@ def get_status():
     """Expose active model and data-status labels for the live dashboard."""
     return es.engine_metadata()
 
+@router.get("/fleet/storage")
+def fleet_storage_status(_role=require_role("viewer")):
+    return fleet_store.storage_status()
+
+@router.post("/fleet/backups")
+def create_fleet_backup(_role=require_role("admin")):
+    return fleet_store.backup_database()
+
 
 @router.get("/models")
 def get_model_registry():
     return [registry.describe_model(name) for name in ("engine_calibration", "synthetic_engine_xgb", "fuel_intensity_xgb", "power_shifts_xgb", "fuel_road_trip_xgb")]
+
+@router.get("/models/health")
+def get_model_health():
+    rows = [registry.describe_model(name) for name in ("synthetic_engine_xgb", "fuel_intensity_xgb", "power_shifts_xgb", "fuel_road_trip_xgb")]
+    for row in rows:
+        metrics = row["metadata"].get("holdout_metrics") or row["metadata"].get("pooled_metrics") or row["metadata"].get("in_domain_metrics") or {}
+        row["health"] = "healthy" if row["artifact_exists"] and (metrics.get("r2") is None or float(metrics["r2"]) >= 0) else "review"
+    return dict(status="ok", models=rows)
+
+@router.post("/models/{name}/archive")
+def archive_model(name: str, _role=require_role("admin")):
+    try:
+        return registry.archive_model(name)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Model artifact not found: {name}")
 
 
 @router.get("/data/status")

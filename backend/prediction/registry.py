@@ -9,6 +9,7 @@ import json
 import hashlib
 import os
 import time
+import shutil
 
 import joblib
 
@@ -55,6 +56,21 @@ def describe_model(name):
                 h.update(block)
         digest = h.hexdigest()
     return dict(name=name, artifact_exists=os.path.exists(path), artifact_sha256=digest, metadata=meta)
+
+
+def archive_model(name):
+    """Copy an active model and metadata into a timestamped rollback archive."""
+    path = model_path(name)
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+    archive_dir = os.path.join(MODELS_DIR, "archive", name)
+    os.makedirs(archive_dir, exist_ok=True)
+    stamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+    target = os.path.join(archive_dir, f"{stamp}.joblib")
+    shutil.copy2(path, target)
+    with open(f"{target}.json", "w", encoding="utf-8") as fh:
+        json.dump(describe_model(name), fh, indent=2)
+    return dict(name=name, archive_path=target, metadata_path=f"{target}.json")
 
 
 def save_metadata(name, meta):
