@@ -57,7 +57,7 @@ def _deployment_rows(sol):
                          fuelId=ENGINE_TO_FE_FUEL.get(p["fuel"], p["fuel"].upper()),
                          shorePower=p["shore_power"], cargo=p["cargo_t"], sailingTime=p["sail_hours"],
                          fuel=round(_gj_to_t(p["fuel_energy_gj"]), 1), fuelError=round(_gj_to_t(p["fuel_energy_gj"]) * 0.045, 1),
-                         cost=p["cost_usd"], wtw=p["wtw_ghg_t"],
+                         cost=max(0, p["cost_usd"]), wtw=p["wtw_ghg_t"],
                          feasible=sol.get("constraints", {}).get("total_violation", 0) == 0))
     return rows
 
@@ -74,7 +74,7 @@ def optimize_result_to_frontend(out, cfg):
         o = sol["objectives"]
         fuel_t = round(_gj_to_t(o["fuel_energy_gj"]), 1)
         dep = _deployment_rows(sol)
-        pareto.append(dict(fuel=fuel_t, cost=round(o["cost_usd"]), wtw=round(o["wtw_ghg_t"], 2),
+        pareto.append(dict(fuel=fuel_t, cost=max(0, round(o["cost_usd"])), wtw=round(o["wtw_ghg_t"], 2),
                            fuelId=dep[0]["fuelId"] if dep else None, deployment=dep,
                            feasible=sol.get("constraints", {}).get("total_violation", 0) == 0, tag=""))
     # tags: the balanced recommendation wins its point, then extremes fill untagged points
@@ -90,7 +90,7 @@ def optimize_result_to_frontend(out, cfg):
     b = out.get("baseline", {})
     baseline = dict(vesselId="baseline", speed=None, fuelId="VLSFO", shorePower=False, cargo=cfg.get("cargoDemand"),
                     sailingTime=None, fuel=round(_gj_to_t(b.get("fuel_energy_gj", 0)), 1),
-                    fuelError=0.0, cost=round(b.get("cost_usd", 0)), wtw=round(b.get("wtw_ghg_t", 0), 2), feasible=True)
+                    fuelError=0.0, cost=max(0, round(b.get("cost_usd", 0))), wtw=round(b.get("wtw_ghg_t", 0), 2), feasible=True)
     progress = [dict(iteration=i, hypervolume=hv) for i, hv in out.get("convergence", [])]
     bi = out.get("balanced_index", 0)
     deployment = pareto[bi]["deployment"] if pareto and 0 <= bi < len(pareto) else []
@@ -187,7 +187,7 @@ def _road_deploy(sol):
         rows.append(dict(vesselId=p["vehicle_id"], speed=p["speed_kmh"],
                          fuelId=_ROAD_FUEL_FE.get(p["fuel"], p["fuel"].upper()), cargo=p["cargo_kg"],
                          fuel=round(p["energy_mj"], 1), fuelError=round(p["energy_mj"] * 0.05, 1),
-                         cost=p["cost_usd"], wtw=p["wtw_ghg_t"], feasible=True))
+                         cost=max(0, p["cost_usd"]), wtw=p["wtw_ghg_t"], feasible=True))
     return rows
 
 
@@ -198,7 +198,7 @@ def optimize_road_result_to_frontend(out, cfg):
     for sol in out["pareto"]:
         o = sol["objectives"]
         dep = _road_deploy(sol)
-        pareto.append(dict(fuel=round(o["energy_mj"], 1), cost=round(o["cost_usd"]), wtw=round(o["wtw_ghg_t"], 3),
+        pareto.append(dict(fuel=round(o["energy_mj"], 1), cost=max(0, round(o["cost_usd"])), wtw=round(o["wtw_ghg_t"], 3),
                            fuelId=dep[0]["fuelId"] if dep else None, deployment=dep, feasible=True, tag=""))
     if pareto:
         bi = out.get("balanced_index", 0)
@@ -210,7 +210,7 @@ def optimize_road_result_to_frontend(out, cfg):
                 p["tag"] = label
     b = out.get("baseline", {})
     baseline = dict(vesselId="baseline", speed=None, fuelId="DIESEL", cargo=cfg.get("cargoDemand"),
-                    fuel=round(b.get("energy_mj", 0), 1), fuelError=0.0, cost=round(b.get("cost_usd", 0)),
+                    fuel=round(b.get("energy_mj", 0), 1), fuelError=0.0, cost=max(0, round(b.get("cost_usd", 0))),
                     wtw=round(b.get("wtw_ghg_t", 0), 3), feasible=True)
     bi = out.get("balanced_index", 0)
     deployment = pareto[bi]["deployment"] if pareto and 0 <= bi < len(pareto) else []

@@ -70,19 +70,20 @@ export function StoreProvider({ children }) {
         );
     }, []);
 
-    const runOptimization = useCallback(async () => {
+    const runOptimization = useCallback(async (overrides = {}) => {
+        const runConfig = { ...config, ...overrides };
         setRunning(true);
         setError(null);
         setProgress(0);
         // Deterministic progress animation
-        const total = config.iterations;
+        const total = runConfig.iterations;
         let cur = 0;
         const timer = setInterval(() => {
             cur += Math.max(1, Math.floor(total / 24));
             setProgress(Math.min(95, Math.round((cur / total) * 100)));
         }, 28);
         try {
-            const res = await (mode === "road" ? api.runRoadOptimization(config) : api.runOptimization(config));
+            const res = await (mode === "road" ? api.runRoadOptimization(runConfig) : api.runOptimization(runConfig));
             clearInterval(timer);
             setProgress(100);
             setResults(res);

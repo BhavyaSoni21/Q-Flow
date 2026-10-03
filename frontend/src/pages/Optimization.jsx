@@ -17,12 +17,18 @@ const CASE_STUDIES = [
 ];
 
 export default function Optimization() {
-    const { results, selectedPoint, setSelectedPoint, weights, setWeights, caseStudy, setCaseStudy, config } = useStore();
-    const [axisPair, setAxisPair] = useState("cost-ghg");
+    const { results, selectedPoint, setSelectedPoint, weights, setWeights, caseStudy, setCaseStudy, config, updateConfig, runOptimization } = useStore();
     const [sortKey, setSortKey] = useState("cost");
     const [filterFeasible, setFilterFeasible] = useState(false);
     const pareto = results?.pareto || [];
     const engineMetadata = results?.engineMetadata;
+    const CASE_CONFIG = {
+        A: { weather: "Normal", selectedFuels: ["HFO", "VLSFO"], shorePowerEnabled: false, carbonPrice: 0, seed: 42 },
+        B: { weather: "Normal", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, carbonPrice: 0, deadline: 44, seed: 43 },
+        C: { weather: "Normal", selectedFuels: ["METHANOL", "HYDROGEN", "AMMONIA"], shorePowerEnabled: true, carbonPrice: 1500, seed: 44 },
+        D: { weather: "Severe", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, bufferTime: 6, seed: 45 },
+    };
+    const selectCaseStudy = (id) => { setCaseStudy(id); updateConfig(CASE_CONFIG[id]); runOptimization(CASE_CONFIG[id]); };
 
     const weightedPoint = useMemo(() => {
         if (!pareto.length) return null;
@@ -105,7 +111,7 @@ export default function Optimization() {
                 {CASE_STUDIES.map((cs) => (
                     <button
                         key={cs.id}
-                        onClick={() => setCaseStudy(cs.id)}
+                        onClick={() => selectCaseStudy(cs.id)}
                         className={cn(
                             "px-3 h-9 text-xs border-r last:border-r-0 transition-colors duration-150",
                             caseStudy === cs.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"
@@ -121,18 +127,10 @@ export default function Optimization() {
                 <div className="col-span-12 lg:col-span-7">
                     <Panel
                         title="Pareto front — 3 objectives"
-                        actions={
-                            <>
-                                <LabeledSelect value={axisPair} onChange={setAxisPair} options={[
-                                    { value: "cost-ghg", label: "Cost vs GHG" },
-                                    { value: "cost-fuel", label: "Cost vs Fuel" },
-                                    { value: "fuel-ghg", label: "Fuel vs GHG" },
-                                ]} />
-                            </>
-                        }
+                        actions={null}
                     >
-                        <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} axisPair={axisPair} />
-                        <p className="text-[10px] text-muted-foreground mt-2">Marker color encodes fuel pathway. Hollow square = baseline plan. Ringed = selected.</p>
+                        <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
+                        <p className="text-[10px] text-muted-foreground mt-2">X = operating cost, Y = WtW GHG, color = fuel pathway; hover any point for fuel quantity, cost, GHG, and feasibility. Hollow square = baseline; ringed = selected.</p>
                     </Panel>
                 </div>
 
@@ -191,7 +189,7 @@ export default function Optimization() {
                         <div key={k} className="flex flex-col gap-1">
                             <div className="flex justify-between">
                                 <label className="label-eyebrow">{k === "wtw" ? "GHG weight" : `${k[0].toUpperCase() + k.slice(1)} weight`}</label>
-                                <span className="num text-xs">{(weights[k] * 100).toFixed(0)}%</span>
+                                <span className="num text-xs">{Number(weights[k]).toFixed(2)}</span>
                             </div>
                             <input
                                 type="range"
@@ -210,7 +208,7 @@ export default function Optimization() {
                         <span className="text-xs text-muted-foreground">Recommended (TOPSIS):</span>
                         <div className="flex gap-4 text-xs num">
                             <span>Fuel {weightedPoint.fuel.toFixed(1)} t</span>
-                            <span>Cost {weightedPoint.cost.toLocaleString()} INR</span>
+                            <span>Cost {Math.max(0, Number(weightedPoint.cost || 0)).toLocaleString()} INR</span>
                             <span>WtW {weightedPoint.wtw.toFixed(2)} tCO2e</span>
                             <SquareButton variant="secondary" onClick={() => setSelectedPoint(weightedPoint)}>Select</SquareButton>
                         </div>

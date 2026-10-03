@@ -159,7 +159,7 @@ export function runMockOptimization(config) {
         sailingTime: baseSailing,
         fuel: baseFuelT,
         fuelError: baseFuelT * 0.04,
-        cost: costOf(baseFuelT, baseFuel.id, fuelPrices) + carbonPrice * wtwOf(baseFuelT, baseFuel.id),
+        cost: Math.max(0, costOf(baseFuelT, baseFuel.id, fuelPrices) + carbonPrice * wtwOf(baseFuelT, baseFuel.id)),
         wtw: wtwOf(baseFuelT, baseFuel.id, fuelPathways[baseFuel.id]),
         feasible: baseSailing <= deadline + bufferTime && baseVessel.capacity >= cargoDemand,
     };
@@ -175,7 +175,7 @@ export function runMockOptimization(config) {
         const sailing = distance / speed + portTime;
         const fuelT = fuelForRoute(rng, vessel, weather, distance, speed, fuel.id);
         const wtw = wtwOf(fuelT, fuel.id, fuelPathways[fuel.id]);
-        const cost = costOf(fuelT, fuel.id, fuelPrices) + carbonPrice * wtw;
+        const cost = Math.max(0, costOf(fuelT, fuel.id, fuelPrices) + carbonPrice * wtw);
         const cargo = Math.min(cargoDemand, vessel.capacity);
         const feasible = sailing <= deadline + bufferTime && cargo >= cargoDemand * 0.95 && vessel.available;
         const shorePower = shorePowerEnabled && vessel.shorePower;
@@ -183,7 +183,7 @@ export function runMockOptimization(config) {
         if (shorePower) berthEmissions = (portTime * 1200 * gridEmissionFactor) / 1e6; // tCO2e
         pareto.push({
             fuel: fuelT,
-            cost: Math.round(cost),
+            cost: Math.max(0, Math.round(cost)),
             wtw: +(wtw + berthEmissions).toFixed(2),
             fuelId: fuel.id,
             deployment: [
@@ -196,7 +196,7 @@ export function runMockOptimization(config) {
                     sailingTime: +sailing.toFixed(1),
                     fuel: +fuelT.toFixed(1),
                     fuelError: +(fuelT * 0.045).toFixed(1),
-                    cost: Math.round(cost),
+                    cost: Math.max(0, Math.round(cost)),
                     wtw: +(wtw + berthEmissions).toFixed(2),
                     feasible,
                 },

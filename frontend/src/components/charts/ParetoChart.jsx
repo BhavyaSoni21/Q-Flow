@@ -8,8 +8,11 @@ const AXIS_LABELS = {
     speed: "Speed (kn)",
 };
 
-export default function ParetoChart({ pareto = [], baseline = null, selected = null, onSelect, axisPair = ["fuel", "cost"] }) {
-    const [xKey, yKey] = axisPair;
+const FUEL_COLORS = { VLSFO: "#2563eb", LNG: "#0891b2", METHANOL: "#16a34a", AMMONIA: "#9333ea", HYDROGEN: "#ea580c", HFO: "#64748b" };
+
+export default function ParetoChart({ pareto = [], baseline = null, selected = null, onSelect }) {
+    const xKey = "cost";
+    const yKey = "wtw";
 
     const data = pareto.map((p, i) => ({
         ...p,
@@ -26,8 +29,8 @@ export default function ParetoChart({ pareto = [], baseline = null, selected = n
                 cx={cx}
                 cy={cy}
                 r={isSelected ? 7 : 5}
-                fill={isSelected ? "hsl(var(--primary))" : "hsl(var(--chart-1))"}
-                stroke={isSelected ? "hsl(var(--primary))" : "hsl(var(--primary)/0.4)"}
+                fill={FUEL_COLORS[payload.fuelId] || "#475569"}
+                stroke={isSelected ? "#111827" : "#ffffff"}
                 strokeWidth={isSelected ? 2 : 1}
                 style={{ cursor: "pointer" }}
                 onClick={() => onSelect && onSelect(payload)}
@@ -64,8 +67,11 @@ export default function ParetoChart({ pareto = [], baseline = null, selected = n
                                 const p = payload[0]?.payload;
                                 return (
                                     <div className="bg-popover border border-border rounded p-2 text-xs shadow-md">
-                                        <p><span className="text-muted-foreground">{AXIS_LABELS[xKey]}:</span> {p?.x?.toFixed(1)}</p>
-                                        <p><span className="text-muted-foreground">{AXIS_LABELS[yKey]}:</span> {p?.y?.toFixed(1)}</p>
+                                        <p className="font-semibold">{p?.fuelId || "Unknown fuel"}</p>
+                                        <p><span className="text-muted-foreground">Fuel:</span> {Number(p?.fuel || 0).toLocaleString()} t</p>
+                                        <p><span className="text-muted-foreground">Cost:</span> {Number(p?.cost || 0).toLocaleString()} INR</p>
+                                        <p><span className="text-muted-foreground">WtW GHG:</span> {Number(p?.wtw || 0).toFixed(2)} tCO2e</p>
+                                        <p><span className="text-muted-foreground">Status:</span> {p?.feasible ? "Feasible" : "Review"}</p>
                                     </div>
                                 );
                             }}
@@ -83,6 +89,9 @@ export default function ParetoChart({ pareto = [], baseline = null, selected = n
                     </ScatterChart>
                 </ResponsiveContainer>
             )}
+            {data.length > 0 && <div className="flex flex-wrap gap-x-3 gap-y-1 justify-center text-[10px] mt-1">
+                {[...new Set(data.map((p) => p.fuelId).filter(Boolean))].map((fuel) => <span key={fuel} className="inline-flex items-center gap-1"><i className="w-2 h-2 rounded-full" style={{ background: FUEL_COLORS[fuel] || "#475569" }} />{fuel}</span>)}
+            </div>}
         </div>
     );
 }
