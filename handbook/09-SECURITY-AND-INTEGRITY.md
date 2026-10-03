@@ -18,7 +18,9 @@ This is a **demo/prototype**. It is honest about what is and isn't hardened.
 
 Browser code must not embed bearer secrets in `VITE_*` variables. Frontend/backend
 identity should use same-origin HttpOnly sessions or an external identity provider;
-the current frontend API layer remains intentionally token-neutral.
+the frontend API layer now sends same-origin cookies with `credentials: include`.
+When `QFLOW_SESSION_SECRET` is configured, the backend validates the signed
+`qflow_session` cookie before applying fleet roles.
 
 Fleet SQLite storage exposes its schema version and vessel count for readiness
 checks. Admins can create consistent backups through `POST /api/fleet/backups`;

@@ -139,6 +139,14 @@ def predict_fuel_frontend(inp):
             delta = (current_rate - float(es.ACTIVE_MODEL.predict(counter[cols])[0])) * hours
             explanation.append(dict(feature=col, value=round(delta, 4), method="tree_counterfactual",
                                     model_version=es.engine_metadata()["model_version"]))
+        try:
+            import shap
+            values = shap.TreeExplainer(es.ACTIVE_MODEL)(current[cols]).values[0]
+            for col, value in zip(cols, values):
+                explanation.append(dict(feature=col, value=round(float(value * hours), 4), method="shap_local",
+                                        model_version=es.engine_metadata()["model_version"]))
+        except Exception:
+            pass
     return dict(fuel=round(fuel, 2), error=round(fuel * 0.045, 2), sanity=sanity,
                 physicsExpected=round(physics_expected, 2),
                 explanation=explanation, explanation_source="tree_counterfactual+physics" if es.ACTIVE_MODEL is not None else "physics_counterfactual")

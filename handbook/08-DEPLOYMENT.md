@@ -18,6 +18,7 @@ flowchart LR
 | **Start command** | `uvicorn app:app --host 0.0.0.0 --port $PORT` |
 | Health check path | `/api/health` |
 | Env | `CORS_ORIGINS=https://<your-project>.vercel.app` |
+| Security env | `QFLOW_RATE_LIMIT_PER_MINUTE=120`, `QFLOW_LOG_LEVEL=INFO`, `QFLOW_SESSION_SECRET=<deployment secret>` |
 
 > **Critical:** the start command **must** bind `0.0.0.0` and use `$PORT`. A
 > hardcoded `--port 8000` (uvicorn's default host `127.0.0.1`) makes Render report
@@ -60,5 +61,10 @@ usual causes: missing `/api` suffix, CORS origin mismatch, or Render asleep.
 
 ```bash
 cd frontend && npm run build      # must succeed before deploying
-cd backend  && python -m pytest -q # 53 green
+cd backend  && python -m pytest -q # current suite must be green
 ```
+
+The API emits request IDs, redacted structured request logs, security headers,
+and a configurable per-client rate limit. `/api/security/status` exposes only
+non-secret posture flags. Send logs to the hosting provider’s retained log sink;
+do not log request bodies, cookies, API keys, or authorization headers.

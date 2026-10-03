@@ -10,14 +10,18 @@ set CORS_ORIGINS to a comma-separated allow-list of frontend origins
 (e.g. CORS_ORIGINS="https://app.example.com") and add authentication.
 """
 import os
+import logging
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from security.middleware import OperationalMiddleware
 
 from api import engine_state as es
 from api import benchmark_routes, metadata_routes, optimization_routes, prediction_routes, roadmap_routes
 
 app = FastAPI(title="Q-Flow API", version="0.6.0")
+logging.basicConfig(level=os.environ.get("QFLOW_LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(name)s %(message)s")
+app.add_middleware(OperationalMiddleware)
 
 # CORS allow-list: "*" (default, dev only) or a comma-separated list of origins.
 _cors = os.environ.get("CORS_ORIGINS", "*").strip()

@@ -1,7 +1,7 @@
 """Metadata, provenance, scenarios, experiment-log, and compliance routes."""
 import glob
 import os
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Response
 
 from api import compat, engine_state as es
 from data import fleet_db as fleet_store, provenance, scenario_store
@@ -10,7 +10,7 @@ from experiments import results_store
 from optimization import corridor
 from prediction import digital_twin
 from prediction import registry
-from security.auth import require_role
+from security.auth import require_role, session_user, SESSION_COOKIE
 
 router = APIRouter(prefix="/api", tags=["metadata"])
 
@@ -84,6 +84,23 @@ def set_vessel_availability(vessel_id: str, payload: dict, _role=require_role("o
 def get_status():
     """Expose active model and data-status labels for the live dashboard."""
     return es.engine_metadata()
+
+@router.get("/security/status")
+def security_status():
+    return dict(cors_configured=os.environ.get("CORS_ORIGINS", "*") != "*",
+                rate_limit_per_minute=int(os.environ.get("QFLOW_RATE_LIMIT_PER_MINUTE", "120")),
+                structured_logging=True, security_headers=True,
+                session_secret_configured=bool(os.environ.get("QFLOW_SESSION_SECRET")))
+
+@router.get("/auth/session")
+def auth_session(request: Request):
+    user = session_user(request)
+    return {"authenticated": bool(user), "user": user}
+
+@router.post("/auth/logout")
+def auth_logout(response: Response):
+    response.delete_cookie(SESSION_COOKIE, path="/")
+    return {"logged_out": True}
 
 @router.get("/fleet/storage")
 def fleet_storage_status(_role=require_role("viewer")):

@@ -24,11 +24,12 @@ export const isMock = USE_MOCK;
 // to an absolute URL (e.g. https://api.example.com) to target a backend on a
 // different host — the backend's CORS_ORIGINS must then include this frontend.
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
+const JSON_HEADERS = { "Content-Type": "application/json" };
 
 async function maybeReal(path, mockFn) {
     if (!USE_MOCK) {
         try {
-            const res = await fetch(`${API_BASE}${path}`, { headers: { "Content-Type": "application/json" } });
+            const res = await fetch(`${API_BASE}${path}`, { credentials: "include", headers: JSON_HEADERS });
             if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
             return await res.json();
         } catch (e) {
@@ -45,7 +46,7 @@ async function maybeReal(path, mockFn) {
 async function maybeRealPost(path, input, mockFn) {
     if (!USE_MOCK) {
         try {
-            const res = await fetch(`${API_BASE}${path}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) });
+            const res = await fetch(`${API_BASE}${path}`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(input) });
             if (!res.ok) throw new Error(`API ${path} failed: ${res.status}`);
             return await res.json();
         } catch (e) {
@@ -65,6 +66,8 @@ export const api = {
     getProvenance: () => maybeReal("/provenance", () => PROVENANCE_LEDGER),
     getStatus: () => maybeReal("/status", () => null),
     getDataStatus: () => maybeReal("/data/status", () => null),
+    getAuthSession: () => maybeReal("/auth/session", () => ({ authenticated: false, user: null })),
+    logoutSession: () => fetch(`${API_BASE}/auth/logout`, { method: "POST", credentials: "include", headers: JSON_HEADERS }),
     getModels: () => maybeReal("/models", () => []),
     getDigitalTwins: () => maybeReal("/digital-twins", () => []),
     getDigitalTwin: (vesselId) => maybeReal(`/digital-twins/${vesselId}`, () => null),
@@ -73,7 +76,7 @@ export const api = {
     evaluateEacf: (input) => maybeRealPost("/eacf/evaluate", input, () => ({ status: "mock", name: "EACF" })),
     calculateCii: (input) => USE_MOCK
         ? Promise.resolve({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "mock", unit: "gCO2e/dwt-nm" })
-        : fetch(`${API_BASE}/compliance/cii`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input) })
+        : fetch(`${API_BASE}/compliance/cii`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(input) })
             .then((res) => { if (!res.ok) throw new Error(`API /compliance/cii failed: ${res.status}`); return res.json(); })
             .catch(() => ({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "fallback", unit: "gCO2e/dwt-nm" })),
     predictFuel: (input) => maybeReal("/predict/fuel", () => predictFuel(input)),
@@ -82,18 +85,18 @@ export const api = {
     runOptimization: (config) =>
         USE_MOCK
             ? new Promise((r) => setTimeout(() => r(runMockOptimization(config)), 650))
-            : fetch(`${API_BASE}/optimize/fleet`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) })
+            : fetch(`${API_BASE}/optimize/fleet`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(config) })
                 .then((res) => res.json())
                 .catch(() => runMockOptimization(config)),
     runRobustness: (config) => USE_MOCK
         ? Promise.resolve({ status: "ok", robust: true, scenarios: ["Normal", "Adverse", "Severe"].map((name) => ({ name, status: "mock", feasible: true })), assumptions: { weather_states: ["Normal", "Adverse", "Severe"] } })
-        : fetch(`${API_BASE}/optimize/robustness`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) })
+        : fetch(`${API_BASE}/optimize/robustness`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(config) })
             .then((res) => { if (!res.ok) throw new Error(`API /optimize/robustness failed: ${res.status}`); return res.json(); }),
     // ROAD mode (live backend only; no mock)
     getRoadVessels: () => fetch(`${API_BASE}/road/vehicles`).then((r) => r.json()),
     getRoadFuels: () => fetch(`${API_BASE}/road/fuels`).then((r) => r.json()),
     runRoadOptimization: (config) =>
-        fetch(`${API_BASE}/optimize/road`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(config) }).then((res) => res.json()),
+        fetch(`${API_BASE}/optimize/road`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(config) }).then((res) => res.json()),
     getBenchmarks: {
         prediction: (force) => maybeReal(`/benchmarks/prediction${force ? "?force=true" : ""}`, () => getPredictionBenchmarks()),
         // Combined optimizer benchmark (one backend compute). Live mode recomputes on

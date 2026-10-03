@@ -21,10 +21,13 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 | Method · Path | Purpose |
 |---------------|---------|
 | `GET /api/health` | Liveness, calibration scale, pool size, and fleet-storage readiness |
+| `GET /api/security/status` | Non-secret CORS, rate-limit, logging, and security-header posture |
 | `GET /api/status` | Active predictor version plus fleet, factor, storage, artifact hash, and holdout-metric status |
+| `GET /api/auth/session` · `POST /api/auth/logout` | Same-origin session discovery and cookie logout |
 | `GET /api/fleet/storage` · `POST /api/fleet/backups` | Fleet SQLite schema status and admin-only consistent backup |
 | `GET /api/models` | Model registry metadata, artifact presence, SHA-256, and holdout metrics |
 | `GET /api/models/health` · `POST /api/models/{name}/archive` | Model health checks and admin-only rollback archive creation |
+| `GET /api/benchmarks/confidence` | 95% confidence intervals where seed dispersion is available |
 | `GET /api/digital-twins` | Fleet-level synthetic twin summaries |
 | `POST /api/fuels/sensitivity` | Indicative fuel price/WtW sensitivity scenarios |
 | `POST /api/compliance/annual` | Indicative year-by-year CII-style checks |

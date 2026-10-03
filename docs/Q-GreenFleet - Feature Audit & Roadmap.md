@@ -34,7 +34,7 @@ The implementation is not yet a production fleet-management product. Vessel and 
 
 | # | Roadmap feature | Status | Evidence in repository | Remaining work |
 |---:|---|---|---|---|
-| 1 | Fleet and vessel management | **Partial** | `backend/data/fleet_db.py` provides SQLite-backed fleet records with one-time JSON migration, schema versioning, consistent admin backups, and lock-safe access; `/api/vessels` provides CRUD, `/availability` records changes, `/availability-history` exposes the audit trail, and optional viewer/operator/admin bearer roles protect the API when configured. | Connect frontend identity/session management, add organization-level ownership/permissions, and configure off-host backup retention. |
+| 1 | Fleet and vessel management | **Partial** | `backend/data/fleet_db.py` provides SQLite-backed fleet records with one-time JSON migration, schema versioning, consistent admin backups, and lock-safe access; `/api/vessels` provides CRUD, `/availability` records changes, `/availability-history` exposes the audit trail; signed same-origin sessions are discovered through `/api/auth/session`, and optional viewer/operator/admin roles protect the API when configured. | Add organization-level ownership/permissions and configure off-host backup retention. |
 | 2 | AI fuel-consumption prediction | **Partial** | `backend/prediction/` contains physics and ML paths; the generated telemetry model is trained with holdout metrics and loaded when `models/synthetic_engine_xgb.joblib` exists; `/api/predict/fuel`, `/api/status`, `/api/models`, and `/api/models/health` expose predictor/version/artifact/hash/health metadata, including tree counterfactuals when active. Admins can archive artifacts before promotion. | Replace synthetic training with reviewed measured telemetry and connect archive selection/promotion/rollback to deployment monitoring. |
 | 3 | Quantum-inspired fleet optimizer | **Implemented** | `backend/optimization/mo_qpso.py` and `fleet_engine.py` implement MO-QPSO with mixed-variable decoding, repair, and a Pareto archive. | Continue algorithm validation; this is quantum-inspired classical software and must not be described as quantum speedup. |
 | 4 | Lifecycle emissions calculator | **Implemented** | `backend/emissions/energy.py`, `lifecycle.py`, `factors.py`, `cost.py`, and `compliance.py`; unit tests cover WtT/TtW/WtW, shore power, cost, and caps. | Replace representative assumptions where necessary with approved, versioned pathway datasets and formal regulatory review. |
@@ -49,7 +49,7 @@ The implementation is not yet a production fleet-management product. Vessel and 
 | 13 | Maritime data integration | **Partial / data-dependent** | MRV, ERA5, GFW, AIS collection helpers, dataset registry, schema audits, provenance, embedded credentials, and a successful 25,741-vessel registry rebuild exist. AIS live refresh is operational but returned zero broadcasts in the tested window. | Add scheduled refresh/retention, validate AIS coverage over longer windows, and establish production ETL/licensing/monitoring. |
 | 14 | Regulatory KPI monitor | **Partial** | `backend/emissions/compliance.py` implements CII-style checks; `/api/compliance/cii` and `/api/compliance/annual` provide year-by-year indicative results with explicit labels. | Add official current rule/reference-data versioning and regulatory reporting review. |
 | 15 | Benchmarking lab | **Implemented** | `backend/experiments/`, `/api/benchmarks/*`, `frontend/src/pages/Benchmarking.jsx`, and `results/metrics/` provide prediction and optimizer benchmark views. | Add CI regression thresholds, experiment artifact retention, and broader dataset/model coverage. |
-| 16 | Explainable AI | **Implemented** | `backend/prediction/explainability.py` provides global SHAP importances; `/api/predict/fuel` returns current-input counterfactual drivers and `/api/eacf/evaluate` exposes the explanation pillar. | Add true per-prediction SHAP values when a tree model is active. |
+| 16 | Explainable AI | **Implemented** | `backend/prediction/explainability.py` provides global SHAP importances; `/api/predict/fuel` returns local SHAP values when the active tree artifact supports them, plus counterfactual drivers; `/api/eacf/evaluate` exposes the explanation pillar. | Maintain explanation compatibility as models change. |
 | 17 | Data provenance | **Implemented** | `backend/data/provenance.py`, governance/registry modules, `/api/provenance`, `/api/experiments`, and the Provenance page provide source/type/unit/formula metadata. | Persist immutable run manifests, link every result field to exact dataset hashes, and add access/audit controls. |
 
 ## What is available today
@@ -85,6 +85,8 @@ The first stabilization slice is now implemented:
 - The frontend status banner reports the live model version and fleet-data status when `/api/status` responds; request-level fallback behavior remains visible as a limitation.
 - `/api/models` reports model artifact presence, SHA-256, dataset metadata, and holdout metrics for prediction governance; optimizer recommendations carry the same provenance hashes in `engineMetadata`.
 - `/api/health` includes fleet-storage readiness metadata; SQLite uses a busy timeout and autocommit initialization to tolerate concurrent health/backup access.
+- Operational middleware now adds request IDs, redacted structured logs, security headers, and configurable per-client rate limiting; `/api/security/status` reports non-secret posture flags.
+- `/api/benchmarks/confidence` reports 95% intervals when benchmark seed dispersion is available.
 - Backend regression coverage now includes the status endpoint and optimization metadata contract.
 
 Remaining work after this phase is frontend-to-backend identity/session integration, organization-level authorization, database migrations/backups, stronger live/fallback error presentation, and controlled model promotion/rollback.
@@ -121,17 +123,17 @@ The prototype telemetry model can be regenerated locally with `python prediction
 
 - Connect frontend identity/token integration to fleet roles and add organization-level authorization.
 - Add richer scenario result-delta charts and connect fuel sensitivity to regional data.
-- Connect local SHAP explanations to each actual tree-model prediction.
+- Maintain local SHAP compatibility as tree-model versions change.
 - Add official regulatory reference versioning and review.
 - Operationalize MRV/ERA5/AIS/GFW ingestion with refresh and failure monitoring.
 
 ### P2 - Add research differentiation
 
-- Extend the current weather stress test into uncertainty-aware/robust optimization with distributions and confidence intervals.
+- Continue calibrating uncertainty distributions as better operational data becomes available.
 - Expand fuel-pathway intelligence with regional availability and provenance.
 - Strengthen benchmark statistics and reproducibility reporting.
 - Replace synthetic calibration/network data with approved historical and operational data.
-- Add statistical confidence reporting and CI regression thresholds to benchmark claims.
+- Add CI regression thresholds to benchmark claims.
 
 ### P3 - Advanced operational intelligence
 

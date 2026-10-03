@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { api } from '@/lib/api';
 
 const AuthContext = createContext();
 
@@ -24,7 +25,14 @@ export const AuthProvider = ({ children }) => {
 
     // On mount, restore session if available or prepare demo state
     useEffect(() => {
+        const syncBackendSession = async () => {
         try {
+            const backend = await api.getAuthSession();
+            if (backend.authenticated && backend.user) {
+                setUser(backend.user);
+                setIsAuthenticated(true);
+                return;
+            }
             const token = sessionStorage.getItem(DEMO_TOKEN_KEY) || localStorage.getItem(DEMO_TOKEN_KEY);
             const savedUser = sessionStorage.getItem(DEMO_USER_KEY) || localStorage.getItem(DEMO_USER_KEY);
             if (token) {
@@ -37,6 +45,8 @@ export const AuthProvider = ({ children }) => {
             setIsLoadingAuth(false);
             setAuthChecked(true);
         }
+        };
+        syncBackendSession();
     }, []);
 
     const loginDemo = (customDetails) => {
@@ -48,6 +58,7 @@ export const AuthProvider = ({ children }) => {
         } : DEMO_USER;
 
         try {
+            api.logoutSession().catch(() => {});
             sessionStorage.setItem(DEMO_TOKEN_KEY, 'demo');
             localStorage.setItem(DEMO_TOKEN_KEY, 'demo');
             sessionStorage.setItem(DEMO_USER_KEY, JSON.stringify(sessionUser));

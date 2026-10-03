@@ -36,6 +36,24 @@ def prediction_benchmark(force: bool = False):
     rows, _ = _prediction_rows(force)
     return rows
 
+@router.get("/confidence")
+def confidence_report(force: bool = False):
+    """Return 95% confidence intervals when benchmark rows contain seed dispersion."""
+    table = _opt_data(force).get("table", [])
+    out = []
+    for row in table:
+        item = dict(algorithm=row.get("algorithm"))
+        seeds = max(1, int(row.get("seeds", row.get("n", 1))))
+        for metric in ("hv", "hypervolume", "igd_plus"):
+            mean_value = row.get(f"{metric}_mean")
+            std_value = row.get(f"{metric}_std")
+            if mean_value is not None and std_value is not None:
+                margin = 1.96 * float(std_value) / (seeds ** 0.5)
+                item[metric] = dict(mean=float(mean_value), std=float(std_value), seeds=seeds,
+                                    ci95_low=float(mean_value) - margin, ci95_high=float(mean_value) + margin)
+        out.append(item)
+    return dict(status="ok", confidence_level=0.95, rows=out, source="benchmark_table")
+
 
 @router.get("/optimizer")
 def optimizer_all(force: bool = False):

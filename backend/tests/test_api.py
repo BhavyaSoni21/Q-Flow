@@ -19,6 +19,19 @@ def test_engine_status_reports_active_predictor_and_data_labels():
     assert "model_artifact_exists" in status and "holdout_metrics" in status
 
 
+def test_auth_session_contract_is_cookie_based():
+    session = client.get("/api/auth/session").json()
+    assert session == {"authenticated": False, "user": None}
+    assert client.post("/api/auth/logout").json() == {"logged_out": True}
+
+
+def test_security_and_confidence_contracts():
+    security = client.get("/api/security/status").json()
+    assert security["structured_logging"] is True and security["security_headers"] is True
+    confidence = client.get("/api/benchmarks/confidence").json()
+    assert confidence["confidence_level"] == 0.95 and isinstance(confidence["rows"], list)
+
+
 def test_model_registry_reports_artifact_provenance():
     rows = client.get("/api/models").json()
     engine = next(row for row in rows if row["name"] == "synthetic_engine_xgb")
@@ -110,6 +123,7 @@ def test_predict_fuel_frontend_shape():
     assert r["fuel"] > 0 and r["sanity"] in ("pass", "flag")
     assert r["explanation"] and r["explanation"][0]["method"] == "physics_counterfactual"
     assert "explanation_source" in r
+    assert any(item["method"] in ("shap_local", "tree_counterfactual") for item in r["explanation"])
 
 
 def test_data_status_and_indicative_cii():

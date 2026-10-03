@@ -13,6 +13,7 @@ charts, a single data layer that toggles between mock and the live backend.
 | `Benchmarking.jsx` | Live, recomputable optimizer + prediction benchmarks (Recompute button) |
 | `Provenance.jsx` | Data-provenance ledger, experiment log, and MRV/ERA5/AIS/GFW availability |
 | API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, and EACF contracts are exposed through `src/lib/api.js` |
+| Authentication bridge | `AuthContext` synchronizes `/api/auth/session`; live API calls use same-origin cookies with `credentials: include`; no bearer secret is stored in browser build variables |
 | `Emissions.jsx` | Lifecycle factors plus indicative CII-style KPI check |
 | `Landing.jsx`, auth pages | Marketing landing + instant access |
 
