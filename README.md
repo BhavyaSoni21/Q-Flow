@@ -9,7 +9,7 @@
 ![frontend](https://img.shields.io/badge/frontend-React%20%2B%20Vite-61dafb)
 ![optimizer](https://img.shields.io/badge/optimizer-MO--QPSO%20vs%20NSGA--II-blue)
 ![modes](https://img.shields.io/badge/modes-ship%20%2B%20road-0ea5e9)
-![tests](https://img.shields.io/badge/tests-53%20passing-success)
+![tests](https://img.shields.io/badge/tests-66%20passing-success)
 
 Q-Flow is an **auditable decision-support platform** that predicts vehicle/vessel
 fuel consumption, prices the lifecycle emissions and operating cost of each fuel
@@ -241,14 +241,14 @@ Q-Flow/
 │   ├── data/                  # MRV/ERA5/GFW loaders, provenance, splits, governance, user_db (SQLite)
 │   ├── experiments/           # benchmarks + benchmark_service (live, cached)
 │   ├── schemas/               # pydantic request/response (OptimizeRequest incl. origin_port/destination_port)
-│   └── tests/                 # 53 tests
+│   └── tests/                 # 66 tests
 ├── frontend/
 │   ├── src/pages/             # Landing, About, Features, Dashboard, Scenario, Optimization, Prediction, Benchmarking…
 │   ├── src/lib/               # api.js (mock↔live), store.jsx (mode + sessionStorage), types.js (PORTS, ROUTES, getRouteDistance)
 │   ├── src/components/        # charts, layout, landing, shared UI
 │   └── vercel.json            # SPA rewrites
 ├── docs/                      # architecture, algorithm, model-versions, provenance…
-├── handbook/                  # this project's authoritative reference
+├── handbook/                  # authoritative reference — MASTER.md is the single-file edition of all chapters
 ├── results/metrics/           # recorded benchmark outputs
 └── Makefile                   # install / train / benchmark / test / run
 ```
@@ -326,10 +326,10 @@ make benchmark      # regenerate results/metrics/
 ## 19. Testing
 
 ```bash
-make test           # 53 tests  (API, engine, constraints, emissions, prediction, road, data)
+make test           # 66 tests  (API, engine, constraints, emissions, prediction, road, data)
 ```
-**53 passing `VERIFIED METRIC`** — covering the emissions math, optimizer feasibility,
-road fleet, API contract, and data layer.
+**66 passing `VERIFIED METRIC`** — covering the emissions math, optimizer feasibility,
+road fleet, API contract, and data layer. (`python -m pytest -q --collect-only` → `66 tests collected`.)
 
 ## 20. Limitations
 

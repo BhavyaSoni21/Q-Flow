@@ -50,7 +50,7 @@ VITE_USE_MOCK=false
 ## Other make targets
 
 ```bash
-make test           # 53 backend tests
+make test           # 66 backend tests
 make train          # train + persist prediction models  → models/
 make benchmark      # regenerate benchmark results        → results/metrics/
 make clean          # drop __pycache__ / .pytest_cache

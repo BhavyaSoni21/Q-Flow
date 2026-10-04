@@ -14,7 +14,7 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 | `data/` | MRV/ERA5/GFW loaders, `provenance.py`, `splits.py`, `governance.py`, `user_db.py` (SQLite), `ingest/` |
 | `experiments/` | benchmark scripts + `benchmark_service.py` (live, cached recompute) |
 | `schemas/` | pydantic request/response models |
-| `tests/` | 62 tests |
+| `tests/` | 66 tests |
 
 ## Endpoints (all under `/api`)
 
@@ -93,7 +93,7 @@ on `?force=true` **when the MRV datasets are present**.
 
 ```bash
 cd backend && python -m uvicorn app:app --port 8000
-python -m pytest -q        # 62 tests
+python -m pytest -q        # 66 tests
 ```
 
 For the prototype telemetry predictor, regenerate the local ignored artifact with
