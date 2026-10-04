@@ -118,6 +118,8 @@ Three cooperating components turn a scenario into an explainable recommendation:
 - **5.4 Live, recomputable benchmarks** — the Benchmarking page computes from the real engine on demand (cached, with a Recompute button). `IMPLEMENTED`
 - **5.5 Provenance & experiment log** — every field tagged measured/derived/synthetic; every run recorded with seed, dataset, model version. `IMPLEMENTED`
 - **5.6 Multi-modal** — the same optimizer core runs **ship** and **road** fleets, selectable from the UI. `IMPLEMENTED`
+- **5.7 SEO & Accessibility** — frontend configured with `robots.txt`, `sitemap.xml`, and web manifest to support search indexing and modern web standards. `IMPLEMENTED`
+- **5.8 Independent Audit & Sandbox Mode** — includes a transparent [SIH26138 Audit Report](docs/qflow-sih26138-audit.md) and provides a read-only **Sandbox / Demo Mode** for reviewers to verify outputs using deterministic, representative scenarios without requiring admin credentials. `IMPLEMENTED`
 
 ## 6. Innovation & uniqueness
 

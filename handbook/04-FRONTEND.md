@@ -15,7 +15,7 @@ charts, a single data layer that toggles between mock and the live backend.
 | API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, and EACF contracts are exposed through `src/lib/api.js` |
 | Authentication bridge | `AuthContext` synchronizes `/api/auth/session`; live API calls use same-origin cookies with `credentials: include`; no bearer secret is stored in browser build variables |
 | `Emissions.jsx` | Lifecycle factors plus indicative CII-style KPI check |
-| `Landing.jsx`, auth pages | Marketing landing + instant access |
+| `Landing.jsx`, auth pages | Marketing landing + read-only Sandbox/Demo access for independent auditing |
 
 ## Data layer (`src/lib/`)
 
@@ -86,6 +86,10 @@ prototype samples in mock mode. In live mode, the graphs use
 `GET /api/predict/scatter`; if a recorded validation artifact is unavailable, the
 charts show `No validation points available` instead of rendering a blank graph.
 
+
+## SEO, Accessibility & Route Selection `IMPLEMENTED`
+
+The frontend includes `robots.txt`, `sitemap.xml`, and `site.webmanifest` to ensure proper search engine indexing and accessibility. State management (`store.jsx`) and authentication context (`AuthContext.jsx`) have been hardened to improve route selection, ensuring authenticated states and correct mode states (Ship/Road) are securely maintained across page navigation. Routing and SPA behavior are strictly governed by `vercel.json` which supports these assets natively.
 
 ## Build & run
 
