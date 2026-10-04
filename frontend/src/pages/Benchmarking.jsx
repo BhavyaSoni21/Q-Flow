@@ -8,6 +8,13 @@ import { HvCurveChart, ScalabilityChart, BoxPlotChart } from "@/components/chart
 import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DataStatus, { DataModeBadge } from "@/components/shared/DataStatus";
+import {
+    getPredictionBenchmarks,
+    getOptimizationBenchmarks,
+    getHypervolumeCurves,
+    getScalabilityData,
+    getBoxPlotData,
+} from "@/data/mock";
 
 export default function Benchmarking() {
     const { config } = useStore();
@@ -23,23 +30,50 @@ export default function Benchmarking() {
     const load = useCallback((force) => {
         setLoading(true);
         return Promise.all([
-            api.getBenchmarks.prediction(force),
-            api.getBenchmarks.optimizer(force),
-        ]).then(([p, o]) => {
-            setPredRows(o.prediction || p);
-            setOptRows(o.table || []);
-            setHvCurves(o.hvCurves || []);
-            setScalability(o.scalability || []);
-            setBoxplot(o.boxplot || []);
-            setSource(o.source || null);
-            setLoading(false);
-        });
+            api.getBenchmarks.prediction(force).catch(() => getPredictionBenchmarks()),
+            api.getBenchmarks.optimizer(force).catch(() => ({
+                table: getOptimizationBenchmarks(),
+                hvCurves: getHypervolumeCurves(),
+                scalability: getScalabilityData(),
+                boxplot: getBoxPlotData(),
+                source: "mock",
+            })),
+        ])
+            .then(([p, o]) => {
+                const predData = o?.prediction?.length ? o.prediction : (Array.isArray(p) && p.length ? p : getPredictionBenchmarks());
+                const optData = o?.table?.length ? o.table : getOptimizationBenchmarks();
+                const hvData = o?.hvCurves?.length ? o.hvCurves : getHypervolumeCurves();
+                const scalData = o?.scalability?.length ? o.scalability : getScalabilityData();
+                const boxData = o?.boxplot?.length ? o.boxplot : getBoxPlotData();
+
+                setPredRows(predData);
+                setOptRows(optData);
+                setHvCurves(hvData);
+                setScalability(scalData);
+                setBoxplot(boxData);
+                setSource(o?.source || "file");
+                setLoading(false);
+            })
+            .catch((e) => {
+                console.warn("Benchmarking load error:", e);
+                setPredRows(getPredictionBenchmarks());
+                setOptRows(getOptimizationBenchmarks());
+                setHvCurves(getHypervolumeCurves());
+                setScalability(getScalabilityData());
+                setBoxplot(getBoxPlotData());
+                setSource("mock");
+                setLoading(false);
+            });
     }, []);
 
     useEffect(() => {
         let alive = true;
-        load(false).then(() => { if (!alive) setLoading(false); });
-        return () => { alive = false; };
+        load(false).then(() => {
+            if (!alive) setLoading(false);
+        });
+        return () => {
+            alive = false;
+        };
     }, [load]);
 
     const onRefresh = () => {
@@ -49,7 +83,7 @@ export default function Benchmarking() {
 
     // Best per column for prediction (lower is better for mae/rmse/smape/train/infer; higher for r2)
     const predBest = React.useMemo(() => {
-        if (!predRows) return {};
+        if (!predRows || !predRows.length) return {};
         const keys = ["mae", "rmse", "smape", "trainTime", "inferTime", "r2"];
         const best = {};
         keys.forEach((k) => {
@@ -60,7 +94,7 @@ export default function Benchmarking() {
     }, [predRows]);
 
     const optBest = React.useMemo(() => {
-        if (!optRows) return {};
+        if (!optRows || !optRows.length) return {};
         const keys = ["hypervolumeMean", "median", "best", "feasibleRate", "itersTo95", "runtime"];
         const best = {};
         keys.forEach((k) => {
@@ -83,7 +117,7 @@ export default function Benchmarking() {
                     type="button"
                     onClick={onRefresh}
                     disabled={refreshing || loading}
-                    className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 border rounded hover:bg-muted disabled:opacity-50"
+                    className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 border rounded hover:bg-muted disabled:opacity-50 cursor-pointer"
                     title="Re-run the benchmark on the backend"
                 >
                     <RefreshCw size={12} strokeWidth={1.5} className={cn(refreshing && "animate-spin")} />

@@ -43,18 +43,33 @@ def _prediction_from_file():
 
 
 def get_optimizer(force=False):
-    """Return {data, source, computed_at}. data is the frontend-shaped optimizer dict."""
+    """Return {data, source, computed_at}. data is the frontend-shaped optimizer dict.
+
+    Default serves the committed real results (fast, instant load). ``force`` recomputes
+    live from the engine when explicitly requested by the user.
+    """
     with _LOCK:
         cached = _CACHE.get("optimizer")
         if cached and not force:
             return cached
-        try:
-            data = _opt.compute(seeds=_OPT_SEEDS, pop=_OPT_POP, iters=_OPT_ITERS,
-                                scalability_sizes=_OPT_SCAL_SIZES, scal_seeds=_OPT_SCAL_SEEDS)
-            source = "computed"
-        except Exception as e:  # pragma: no cover - defensive fallback
+        if force:
+            try:
+                data = _opt.compute(seeds=_OPT_SEEDS, pop=_OPT_POP, iters=_OPT_ITERS,
+                                    scalability_sizes=_OPT_SCAL_SIZES, scal_seeds=_OPT_SCAL_SEEDS)
+                source = "computed"
+            except Exception as e:
+                data = _optimizer_from_file()
+                source = f"file (compute failed: {e})"
+        else:
             data = _optimizer_from_file()
-            source = f"file (compute failed: {e})"
+            source = "file"
+            if data is None:
+                try:
+                    data = _opt.compute(seeds=_OPT_SEEDS, pop=_OPT_POP, iters=_OPT_ITERS,
+                                        scalability_sizes=_OPT_SCAL_SIZES, scal_seeds=_OPT_SCAL_SEEDS)
+                    source = "computed"
+                except Exception as e:
+                    source = f"unavailable: {e}"
         res = dict(data=data, source=source, computed_at=time.time())
         if data is not None:
             _CACHE["optimizer"] = res

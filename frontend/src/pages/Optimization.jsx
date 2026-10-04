@@ -207,36 +207,25 @@ export function OptimizationView({ isOverlay = false, onClose }) {
     ];
 
     return (
-        <div className="p-4 sm:p-6 flex flex-col gap-5 max-w-full">
+        <div className="flex flex-col gap-5 w-full">
             {isOverlay && (
-                <div className="flex items-center justify-between px-5 py-3.5 bg-gradient-to-r from-[#002f4b] via-[#004a75] to-[#006e9e] text-white rounded-md shadow-md shrink-0">
-                    <div className="flex items-center gap-3.5">
-                        <div className="h-9 w-9 rounded-full bg-white/15 flex items-center justify-center shrink-0 border border-white/20">
-                            <Sparkles size={18} className="text-amber-300" />
+                <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1e293b] border border-border rounded-md shadow-xs shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-[#0076a8]/10 text-[#0076a8] dark:text-[#38bdf8] flex items-center justify-center shrink-0">
+                            <Sparkles size={16} />
                         </div>
                         <div>
-                            <div className="flex items-center gap-2.5">
-                                <h2 className="text-sm font-bold text-white tracking-wide">Fleet Optimization Results</h2>
-                                <span className="bg-emerald-500/25 text-emerald-200 border border-emerald-400/40 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                                    <CheckCircle2 size={10} /> Pareto Front Solved ({pareto.length} Candidates)
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-xs font-bold text-foreground uppercase tracking-wide">Multi-Objective Pareto Frontier</h2>
+                                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <CheckCircle2 size={10} /> {pareto.length} Feasible Solutions
                                 </span>
                             </div>
-                            <p className="text-[11px] text-sky-100/90 mt-0.5">
-                                Multi-Objective QPSO Engine · Fuel Consumption, Voyage Operating Cost & Lifecycle Emissions
+                            <p className="text-[11px] text-muted-foreground mt-0.5">
+                                Evaluated across Fuel Consumption (t), Operating Cost (INR), and Well-to-Wake Lifecycle GHG (tCO2e)
                             </p>
                         </div>
                     </div>
-                    {onClose && (
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white text-xs font-semibold px-3.5 py-2 rounded border border-white/25 transition-all cursor-pointer shadow-sm"
-                            aria-label="Close optimization overlay"
-                        >
-                            <X size={15} />
-                            <span>Return to Scenario</span>
-                        </button>
-                    )}
                 </div>
             )}
 

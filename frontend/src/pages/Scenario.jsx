@@ -765,26 +765,45 @@ export default function Scenario() {
                 </div>
             </div>
 
-            {/* ── Full-Screen Near-Modal Optimization Overlay with Backdrop Blur ── */}
+            {/* ── Full-Screen Seamless Optimization View with Fixed Top Bar & Scrollable Content ── */}
             {showOptimizationOverlay && (
                 <div
-                    className="fixed inset-0 z-[120] flex flex-col bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[120] flex flex-col bg-[#f7f9fb] dark:bg-[#0f172a] text-foreground animate-in fade-in duration-200"
                     role="dialog"
                     aria-modal="true"
                     aria-label="Fleet Optimization Results Overlay"
                 >
                     {/* Top persistent Navbar & Utility Bar */}
-                    <div className="shrink-0 z-20 shadow-md">
+                    <div className="shrink-0 z-30 shadow-sm border-b border-[#e8ecf0] dark:border-[#1f2d3d] bg-white dark:bg-[#111827]">
                         <TopUtilityBar />
                         <SiteHeader />
-                    </div>
-
-                    {/* Main scrollable Optimization container */}
-                    <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 flex justify-center pb-20">
-                        <div className="w-full max-w-[1440px] bg-background border border-border shadow-2xl rounded-lg flex flex-col mb-12">
-                            <OptimizationView isOverlay={true} onClose={() => setShowOptimizationOverlay(false)} />
+                        {/* Sub-header Bar with back button */}
+                        <div className="bg-white dark:bg-[#111827] border-t border-[#e8ecf0] dark:border-[#1f2d3d] px-4 sm:px-6 h-11 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                                    <Sparkles size={14} className="text-[#0076a8]" /> Fleet Optimization Results
+                                </span>
+                                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                                    Pareto Front Solved
+                                </span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setShowOptimizationOverlay(false)}
+                                className="inline-flex items-center gap-1.5 bg-[#0076a8] hover:bg-[#005e86] text-white text-xs font-semibold px-3 py-1.5 rounded transition-colors cursor-pointer shadow-xs"
+                            >
+                                <X size={14} />
+                                <span>Close & Return to Scenario</span>
+                            </button>
                         </div>
                     </div>
+
+                    {/* Main scrollable Optimization container with 100% consistent background */}
+                    <main className="flex-1 min-h-0 overflow-y-auto bg-[#f7f9fb] dark:bg-[#0f172a]">
+                        <div className="max-w-[1440px] mx-auto w-full px-4 sm:px-6 py-5 pb-28">
+                            <OptimizationView isOverlay={true} onClose={() => setShowOptimizationOverlay(false)} />
+                        </div>
+                    </main>
                 </div>
             )}
         </div>
