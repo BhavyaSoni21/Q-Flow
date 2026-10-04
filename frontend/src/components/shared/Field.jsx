@@ -1,10 +1,13 @@
-import React from "react";
+﻿import React from "react";
 import { cn } from "@/lib/utils";
 
 export function LabeledInput({ label, value, onChange, type = "text", unit, error, min, max, step, disabled }) {
     return (
         <div className="flex flex-col gap-1">
-            <label className="label-eyebrow">{label}{unit && <span className="text-muted-foreground/70 normal-case tracking-normal"> ({unit})</span>}</label>
+            <label className="label-eyebrow">
+                {label}
+                {unit && <span className="text-muted-foreground/60 normal-case tracking-normal ml-1">({unit})</span>}
+            </label>
             <input
                 type={type}
                 value={value}
@@ -14,12 +17,18 @@ export function LabeledInput({ label, value, onChange, type = "text", unit, erro
                 step={step}
                 disabled={disabled}
                 className={cn(
-                    "h-8 px-2 border bg-background text-foreground num text-xs",
-                    "focus:outline-none focus:border-accent disabled:opacity-50 disabled:cursor-not-allowed",
-                    error ? "border-status-red" : "border-input"
+                    "h-8 px-2.5 border bg-background text-foreground num text-xs rounded-sm",
+                    "focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20",
+                    "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-muted",
+                    "placeholder:text-muted-foreground/50",
+                    error ? "border-[hsl(var(--status-red))] bg-[hsl(var(--status-red))/5]" : "border-input"
                 )}
             />
-            {error && <span className="text-[11px] text-status-red">{error}</span>}
+            {error && (
+                <span className="text-[11px] text-[hsl(var(--status-red))] flex items-center gap-1">
+                    {error}
+                </span>
+            )}
         </div>
     );
 }
@@ -33,8 +42,9 @@ export function LabeledSelect({ label, value, onChange, options, disabled }) {
                 onChange={(e) => onChange(e.target.value)}
                 disabled={disabled}
                 className={cn(
-                    "h-8 px-2 border bg-background text-foreground text-xs",
-                    "focus:outline-none focus:border-accent disabled:opacity-50"
+                    "h-8 px-2.5 border border-input bg-background text-foreground text-xs rounded-sm",
+                    "focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20",
+                    "disabled:opacity-50 disabled:bg-muted cursor-pointer"
                 )}
             >
                 {options.map((o) => (
@@ -49,24 +59,27 @@ export function LabeledSelect({ label, value, onChange, options, disabled }) {
 
 export function Checkbox({ checked, onChange, label, disabled }) {
     return (
-        <label className={cn("inline-flex items-center gap-2 cursor-pointer select-none", disabled && "opacity-50 cursor-not-allowed")}>
+        <label className={cn("inline-flex items-center gap-2 cursor-pointer select-none group", disabled && "opacity-50 cursor-not-allowed")}>
             <input
                 type="checkbox"
                 checked={checked}
                 onChange={(e) => onChange(e.target.checked)}
                 disabled={disabled}
-                className="w-3.5 h-3.5 accent-[hsl(var(--accent))]"
+                className="w-3.5 h-3.5 accent-[hsl(var(--accent))] cursor-pointer"
             />
-            {label && <span className="text-xs">{label}</span>}
+            {label && (
+                <span className="text-xs group-hover:text-foreground transition-colors">{label}</span>
+            )}
         </label>
     );
 }
 
 export function SquareButton({ children, onClick, variant = "primary", disabled, className, type = "button" }) {
     const variants = {
-        primary: "bg-primary text-primary-foreground hover:bg-primary/90 border-primary",
-        secondary: "bg-background text-foreground border-input hover:bg-muted",
+        primary: "bg-[#0076a8] text-white hover:bg-[#005e86] border-[#0076a8] hover:border-[#005e86] shadow-sm",
+        secondary: "bg-background text-foreground border-input hover:bg-muted hover:border-[#0076a8]/30",
         ghost: "bg-transparent text-foreground border-transparent hover:bg-muted",
+        danger: "bg-red-600 text-white border-red-600 hover:bg-red-700",
     };
     return (
         <button
@@ -74,7 +87,7 @@ export function SquareButton({ children, onClick, variant = "primary", disabled,
             onClick={onClick}
             disabled={disabled}
             className={cn(
-                "h-8 px-3 text-xs font-medium border transition-colors duration-150",
+                "h-8 px-3 text-xs font-semibold border rounded-sm transition-all duration-150",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 variants[variant],
                 className

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
 
 const MODULES = [
@@ -6,19 +6,19 @@ const MODULES = [
     { icon: "fas fa-brain",          title: "Fuel Prediction Lab",        sub: "XGBoost + QPSO-tuned model",        to: "/prediction" },
     { icon: "fas fa-atom",           title: "Quantum Optimizer",          sub: "MO-QPSO Pareto fleet search",       to: "/optimization" },
     { icon: "fas fa-chart-bar",      title: "Benchmark Lab",              sub: "QPSO vs NSGA-II comparison",        to: "/benchmarking" },
-    { icon: "fas fa-leaf",           title: "Lifecycle Emissions",        sub: "WtT · TtW · WtW · shore power",    to: "/emissions" },
-    { icon: "fas fa-shield-alt",     title: "Data Provenance",            sub: "AIS · MRV · ERA5 · factors",       to: "/provenance" },
-    { icon: "fas fa-ship",           title: "Vessel Scenarios",           sub: "Hydrodynamics · draft · trim",      to: "/scenario" },
+    { icon: "fas fa-leaf",           title: "Lifecycle Emissions",        sub: "WtT ┬╖ TtW ┬╖ WtW ┬╖ shore power",    to: "/emissions" },
+    { icon: "fas fa-shield-alt",     title: "Data Provenance",            sub: "AIS ┬╖ MRV ┬╖ ERA5 ┬╖ factors",       to: "/provenance" },
+    { icon: "fas fa-ship",           title: "Vessel Scenarios",           sub: "Hydrodynamics ┬╖ draft ┬╖ trim",      to: "/scenario" },
     { icon: "fas fa-bolt",           title: "Shore Power",                sub: "OPS cost & grid emissions",         to: "/emissions" },
     { icon: "fas fa-award",          title: "CII & EEXI",                 sub: "IMO compliance ratings",            to: "/benchmarking" },
-    { icon: "fas fa-project-diagram","title": "Pareto Front",             sub: "Fuel · cost · GHG trade-offs",     to: "/optimization" },
-    { icon: "fas fa-check-double",   title: "Constraint Audit",           sub: "Cargo · schedule · bunkering",     to: "/scenario" },
-    { icon: "fas fa-gas-pump",       title: "Green Fuel Pathways",        sub: "Methanol · H₂ · LNG · ammonia",    to: "/emissions" },
+    { icon: "fas fa-project-diagram","title": "Pareto Front",             sub: "Fuel ┬╖ cost ┬╖ GHG trade-offs",     to: "/optimization" },
+    { icon: "fas fa-check-double",   title: "Constraint Audit",           sub: "Cargo ┬╖ schedule ┬╖ bunkering",     to: "/scenario" },
+    { icon: "fas fa-gas-pump",       title: "Green Fuel Pathways",        sub: "Methanol ┬╖ HΓéé ┬╖ LNG ┬╖ ammonia",    to: "/emissions" },
 ];
 
 export default function ModulesBand() {
     return (
-        <section style={{ background: "linear-gradient(180deg, #0B2D4F 0%, #0A2340 100%)" }}
+        <section id="features" style={{ background: "linear-gradient(180deg, #0B2D4F 0%, #0A2340 100%)" }}
             className="font-['Open_Sans',sans-serif] border-t border-[#0D3460]">
             <div className="max-w-[1280px] mx-auto px-6 py-14">
 

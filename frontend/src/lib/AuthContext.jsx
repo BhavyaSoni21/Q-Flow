@@ -1,14 +1,14 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+﻿import React, { createContext, useState, useContext, useEffect } from 'react';
 import { api } from '@/lib/api';
 
 const AuthContext = createContext();
 
-// ─── Default User ─────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Default User ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 export const DEMO_USER = {
     id: 'user-1',
-    email: 'guest@sandbox.qflow',
-    full_name: 'Guest Viewer',
-    role: 'viewer',
+    email: 'fleet@qflow.app',
+    full_name: 'Fleet Officer',
+    role: 'admin',
 };
 
 const DEMO_TOKEN_KEY = 'demo_auth_token';
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
             id: 'user-' + Date.now(),
             email: customDetails.email,
             full_name: customDetails.full_name || customDetails.email.split('@')[0],
-            role: 'viewer',  // sandbox sessions are always read-only viewer
+            role: 'admin',
         } : DEMO_USER;
 
         try {
@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }) => {
         }
         setUser(null);
         setIsAuthenticated(false);
-        window.location.href = '/login';
+        window.location.href = '/';
     };
 
     const navigateToLogin = () => {

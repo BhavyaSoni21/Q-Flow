@@ -47,7 +47,8 @@ def optimize_config_to_request(cfg):
     return dict(route_distance_nm=cfg.get("distance", 600), cargo_demand_tonnes=cfg.get("cargoDemand", 45000),
                 deadline_hours=cfg.get("deadline", 52), vessel_ids=cfg.get("selectedVessels") or None,
                 allowed_fuels=allowed, shore_power=bool(cfg.get("shorePowerEnabled", False)),
-                weather=weather, carbon_price_usd_per_t=cfg.get("carbonPrice", 0))
+                weather=weather, carbon_price_usd_per_t=cfg.get("carbonPrice", 0),
+                origin_port=cfg.get("originPort"), destination_port=cfg.get("destinationPort"))
 
 
 def _deployment_rows(sol):

@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -28,28 +28,24 @@ export default function LandingHeader() {
                 {/* Navigation */}
                 <nav className="flex items-center gap-0">
                     {[
-                        { to: "/", label: "Home", end: true },
-                        { to: "/scenario", label: "Scenario" },
-                        { to: "/optimization", label: "Optimization" },
-                        { to: "/benchmarking", label: "Benchmarking" },
-                        { to: "/prediction", label: "Prediction" },
-                        { to: "/emissions", label: "Emissions" },
-                        { to: "/provenance", label: "Data & Provenance" },
+                        { id: null,       href: "/",         label: "Home" },
+                        { id: "features", href: "#features", label: "Features" },
+                        { id: "about",    href: "#about",    label: "About Us" },
                     ].map((item) => (
-                        <NavLink
-                            key={item.to}
-                            to={item.to}
-                            end={item.end}
-                            className={({ isActive }) =>
-                                `text-[13px] font-semibold px-3.5 py-4 border-b-2 transition-colors duration-150 whitespace-nowrap ${
-                                    isActive
-                                        ? "border-[#1264AB] text-[#1264AB]"
-                                        : "border-transparent text-[#1E3A5A] hover:text-[#1264AB] hover:border-[#1264AB]"
-                                }`
-                            }
+                        <a
+                            key={item.label}
+                            href={item.href}
+                            onClick={(e) => {
+                                if (item.id) {
+                                    e.preventDefault();
+                                    const el = document.getElementById(item.id);
+                                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+                                }
+                            }}
+                            className="text-[13px] font-semibold px-3.5 py-4 border-b-2 border-transparent text-[#1E3A5A] hover:text-[#1264AB] hover:border-[#1264AB] transition-colors duration-150 whitespace-nowrap cursor-pointer"
                         >
                             {item.label}
-                        </NavLink>
+                        </a>
                     ))}
 
                     <div className="ml-4 pl-4 border-l border-[#e2e8f0] flex items-center gap-2">

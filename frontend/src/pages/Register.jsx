@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +33,7 @@ export default function Register() {
                 email: email.trim(),
                 full_name: name.trim() || email.split('@')[0],
             });
-            const target = returnTo && returnTo !== "/" ? returnTo : "/scenario";
+            const target = returnTo && returnTo !== "/" ? returnTo : "/dashboard";
             navigate(target, { replace: true });
         } catch (err) {
             setError(err.message || "Registration failed");
@@ -101,7 +101,7 @@ export default function Register() {
                         <Input
                             id="password"
                             type="password"
-                            placeholder="••••••••"
+                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="pl-10 h-11"
@@ -118,7 +118,7 @@ export default function Register() {
                         <Input
                             id="confirmPassword"
                             type="password"
-                            placeholder="••••••••"
+                            placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             className="pl-10 h-11"

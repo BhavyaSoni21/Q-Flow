@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+﻿import React, { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useStore } from "@/lib/store";
 import { Panel } from "@/components/shared/Panel";
 import { DataTable } from "@/components/shared/DataTable";
@@ -7,8 +8,7 @@ import { LabeledSelect, SquareButton } from "@/components/shared/Field";
 import { ExportCsv } from "@/components/shared/ExportButtons";
 import ParetoChart from "@/components/charts/ParetoChart";
 import { cn } from "@/lib/utils";
-import { AlertTriangle } from "lucide-react";
-import DataStatus, { DataModeBadge } from "@/components/shared/DataStatus";
+import { AlertTriangle, X, Sparkles } from "lucide-react";
 
 const CASE_STUDIES = [
     { id: "A", label: "Baseline fleet" },
@@ -17,7 +17,8 @@ const CASE_STUDIES = [
     { id: "D", label: "Adverse weather" },
 ];
 
-export default function Optimization() {
+export function OptimizationView({ isOverlay = false, onClose }) {
+    const navigate = useNavigate();
     const { results, selectedPoint, setSelectedPoint, weights, setWeights, caseStudy, setCaseStudy, config, updateConfig, runOptimization } = useStore();
     const [sortKey, setSortKey] = useState("cost");
     const [filterFeasible, setFilterFeasible] = useState(false);
@@ -61,7 +62,16 @@ export default function Optimization() {
 
     if (!results.feasible) {
         return (
-            <div className="p-4">
+            <div className="relative p-4">
+                {/* Close button ΓÇö top right corner */}
+                <button
+                    type="button"
+                    onClick={() => navigate("/scenario")}
+                    className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-red-50 hover:border-red-300 transition-colors"
+                    aria-label="Back to Scenario"
+                >
+                    <X size={16} className="text-gray-500 hover:text-red-500" />
+                </button>
                 <div className="border border-status-red/50 bg-status-red/5 p-6 flex items-start gap-3">
                     <AlertTriangle size={18} strokeWidth={1.5} className="text-status-red mt-0.5" />
                     <div>
@@ -83,7 +93,7 @@ export default function Optimization() {
 
     const constraintChecks = [
         { label: "Cargo demand", pass: deployment[0]?.cargo >= baseline?.cargo * 0.95, margin: `${(deployment[0]?.cargo ?? 0).toLocaleString()} / ${baseline?.cargo?.toLocaleString()} t` },
-        { label: "Deadline", pass: (deployment[0]?.sailingTime ?? 999) <= config.deadline + config.bufferTime, margin: `${deployment[0]?.sailingTime ?? "—"} h ≤ ${config.deadline + config.bufferTime} h` },
+        { label: "Deadline", pass: (deployment[0]?.sailingTime ?? 999) <= config.deadline + config.bufferTime, margin: `${deployment[0]?.sailingTime ?? "ΓÇö"} h Γëñ ${config.deadline + config.bufferTime} h` },
         { label: "Vessel availability", pass: true, margin: "All available" },
         { label: "Fuel compatibility", pass: true, margin: "Engine-rated" },
         { label: "Bunkering", pass: true, margin: "Ports OK" },
@@ -100,14 +110,44 @@ export default function Optimization() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
-            <DataStatus />
+            {isOverlay && (
+                <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#003859] to-[#005f94] text-white rounded-t-sm -mx-4 -mt-4 mb-2 shadow-sm shrink-0 sticky top-0 z-30">
+                    <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                            <Sparkles size={16} className="text-sky-300" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h2 className="text-sm font-bold text-white tracking-wide">Fleet Optimization Results</h2>
+                                <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    Simulation Succeeded
+                                </span>
+                            </div>
+                            <p className="text-[11px] text-sky-100">
+                                3-Objective Pareto front (Fuel ┬╖ Operating Cost ┬╖ Lifecycle WtW GHG)
+                            </p>
+                        </div>
+                    </div>
+                    {onClose && (
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-1.5 rounded-sm border border-white/20 transition-colors cursor-pointer"
+                            aria-label="Close optimization overlay"
+                        >
+                            <X size={15} />
+                            <span>Close & Return to Scenario</span>
+                        </button>
+                    )}
+                </div>
+            )}
             {engineMetadata && (
                 <div className="border bg-card px-3 py-2 text-[11px] text-muted-foreground">
                     <span className="label-eyebrow mr-2">Calculation context</span>
                     <span className="num">{engineMetadata.model_version}</span>
-                    <span className="mx-2">·</span>
+                    <span className="mx-2">┬╖</span>
                     <span>{engineMetadata.fleet_data_status.replaceAll("_", " ")}</span>
-                    <span className="mx-2">·</span>
+                    <span className="mx-2">┬╖</span>
                     <span>{engineMetadata.fuel_factor_status.replaceAll("_", " ")}</span>
                 </div>
             )}
@@ -131,8 +171,8 @@ export default function Optimization() {
                 {/* Left 60% Pareto */}
                 <div className="col-span-12 lg:col-span-7">
                     <Panel
-                        title="Pareto front — 3 objectives"
-                        actions={<DataModeBadge />}
+                        title="Pareto front ΓÇö 3 objectives"
+                        actions={null}
                     >
                         <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
                         <p className="text-[10px] text-muted-foreground mt-2">X = operating cost, Y = WtW GHG, color = fuel pathway; hover any point for fuel quantity, cost, GHG, and feasibility. Hollow square = baseline; ringed = selected.</p>
@@ -141,12 +181,12 @@ export default function Optimization() {
 
                 {/* Right 40% selected solution */}
                 <div className="col-span-12 lg:col-span-5 flex flex-col gap-3">
-                    <Panel title="Selected solution — deployment">
+                    <Panel title="Selected solution ΓÇö deployment">
                         <div className="overflow-x-auto">
                             <table className="w-full text-xs">
                                 <thead>
                                     <tr className="border-b bg-[hsl(var(--panel-header))]">
-                                        {["Vessel", "Speed kn", "Fuel", "OPS", "Cargo t", "Sail h", "Fuel t ±err", "Cost INR", "WtW tCO2e", "Feas"].map((h) => (
+                                        {["Vessel", "Speed kn", "Fuel", "OPS", "Cargo t", "Sail h", "Fuel t ┬▒err", "Cost INR", "WtW tCO2e", "Feas"].map((h) => (
                                             <th key={h} className={cn("px-1.5 py-1.5 text-[10px] uppercase text-muted-foreground", h === "Vessel" ? "text-left" : "text-right num")}>{h}</th>
                                         ))}
                                     </tr>
@@ -160,7 +200,7 @@ export default function Optimization() {
                                             <td className="px-1.5 py-1.5 text-center">{d.shorePower ? "Y" : "N"}</td>
                                             <td className="px-1.5 py-1.5 text-right num">{d.cargo.toLocaleString()}</td>
                                             <td className="px-1.5 py-1.5 text-right num">{d.sailingTime}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.fuel} ±{d.fuelError}</td>
+                                            <td className="px-1.5 py-1.5 text-right num">{d.fuel} ┬▒{d.fuelError}</td>
                                             <td className="px-1.5 py-1.5 text-right num">{d.cost.toLocaleString()}</td>
                                             <td className="px-1.5 py-1.5 text-right num">{d.wtw}</td>
                                             <td className="px-1.5 py-1.5 text-center"><StatusDot status={d.feasible} /></td>
@@ -183,17 +223,12 @@ export default function Optimization() {
                                 </div>
                             ))}
                         </div>
-                        <p className="text-[10px] text-muted-foreground mt-2 pt-2 border-t">
-                            Post-run constraint status. If a constraint was Fail pre-run but Pass here, the optimizer
-                            repaired or relaxed it (e.g., allocated multiple vessels to meet cargo, or used a vessel within buffer time).
-                            Hard constraints (fuel compatibility, vessel availability) are never bypassed.
-                        </p>
                     </Panel>
                 </div>
             </div>
 
             {/* Balanced selection sliders */}
-            <Panel title="Balanced selection — preference weights">
+            <Panel title="Balanced selection ΓÇö preference weights">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {(["fuel", "cost", "wtw"]).map((k) => (
                         <div key={k} className="flex flex-col gap-2 min-w-0 border p-3">
@@ -257,8 +292,8 @@ export default function Optimization() {
                                 <th className="text-left px-2 py-1.5 text-[10px] uppercase text-muted-foreground">Metric</th>
                                 <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Baseline</th>
                                 <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Selected</th>
-                                <th title="Optimized minus baseline; negative means a reduction" className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Δ</th>
-                                <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Δ %</th>
+                                <th title="Optimized minus baseline; negative means a reduction" className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">╬ö</th>
+                                <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">╬ö %</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -279,7 +314,7 @@ export default function Optimization() {
                         </tbody>
                     </table>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-2">Change = optimized − baseline. A negative cost or WtW change means that value decreased; absolute cost and emissions are nonnegative.</p>
+                <p className="text-[10px] text-muted-foreground mt-2">Change = optimized ΓêÆ baseline. A negative cost or WtW change means that value decreased; absolute cost and emissions are nonnegative.</p>
             </Panel>
 
             {/* Full Pareto table */}
@@ -323,4 +358,8 @@ function EmptyRun() {
             No optimization run yet. Configure a scenario and press <span className="font-semibold">Run optimization</span>.
         </div>
     );
+}
+
+export default function Optimization() {
+    return <OptimizationView />;
 }

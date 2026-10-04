@@ -1,28 +1,41 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
 
 export default function SiteFooter() {
     return (
-        <footer className="mt-auto font-['Open_Sans',sans-serif]">
-            <div className="bg-[#23354b] text-[#ccc] py-7 text-[12px] text-center">
-                <div className="max-w-[1440px] mx-auto px-4">
-                    <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 mb-4 text-white">
-                        <Link to="/" className="hover:underline">About</Link>
-                        <span className="opacity-40">|</span>
-                        <Link to="/scenario" className="hover:underline">Scenario</Link>
-                        <span className="opacity-40">|</span>
-                        <Link to="/benchmarking" className="hover:underline">Benchmarks</Link>
-                        <span className="opacity-40">|</span>
-                        <Link to="/provenance" className="hover:underline">Data &amp; Provenance</Link>
+        <footer className="mt-auto font-['Inter',sans-serif] border-t border-[#1f2d3d]">
+            <div className="bg-[#1f2d3d] dark:bg-[#0d1a26] text-[#94a3b8] py-8 text-[12px]">
+                <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
+                    {/* Top row: brand + nav links */}
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                        <div className="flex items-center gap-2">
+                            <span className="text-[16px] font-extrabold tracking-tight">
+                                <span className="text-white">Q</span>
+                                <span className="text-[#E86A00]">Flow</span>
+                            </span>
+                            <span className="text-[#475569] text-[11px] pl-2 border-l border-[#334155]">Maritime Intelligence</span>
+                        </div>
+                        <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[#94a3b8]">
+                            <Link to="/" className="hover:text-white transition-colors hover:underline underline-offset-2">About</Link>
+                            <Link to="/scenario" className="hover:text-white transition-colors hover:underline underline-offset-2">Scenario</Link>
+                            <Link to="/optimization" className="hover:text-white transition-colors hover:underline underline-offset-2">Optimization</Link>
+                            <Link to="/benchmarking" className="hover:text-white transition-colors hover:underline underline-offset-2">Benchmarks</Link>
+                            <Link to="/emissions" className="hover:text-white transition-colors hover:underline underline-offset-2">Emissions</Link>
+                            <Link to="/provenance" className="hover:text-white transition-colors hover:underline underline-offset-2">Provenance</Link>
+                        </div>
                     </div>
 
-                    <div className="max-w-[820px] mx-auto space-y-2 text-[#aaa] leading-relaxed">
-                        <p>
-                            <strong className="text-white">Q-Flow</strong> — Quantum-Inspired Fuel Prediction &amp;
-                            Green Fleet Optimization. An auditable, multi-modal decision-support platform.
+                    {/* Divider */}
+                    <div className="border-t border-[#2d3f52] mb-5" />
+
+                    {/* Bottom row */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#64748b]">
+                        <p className="text-center sm:text-left leading-relaxed">
+                            <strong className="text-[#94a3b8]">Q-Flow</strong> ΓÇö Quantum-Inspired Fuel Prediction &amp; Green Fleet Optimization.
+                            An auditable, multi-modal decision-support platform.
                         </p>
-                        <p className="text-[11px] text-[#888]">
-                            SIH26138 · benchmarked and reproducible · updated Oct 2026
+                        <p className="shrink-0 text-[10px] text-[#475569] tracking-wide">
+                            SIH26138 ┬╖ Reproducible ┬╖ Oct 2026
                         </p>
                     </div>
                 </div>

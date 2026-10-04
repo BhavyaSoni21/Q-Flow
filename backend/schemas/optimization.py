@@ -6,6 +6,10 @@ from pydantic import BaseModel, Field
 
 class OptimizeRequest(BaseModel):
     route_distance_nm: float = Field(600.0, gt=0)
+    # Port-pair origin/destination — optional; used for provenance and corridor
+    # route labeling. The distance field is always authoritative for the engine.
+    origin_port: Optional[str] = None
+    destination_port: Optional[str] = None
     cargo_demand_tonnes: float = Field(90000.0, gt=0)
     deadline_hours: float = Field(72.0, gt=0)
     vessel_ids: Optional[List[str]] = None

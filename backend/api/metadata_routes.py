@@ -195,6 +195,39 @@ def get_fuel_pathways():
     return pathways.records()
 
 
+# ---------------------------------------------------------------------------
+# Port and route presets — mirrors frontend/src/lib/types.js so the frontend
+# can optionally fetch these dynamically rather than hardcode them.
+# ---------------------------------------------------------------------------
+_PORTS = [
+    "Port 1", "Port 2",
+    "Rotterdam", "New York", "Singapore",
+    "Shanghai", "Los Angeles", "Dubai",
+    "Mumbai", "Hong Kong", "Hamburg",
+]
+
+_ROUTES = [
+    {"origin": "Port 1",     "destination": "Port 2",      "refDistance": None},
+    {"origin": "Rotterdam",  "destination": "New York",     "refDistance": 3300},
+    {"origin": "Singapore",  "destination": "Rotterdam",    "refDistance": 8400},
+    {"origin": "Shanghai",   "destination": "Los Angeles",  "refDistance": 5800},
+    {"origin": "Dubai",      "destination": "Mumbai",       "refDistance": 1100},
+    {"origin": "Hong Kong",  "destination": "Hamburg",      "refDistance": 9500},
+]
+
+
+@router.get("/ports")
+def get_ports():
+    """Return the list of known port names for the Scenario port-pair selectors."""
+    return _PORTS
+
+
+@router.get("/routes")
+def get_routes():
+    """Return route presets with reference distances (nm) for the Scenario route selectors."""
+    return _ROUTES
+
+
 @router.get("/road/vehicles")
 def get_road_vehicles():
     return [compat.road_vehicle_to_frontend(v) for v in es.ROAD_POOL]
@@ -225,6 +258,7 @@ def experiment_log(limit: int = 20):
                         datasetVersion=m.get("dataset_version"), runtime=m.get("runtime_seconds"),
                         hypervolume=m.get("hypervolume"), feasibleRate=m.get("feasibility_rate"),
                         timestamp=m.get("recorded_at"),
+                        originPort=m.get("origin_port"), destinationPort=m.get("destination_port"),
                         config=dict(algorithm=m.get("algorithm"), objectives=m.get("objective_set"))))
     return out
 

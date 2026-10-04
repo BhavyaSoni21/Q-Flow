@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function CtaBand() {
@@ -22,6 +22,7 @@ export default function CtaBand() {
 
     return (
         <section
+            id="about"
             style={{ background: "linear-gradient(135deg, #1264AB 0%, #0D4D8C 50%, #0A3870 100%)" }}
             className="text-white font-['Open_Sans',sans-serif]"
         >
@@ -48,7 +49,7 @@ export default function CtaBand() {
                     <p className="text-[14px] sm:text-[15px] leading-relaxed text-[#B8D8F0] mb-8 max-w-[600px] mx-auto">
                         Q-GreenFleet predicts vessel fuel consumption, evaluates lifecycle emissions and operating cost,
                         and uses a quantum-inspired multi-objective optimizer to select feasible vessel, speed, fuel,
-                        and shore-power decisions — benchmarked against NSGA-II under reproducible scenarios.
+                        and shore-power decisions ΓÇö benchmarked against NSGA-II under reproducible scenarios.
                     </p>
 
                     {/* Buttons */}
@@ -86,7 +87,7 @@ export default function CtaBand() {
                                         {step}
                                     </span>
                                     {i < arr.length - 1 && (
-                                        <span className="text-[#E86A00] px-1 font-bold">→</span>
+                                        <span className="text-[#E86A00] px-1 font-bold">ΓåÆ</span>
                                     )}
                                 </React.Fragment>
                             ))}
@@ -110,7 +111,7 @@ export default function CtaBand() {
                         </span>
                         /company/qflow-fleet
                     </a>
-                    <span className="text-[11px] text-[#5B8CB0] font-mono">SIH26138 · Egreen Quanta · Clean &amp; Green Technology</span>
+                    <span className="text-[11px] text-[#5B8CB0] font-mono">SIH26138 ┬╖ Egreen Quanta ┬╖ Clean &amp; Green Technology</span>
                 </div>
             </div>
 

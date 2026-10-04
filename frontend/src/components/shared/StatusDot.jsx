@@ -1,8 +1,8 @@
-import React from "react";
+﻿import React from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * StatusDot — a coloured dot + optional label, used to represent pass/fail or on/off status.
+ * StatusDot ΓÇö a coloured dot + optional label, used to represent pass/fail or on/off status.
  * Props:
  *   status  {boolean|null|undefined}  true = green, false = red, null/undefined = grey
  *   label   {string}                  optional text shown next to the dot
@@ -14,8 +14,8 @@ export function StatusDot({ status, label, size = "sm" }) {
         status === true
             ? "bg-[hsl(var(--status-green))]"
             : status === false
-            ? "bg-[hsl(var(--status-red))]"
-            : "bg-muted-foreground/40";
+                ? "bg-[hsl(var(--status-red))]"
+                : "bg-muted-foreground/40";
 
     return (
         <span className="inline-flex items-center gap-1.5">
@@ -28,7 +28,7 @@ export function StatusDot({ status, label, size = "sm" }) {
 }
 
 /**
- * Badge — a small pill badge, styled by variant.
+ * Badge ΓÇö a small pill badge, styled by variant.
  * Props:
  *   children  {ReactNode}
  *   variant   {"default"|"success"|"warning"|"error"|"outline"}

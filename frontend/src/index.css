@@ -1,10 +1,12 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
     :root {
-        /* Government-portal palette — light */
+        /* Government-portal palette ΓÇö light */
         --background: 214 33% 97%;
         /* #F5F7FA */
         --foreground: 214 28% 15%;
@@ -39,11 +41,15 @@
         --chart-4: 35 100% 40%;
         --chart-5: 3 71% 41%;
         --radius: 2px;
-        --font-heading: "Noto Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
-        --font-body: "Noto Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
-        --font-display: "Noto Sans", "Noto Sans Devanagari", ui-sans-serif, system-ui, sans-serif;
+        --font-heading: "Inter", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+        --font-body: "Inter", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+        --font-display: "Inter", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
         --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        /* Dark slate band — header/footer/utility bar/section band (#1F2D3D) */
+        --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+        --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+        --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.10), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+        /* Dark slate band ΓÇö header/footer/utility bar/section band (#1F2D3D) */
         --sidebar-background: 212 33% 18%;
         --sidebar-foreground: 210 24% 92%;
         --sidebar-primary: 202 89% 45%;
@@ -140,26 +146,41 @@
 
     html {
         font-size: 16px;
+        scroll-behavior: smooth;
     }
 
     body {
         @apply bg-background text-foreground font-body antialiased;
         font-size: 0.8125rem;
-        line-height: 1.4;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Square, high-visibility focus ring (WCAG) */
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+    ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
+
+    /* Accessible focus ring */
     :focus-visible {
         outline: 2px solid hsl(var(--ring));
-        outline-offset: 1px;
-        border-radius: 0;
+        outline-offset: 2px;
+        border-radius: 2px;
+        transition: outline-offset var(--transition-fast);
+    }
+
+    /* Smooth transitions for interactive elements */
+    button, a, input, select, textarea {
+        transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
     }
 }
 
 @layer components {
     .label-eyebrow {
-        @apply uppercase tracking-wider text-[11px] font-semibold text-muted-foreground;
-        letter-spacing: 0.06em;
+        @apply uppercase tracking-wider text-[10px] font-semibold text-muted-foreground;
+        letter-spacing: 0.08em;
     }
 
     .num {
@@ -169,5 +190,43 @@
 
     .panel-header-bar {
         @apply h-9 px-3 flex items-center justify-between border-b bg-[hsl(var(--panel-header))];
+    }
+
+    /* Elevated card with subtle shadow */
+    .card-elevated {
+        box-shadow: var(--shadow-card);
+        transition: box-shadow var(--transition-base);
+    }
+    .card-elevated:hover {
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    /* Fade-in animation for panels */
+    .fade-in {
+        animation: fadeIn 0.2s ease-out both;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hover row for tables */
+    .hover-row:hover {
+        @apply bg-primary/5;
+    }
+
+    /* Chip / badge */
+    .chip {
+        @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border;
+    }
+
+    /* Subtle section divider */
+    .section-divider {
+        @apply border-t border-border/60 my-3;
+    }
+
+    /* Primary CTA button glow */
+    .btn-glow:not(:disabled):hover {
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.18);
     }
 }

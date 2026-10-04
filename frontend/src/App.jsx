@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/toaster"
+﻿import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import AppLayout from '@/components/layout/AppLayout';
 import { StoreProvider } from '@/lib/store';
+import Dashboard from '@/pages/Dashboard';
 import Scenario from '@/pages/Scenario';
 import Optimization from '@/pages/Optimization';
 import Benchmarking from '@/pages/Benchmarking';
@@ -56,6 +57,7 @@ const AuthenticatedApp = () => {
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
                     <Route element={<AppLayout />}>
+                        <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/scenario" element={<Scenario />} />
                         <Route path="/optimization" element={<Optimization />} />
                         <Route path="/benchmarking" element={<Benchmarking />} />

@@ -40,7 +40,8 @@ async def optimize(cfg: dict):
             objective_set=["fuel", "cost", "wtw_ghg"], dataset_version="fleet_scenario_v1",
             model_version=meta.get("model_version", "physics-mrv-cal-v1"),
             runtime_seconds=out.get("runtime_s"), result_count=len(out.get("pareto", [])),
-            feasibility_rate=out["feasibility_rate"], hypervolume=(out.get("convergence") or [[0, None]])[-1][1]))
+            feasibility_rate=out["feasibility_rate"], hypervolume=(out.get("convergence") or [[0, None]])[-1][1],
+            origin_port=cfg.get("originPort"), destination_port=cfg.get("destinationPort")))
     return compat.optimize_result_to_frontend(out, cfg)
 
 
