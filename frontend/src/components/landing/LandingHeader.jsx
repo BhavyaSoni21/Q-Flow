@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -6,27 +6,27 @@ export default function LandingHeader() {
     const { isAuthenticated, user, logout } = useAuth();
 
     return (
-        <header className="bg-white border-b border-[#C8DDEF] font-['Open_Sans',sans-serif] shadow-sm">
-            <div className="max-w-[1280px] mx-auto px-6 h-[60px] flex justify-between items-center">
+        <header className="bg-white/95 backdrop-blur-sm border-b border-[#E2E8F0] font-['Open_Sans',sans-serif] shadow-sm sticky top-0 z-50 transition-all">
+            <div className="max-w-[1440px] mx-auto px-6 h-[64px] flex justify-between items-center">
                 {/* Logo */}
-                <Link to="/" className="flex items-center gap-3 shrink-0">
+                <Link to="/" className="flex items-center gap-3 shrink-0 group">
                     <img
                         src="/logo.png"
                         alt="QFlow Logo"
-                        className="h-9 w-9 rounded-full object-contain"
+                        className="h-9 w-9 object-contain"
                     />
                     <div className="flex flex-col leading-none">
-                        <span className="text-[20px] font-extrabold tracking-tight">
-                            <span className="text-[#111]">Q</span><span className="text-[#E86A00]">Flow</span>
+                        <span className="text-[20px] font-extrabold tracking-tight text-[#0F172A] group-hover:text-[#0076a8] transition-colors">
+                            Q<span className="text-[#E86A00]">Flow</span>
                         </span>
-                        <span className="text-[11px] text-[#64748b] font-medium tracking-wide mt-0.5">
+                        <span className="text-[10px] text-[#64748b] font-semibold tracking-widest uppercase mt-0.5">
                             Maritime Intelligence
                         </span>
                     </div>
                 </Link>
 
                 {/* Navigation */}
-                <nav className="flex items-center gap-0">
+                <nav className="hidden md:flex items-center gap-2">
                     {[
                         { to: "/", label: "Home" },
                         { to: "/features", label: "Features" },
@@ -36,10 +36,10 @@ export default function LandingHeader() {
                             key={item.label}
                             to={item.to}
                             className={({ isActive }) =>
-                                `text-[13px] font-semibold px-3.5 py-4 border-b-2 transition-colors duration-150 whitespace-nowrap cursor-pointer ${
+                                `text-[13px] font-semibold px-4 py-2 rounded-md transition-all duration-200 cursor-pointer ${
                                     isActive
-                                        ? "text-[#1264AB] border-[#1264AB]"
-                                        : "border-transparent text-[#1E3A5A] hover:text-[#1264AB] hover:border-[#1264AB]"
+                                        ? "text-[#0076a8] bg-[#F0F9FF]"
+                                        : "text-[#334155] hover:text-[#0076a8] hover:bg-[#F1F5F9]"
                                 }`
                             }
                         >
@@ -47,29 +47,48 @@ export default function LandingHeader() {
                         </NavLink>
                     ))}
 
-                    <div className="ml-4 pl-4 border-l border-[#e2e8f0] flex items-center gap-2">
+                    <div className="ml-4 pl-4 border-l border-[#E2E8F0] flex items-center gap-3">
                         {isAuthenticated ? (
                             <>
-                                <span className="text-[12px] font-medium text-[#334155] bg-[#f1f5f9] px-3 py-1.5 border border-[#e2e8f0]">
+                                <span className="text-[12px] font-semibold text-[#0076a8] bg-[#F0F9FF] px-3 py-1.5 rounded-md border border-[#B9E6FE]">
                                     {user?.full_name || "Fleet Officer"}
                                 </span>
                                 <button
                                     onClick={logout}
-                                    className="text-[12px] font-semibold px-3 py-1.5 bg-[#dc2626] text-white hover:bg-[#b91c1c] transition-colors uppercase"
+                                    className="text-[12px] font-semibold px-4 py-1.5 rounded-md text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] border border-transparent hover:border-[#E2E8F0] transition-all"
                                 >
-                                    Logout
+                                    Log Out
                                 </button>
+                                <Link
+                                    to="/scenario"
+                                    className="text-[12px] font-bold px-4 py-1.5 rounded-md bg-[#0076a8] text-white hover:bg-[#005e86] shadow-sm transition-all"
+                                >
+                                    Dashboard
+                                </Link>
                             </>
                         ) : (
                             <Link
                                 to="/login"
-                                className="text-[12px] font-bold px-4 py-1.5 bg-[#E86A00] text-white hover:bg-[#c45a00] transition-colors uppercase tracking-wide"
+                                className="text-[12px] font-bold px-5 py-2 rounded-md bg-[#0076a8] text-white hover:bg-[#005e86] shadow-sm hover:shadow transition-all tracking-wide"
                             >
-                                Login
+                                Secure Login
                             </Link>
                         )}
                     </div>
                 </nav>
+
+                {/* Mobile placeholder */}
+                <div className="md:hidden flex items-center gap-3">
+                    {isAuthenticated ? (
+                        <Link to="/scenario" className="text-[12px] font-bold px-4 py-1.5 rounded-md bg-[#0076a8] text-white hover:bg-[#005e86]">
+                            Dashboard
+                        </Link>
+                    ) : (
+                        <Link to="/login" className="text-[12px] font-bold px-4 py-1.5 rounded-md bg-[#0076a8] text-white hover:bg-[#005e86]">
+                            Login
+                        </Link>
+                    )}
+                </div>
             </div>
         </header>
     );

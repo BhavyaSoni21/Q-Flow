@@ -1,92 +1,82 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { ChevronRight, Play, Layers, Info } from "lucide-react";
+
+const STATS = [
+    { value: "3", label: "Specialized Models" },
+    { value: "5", label: "Fuel Pathways" },
+    { value: "12", label: "Platform Modules" },
+    { value: "NSGA-II", label: "Baseline Benchmark" },
+];
 
 export default function CtaBand() {
-    const [feedbackOpen, setFeedbackOpen] = useState(false);
-    const [feedbackSent, setFeedbackSent] = useState(false);
-    const [feedbackText, setFeedbackText] = useState("");
-
-    const handleFeedbackSubmit = (e) => {
-        e.preventDefault();
-        if (!feedbackText.trim()) return;
-        setFeedbackSent(true);
-        setTimeout(() => { setFeedbackOpen(false); setFeedbackSent(false); setFeedbackText(""); }, 2000);
-    };
-
-    const STATS = [
-        { value: "3", label: "Specialized Models" },
-        { value: "5", label: "Fuel Pathways" },
-        { value: "12", label: "Platform Modules" },
-        { value: "NSGA-II", label: "Baseline Benchmark" },
-    ];
-
     return (
         <section
-            id="about"
-            style={{ background: "linear-gradient(135deg, #1264AB 0%, #0D4D8C 50%, #0A3870 100%)" }}
+            style={{ background: "linear-gradient(135deg, #0076a8 0%, #005e86 50%, #004564 100%)" }}
             className="text-white font-['Open_Sans',sans-serif]"
         >
-            <div className="max-w-[1280px] mx-auto px-6 py-16">
+            <div className="max-w-[1440px] mx-auto px-6 py-24">
 
-                {/* Stats Row */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-0 mb-14 border border-white/20 divide-x divide-y sm:divide-y-0 divide-white/20">
+                {/* Enterprise Metrics Section */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 mb-20 bg-[#0F172A]/20 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x lg:divide-x divide-white/10 shadow-lg">
                     {STATS.map((s, i) => (
-                        <div key={i} className="text-center py-5 px-4">
-                            <div className="text-[24px] sm:text-[28px] font-extrabold text-white tracking-tight">{s.value}</div>
-                            <div className="text-[11px] text-[#A8CCE8] uppercase tracking-widest font-semibold mt-1">{s.label}</div>
+                        <div key={i} className="text-center py-8 px-6 hover:bg-white/5 transition-colors">
+                            <div className="text-[32px] md:text-[40px] font-extrabold text-white tracking-tight leading-none mb-2 drop-shadow-sm">{s.value}</div>
+                            <div className="text-[12px] text-[#BAE6FD] uppercase tracking-[0.15em] font-bold">{s.label}</div>
                         </div>
                     ))}
                 </div>
 
-                {/* CTA Content */}
-                <div className="max-w-[700px] mx-auto text-center">
-                    <p className="text-[11px] font-bold text-[#7AB8E0] uppercase tracking-[0.18em] mb-3">
+                {/* Primary CTA Block */}
+                <div className="max-w-[800px] mx-auto text-center flex flex-col items-center">
+                    <p className="text-[12px] font-bold text-[#7DD3FC] uppercase tracking-[0.2em] mb-4">
                         Auditable Decision-Support Platform
                     </p>
-                    <h2 className="text-[26px] sm:text-[30px] font-bold tracking-tight mb-4">
+                    <h2 className="text-[36px] sm:text-[44px] md:text-[48px] font-extrabold tracking-tight mb-6 leading-tight drop-shadow-sm">
                         Accelerate Maritime Decarbonization
                     </h2>
-                    <p className="text-[14px] sm:text-[15px] leading-relaxed text-[#B8D8F0] mb-8 max-w-[600px] mx-auto">
-                        Q-GreenFleet predicts vessel fuel consumption, evaluates lifecycle emissions and operating cost,
+                    <p className="text-[16px] md:text-[18px] leading-relaxed text-[#E0F2FE] mb-10 max-w-[700px] mx-auto opacity-95">
+                        QFlow Fleet predicts vessel fuel consumption, evaluates lifecycle emissions and operating cost,
                         and uses a quantum-inspired multi-objective optimizer to select feasible vessel, speed, fuel,
-                        and shore-power decisions ΓÇö benchmarked against NSGA-II under reproducible scenarios.
+                        and shore-power decisions — benchmarked against NSGA-II under reproducible scenarios.
                     </p>
 
                     {/* Buttons */}
-                    <div className="flex flex-wrap justify-center gap-3 mb-12">
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 mb-16 w-full sm:w-auto">
                         <Link
                             to="/optimization"
-                            className="bg-[#E86A00] hover:bg-[#c45a00] text-white px-8 py-3 text-[13px] font-bold uppercase tracking-wide transition-colors shadow-md"
+                            className="flex items-center justify-center bg-[#E86A00] hover:bg-[#CC5D00] text-white px-8 py-3.5 rounded-md text-[14px] font-bold uppercase tracking-widest transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                         >
-                            <i className="fas fa-play-circle mr-2" />
+                            <Play className="w-4 h-4 mr-2" />
                             Launch Route Simulator
                         </Link>
                         <Link
                             to="/features"
-                            className="bg-white/10 hover:bg-white/20 border border-white/30 text-white px-8 py-3 text-[13px] font-semibold uppercase tracking-wide transition-colors"
+                            className="flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/20 text-white px-8 py-3.5 rounded-md text-[14px] font-bold uppercase tracking-widest transition-all backdrop-blur-sm"
                         >
-                            <i className="fas fa-layer-group mr-2" />
+                            <Layers className="w-4 h-4 mr-2" />
                             Explore Features
                         </Link>
                         <Link
                             to="/about"
-                            className="border border-white/25 text-[#A8CCE8] hover:border-white/60 hover:text-white px-8 py-3 text-[13px] font-semibold uppercase tracking-wide transition-colors"
+                            className="flex items-center justify-center bg-transparent border border-white/20 text-[#BAE6FD] hover:border-white/50 hover:text-white px-8 py-3.5 rounded-md text-[14px] font-bold uppercase tracking-widest transition-all"
                         >
-                            About Team &amp; Mission
+                            <Info className="w-4 h-4 mr-2" />
+                            About Team & Mission
                         </Link>
                     </div>
 
-                    {/* Core Pipeline */}
-                    <div className="border-t border-white/15 pt-8">
-                        <p className="text-[10px] font-bold text-[#5B9DC8] uppercase tracking-[0.18em] mb-4">Core Evaluation Pipeline</p>
-                        <div className="flex flex-wrap justify-center items-center gap-0 text-[11px] font-mono">
+                    {/* Technical Metadata Row */}
+                    <div className="w-full border-t border-white/10 pt-10">
+                        <p className="text-[11px] font-bold text-[#7DD3FC] uppercase tracking-[0.2em] mb-5">Core Evaluation Pipeline</p>
+                        <div className="flex flex-wrap justify-center items-center gap-3 text-[11px] font-mono">
                             {["Scenario Input", "Fuel Prediction", "Cost & Lifecycle GHG", "QPSO Optimizer", "Pareto Results"].map((step, i, arr) => (
                                 <React.Fragment key={i}>
-                                    <span className="px-2.5 py-1 bg-white/10 border border-white/20 text-[#C8E0F4] text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap">
+                                    <span className="px-3.5 py-1.5 bg-[#0F172A]/40 border border-white/10 rounded-md text-[#E0F2FE] text-[11px] font-bold uppercase tracking-wider whitespace-nowrap shadow-sm backdrop-blur-sm">
                                         {step}
                                     </span>
                                     {i < arr.length - 1 && (
-                                        <span className="text-[#E86A00] px-1 font-bold">ΓåÆ</span>
+                                        <ChevronRight className="text-[#38BDF8] w-4 h-4 opacity-70" />
                                     )}
                                 </React.Fragment>
                             ))}
@@ -94,57 +84,29 @@ export default function CtaBand() {
                     </div>
                 </div>
 
-                {/* Connect */}
-                <div className="mt-12 pt-8 border-t border-white/15 flex flex-wrap justify-center items-center gap-8">
-                    <a href="https://github.com" target="_blank" rel="noreferrer"
-                        className="flex items-center gap-2.5 text-[13px] text-[#A8CCE8] hover:text-white transition-colors">
-                        <span className="w-8 h-8 rounded border border-white/20 bg-white/10 flex items-center justify-center">
-                            <i className="fab fa-github text-[14px]" />
-                        </span>
-                        @qflow-maritime
-                    </a>
-                    <a href="https://linkedin.com" target="_blank" rel="noreferrer"
-                        className="flex items-center gap-2.5 text-[13px] text-[#A8CCE8] hover:text-white transition-colors">
-                        <span className="w-8 h-8 rounded border border-white/20 bg-white/10 flex items-center justify-center">
-                            <i className="fab fa-linkedin-in text-[14px]" />
-                        </span>
-                        /company/qflow-fleet
-                    </a>
-                    <span className="text-[11px] text-[#5B8CB0] font-mono">SIH26138 ┬╖ Egreen Quanta ┬╖ Clean &amp; Green Technology</span>
+                {/* Social & Legal Area */}
+                <div className="mt-16 pt-10 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-[#BAE6FD]">
+                    <div className="flex items-center gap-6">
+                        <a href="https://github.com" target="_blank" rel="noreferrer"
+                            className="flex items-center gap-3 text-[13px] font-semibold hover:text-white transition-colors group">
+                            <span className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center group-hover:bg-[#0F172A]/40 transition-colors">
+                                <i className="fab fa-github text-[16px]" />
+                            </span>
+                            @qflow-maritime
+                        </a>
+                        <a href="https://linkedin.com" target="_blank" rel="noreferrer"
+                            className="flex items-center gap-3 text-[13px] font-semibold hover:text-white transition-colors group">
+                            <span className="w-9 h-9 rounded-full border border-white/20 bg-white/5 flex items-center justify-center group-hover:bg-[#0077b5] transition-colors">
+                                <i className="fab fa-linkedin-in text-[16px]" />
+                            </span>
+                            /company/qflow-fleet
+                        </a>
+                    </div>
+                    <span className="text-[12px] font-mono font-semibold tracking-wider opacity-80 uppercase text-center md:text-right">
+                        SIH26138 <span className="mx-2 opacity-50">|</span> Egreen Quanta <span className="mx-2 opacity-50">|</span> Clean &amp; Green Tech
+                    </span>
                 </div>
             </div>
-
-            {/* Feedback Modal */}
-            {feedbackOpen && (
-                <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-                    <div className="bg-white text-[#111] max-w-md w-full p-6 shadow-2xl border border-[#e2e8f0]">
-                        <h3 className="text-[16px] font-bold mb-3">QFlow Fleet Feedback</h3>
-                        {feedbackSent ? (
-                            <div className="p-4 bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0] text-center font-medium text-sm">
-                                Thank you! Your feedback has been recorded.
-                            </div>
-                        ) : (
-                            <form onSubmit={handleFeedbackSubmit} className="space-y-4">
-                                <p className="text-[12px] text-[#64748b]">Suggest new shipping corridors, fuel scenarios, or algorithm parameters.</p>
-                                <textarea rows={4} value={feedbackText}
-                                    onChange={(e) => setFeedbackText(e.target.value)}
-                                    placeholder="Enter your suggestion..."
-                                    className="w-full p-3 border border-[#e2e8f0] text-sm focus:outline-none focus:border-[#1264AB]" required />
-                                <div className="flex justify-end gap-2">
-                                    <button type="button" onClick={() => setFeedbackOpen(false)}
-                                        className="px-4 py-2 border border-[#e2e8f0] text-[12px] font-semibold text-[#64748b] hover:bg-[#f8fafc]">
-                                        Cancel
-                                    </button>
-                                    <button type="submit"
-                                        className="px-5 py-2 bg-[#1264AB] text-white text-[12px] font-bold hover:bg-[#0D4D8C] transition-colors">
-                                        Submit
-                                    </button>
-                                </div>
-                            </form>
-                        )}
-                    </div>
-                </div>
-            )}
         </section>
     );
 }

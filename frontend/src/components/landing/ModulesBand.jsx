@@ -6,49 +6,48 @@ const MODULES = [
     { icon: "fas fa-brain",          title: "Fuel Prediction Lab",        sub: "XGBoost + QPSO-tuned model",        to: "/prediction" },
     { icon: "fas fa-atom",           title: "Quantum Optimizer",          sub: "MO-QPSO Pareto fleet search",       to: "/optimization" },
     { icon: "fas fa-chart-bar",      title: "Benchmark Lab",              sub: "QPSO vs NSGA-II comparison",        to: "/benchmarking" },
-    { icon: "fas fa-leaf",           title: "Lifecycle Emissions",        sub: "WtT ┬╖ TtW ┬╖ WtW ┬╖ shore power",    to: "/emissions" },
-    { icon: "fas fa-shield-alt",     title: "Data Provenance",            sub: "AIS ┬╖ MRV ┬╖ ERA5 ┬╖ factors",       to: "/provenance" },
-    { icon: "fas fa-ship",           title: "Vessel Scenarios",           sub: "Hydrodynamics ┬╖ draft ┬╖ trim",      to: "/scenario" },
+    { icon: "fas fa-leaf",           title: "Lifecycle Emissions",        sub: "WtT · TtW · WtW · shore power",    to: "/emissions" },
+    { icon: "fas fa-shield-alt",     title: "Data Provenance",            sub: "AIS · MRV · ERA5 · factors",       to: "/provenance" },
+    { icon: "fas fa-ship",           title: "Vessel Scenarios",           sub: "Hydrodynamics · draft · trim",      to: "/scenario" },
     { icon: "fas fa-bolt",           title: "Shore Power",                sub: "OPS cost & grid emissions",         to: "/emissions" },
     { icon: "fas fa-award",          title: "CII & EEXI",                 sub: "IMO compliance ratings",            to: "/benchmarking" },
-    { icon: "fas fa-project-diagram","title": "Pareto Front",             sub: "Fuel ┬╖ cost ┬╖ GHG trade-offs",     to: "/optimization" },
-    { icon: "fas fa-check-double",   title: "Constraint Audit",           sub: "Cargo ┬╖ schedule ┬╖ bunkering",     to: "/scenario" },
-    { icon: "fas fa-gas-pump",       title: "Green Fuel Pathways",        sub: "Methanol ┬╖ HΓéé ┬╖ LNG ┬╖ ammonia",    to: "/emissions" },
+    { icon: "fas fa-project-diagram",title: "Pareto Front",               sub: "Fuel · cost · GHG trade-offs",     to: "/optimization" },
+    { icon: "fas fa-check-double",   title: "Constraint Audit",           sub: "Cargo · schedule · bunkering",     to: "/scenario" },
+    { icon: "fas fa-gas-pump",       title: "Green Fuel Pathways",        sub: "Methanol · H2 · LNG · ammonia",    to: "/emissions" },
 ];
 
 export default function ModulesBand() {
     return (
-        <section id="features" style={{ background: "linear-gradient(180deg, #0B2D4F 0%, #0A2340 100%)" }}
-            className="font-['Open_Sans',sans-serif] border-t border-[#0D3460]">
-            <div className="max-w-[1280px] mx-auto px-6 py-14">
+        <section id="features" className="bg-[#0F172A] font-['Open_Sans',sans-serif] border-t border-[#1E293B]">
+            <div className="max-w-[1440px] mx-auto px-6 py-20">
 
                 {/* Section heading */}
-                <div className="text-center mb-10">
-                    <p className="text-[11px] font-bold text-[#5BA4D4] uppercase tracking-[0.18em] mb-2">
+                <div className="flex flex-col items-center text-center mb-16">
+                    <p className="text-[12px] font-bold text-[#E86A00] uppercase tracking-[0.2em] mb-3">
                         Platform Capabilities
                     </p>
-                    <h2 className="text-[20px] font-bold text-white tracking-tight">
+                    <h2 className="text-[32px] font-extrabold text-white tracking-tight">
                         Maritime Intelligence Modules
                     </h2>
-                    <div className="w-10 h-[3px] bg-[#E86A00] mx-auto mt-3" />
+                    <div className="w-12 h-[3px] bg-[#334155] mt-6 rounded-full" />
                 </div>
 
-                {/* 6-Column Grid */}
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-x-3 gap-y-6 mb-10">
+                {/* 4-Column Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-12 mb-16">
                     {MODULES.map((s, idx) => (
                         <Link
                             key={idx}
                             to={s.to}
-                            className="flex flex-col items-center text-center gap-2 group cursor-pointer py-3 px-2 transition-all duration-150 hover:bg-white/5 rounded"
+                            className="flex items-start gap-4 group cursor-pointer p-4 rounded-xl hover:bg-[#1E293B]/50 transition-all duration-300"
                         >
-                            <div className="w-[56px] h-[56px] rounded-full border border-[#1E4D7A] bg-[#0D3461] group-hover:border-[#E86A00] group-hover:bg-[#E86A00] flex items-center justify-center transition-all duration-200">
-                                <i className={`${s.icon} text-[20px] text-[#5BA4D4] group-hover:text-white transition-colors duration-200`} />
+                            <div className="w-[52px] h-[52px] rounded-lg border border-[#334155] bg-[#1E293B] group-hover:border-[#0076a8] group-hover:bg-[#0076a8] flex items-center justify-center shrink-0 transition-all duration-300 shadow-sm">
+                                <i className={`${s.icon} text-[22px] text-[#94A3B8] group-hover:text-white transition-colors duration-300`} />
                             </div>
-                            <div>
-                                <span className="text-[12px] font-semibold text-[#C8DFF0] group-hover:text-white block leading-tight transition-colors duration-150">
+                            <div className="flex flex-col mt-0.5">
+                                <span className="text-[15px] font-bold text-[#F8FAFC] group-hover:text-[#38BDF8] block leading-snug transition-colors duration-300">
                                     {s.title}
                                 </span>
-                                <span className="text-[10px] text-[#5B8CB0] group-hover:text-[#A0C4E0] block leading-tight mt-0.5 transition-colors duration-150">
+                                <span className="text-[13px] text-[#94A3B8] block leading-relaxed mt-1 transition-colors duration-300">
                                     {s.sub}
                                 </span>
                             </div>
@@ -57,12 +56,12 @@ export default function ModulesBand() {
                 </div>
 
                 {/* View All */}
-                <div className="text-center border-t border-[#1A4060] pt-7">
+                <div className="flex justify-center border-t border-[#1E293B] pt-12">
                     <Link
                         to="/scenario"
-                        className="inline-flex items-center gap-2 border border-[#2A6090] text-[#8AC4E0] hover:bg-[#E86A00] hover:border-[#E86A00] hover:text-white px-7 py-2.5 text-[12px] font-bold uppercase tracking-widest transition-all duration-200"
+                        className="inline-flex items-center justify-center gap-2 border border-[#475569] text-[#CBD5E1] hover:bg-[#0076a8] hover:border-[#0076a8] hover:text-white px-8 py-3 rounded-md text-[12px] font-bold uppercase tracking-widest transition-all duration-300 shadow-sm"
                     >
-                        <i className="fas fa-th-large text-[11px]" />
+                        <i className="fas fa-th-large text-[12px] opacity-80" />
                         View All Modules
                     </Link>
                 </div>

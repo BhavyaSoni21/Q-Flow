@@ -1,83 +1,77 @@
-import React from "react";
+﻿import React from "react";
 import { Link } from "react-router-dom";
-
-const LINKS = [
-    { to: "/", label: "Home" },
-    { to: "/features", label: "Features" },
-    { to: "/about", label: "About Us" },
-    { to: "/scenario", label: "Scenario Builder" },
-    { to: "/optimization", label: "Fleet Optimizer" },
-    { to: "/prediction", label: "Fuel Prediction" },
-    { to: "/emissions", label: "Lifecycle Emissions" },
-    { to: "/benchmarking", label: "Benchmark Lab" },
-    { to: "/provenance", label: "Data Provenance" },
-];
 
 export default function LandingFooter() {
     return (
-        <footer
-            style={{ background: "linear-gradient(180deg, #071D35 0%, #051428 100%)" }}
-            className="text-[#5B8CB0] text-[12px] font-['Open_Sans',sans-serif] border-t border-[#0D2D4A]"
-        >
-            <div className="max-w-[1280px] mx-auto px-6 py-10">
-                {/* Top row: logo + links */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-7 pb-7 border-b border-[#0D2D4A]">
-                    {/* Brand */}
-                    <div className="flex items-center gap-3">
-                        <img src="/logo.png" alt="QFlow Logo" className="h-9 w-9 rounded-full object-contain opacity-90" />
-                        <div>
-                            <div className="text-[18px] font-extrabold tracking-tight leading-none">
-                                <span className="text-white">Q</span><span className="text-[#E86A00]">Flow</span>
+        <footer className="bg-[#0F172A] text-[#94A3B8] font-['Open_Sans',sans-serif] border-t border-[#1E293B]">
+            <div className="max-w-[1440px] mx-auto px-6 py-16">
+                
+                {/* Main Footer Content */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-12 mb-16">
+                    
+                    {/* Brand & Description Column (Span 4) */}
+                    <div className="md:col-span-4 flex flex-col gap-5">
+                        <Link to="/" className="flex items-center gap-3">
+                            <img src="/logo.png" alt="QFlow Logo" className="h-10 w-10 object-contain" />
+                            <div>
+                                <div className="text-[22px] font-extrabold tracking-tight leading-none">
+                                    <span className="text-white">Q</span><span className="text-[#E86A00]">Flow</span>
+                                </div>
+                                <div className="text-[11px] text-[#CBD5E1] font-bold tracking-widest uppercase mt-1.5">
+                                    Maritime Intelligence
+                                </div>
                             </div>
-                            <div className="text-[10px] text-[#3A6A90] font-medium tracking-wide mt-0.5">
-                                Maritime Intelligence Platform
-                            </div>
-                        </div>
+                        </Link>
+                        <p className="text-[13px] leading-relaxed text-[#94A3B8] max-w-[320px]">
+                            An auditable decision-support platform predicting voyage fuel burn, evaluating Well-to-Wake lifecycle GHG emissions and INR operating costs, and using MO-QPSO to select Pareto-optimal fleet deployments.
+                        </p>
                     </div>
 
-                    {/* Nav links */}
-                    <nav className="flex flex-wrap gap-x-5 gap-y-1">
-                        {LINKS.map((item) => (
-                            <Link key={item.to} to={item.to}
-                                className="text-[11px] text-[#4A7A9B] hover:text-[#8AC4E0] transition-colors duration-150 font-medium">
-                                {item.label}
-                            </Link>
-                        ))}
-                    </nav>
+                    {/* Navigation Columns */}
+                    <div className="md:col-span-2 flex flex-col gap-4">
+                        <h4 className="text-[13px] font-bold text-white uppercase tracking-wider mb-2">Platform</h4>
+                        <Link to="/features" className="text-[13px] hover:text-[#38BDF8] transition-colors">Features</Link>
+                        <Link to="/about" className="text-[13px] hover:text-[#38BDF8] transition-colors">About Us</Link>
+                        <Link to="/scenario" className="text-[13px] hover:text-[#38BDF8] transition-colors">Scenario Builder</Link>
+                        <Link to="/optimization" className="text-[13px] hover:text-[#38BDF8] transition-colors">Fleet Optimizer</Link>
+                    </div>
+
+                    <div className="md:col-span-2 flex flex-col gap-4">
+                        <h4 className="text-[13px] font-bold text-white uppercase tracking-wider mb-2">Intelligence</h4>
+                        <Link to="/prediction" className="text-[13px] hover:text-[#38BDF8] transition-colors">Fuel Prediction</Link>
+                        <Link to="/emissions" className="text-[13px] hover:text-[#38BDF8] transition-colors">Lifecycle Emissions</Link>
+                        <Link to="/benchmarking" className="text-[13px] hover:text-[#38BDF8] transition-colors">Benchmark Lab</Link>
+                        <Link to="/provenance" className="text-[13px] hover:text-[#38BDF8] transition-colors">Data Provenance</Link>
+                    </div>
+
+                    <div className="md:col-span-4 flex flex-col gap-4">
+                        <h4 className="text-[13px] font-bold text-white uppercase tracking-wider mb-2">Compliance & Standards</h4>
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                "IMO MEPC.391(81)",
+                                "FuelEU Maritime 2025/2030",
+                                "ISO 19030 Propeller Metrics",
+                                "MO-QPSO vs NSGA-II Benchmark",
+                                "WtT · TtW · WtW Lifecycle",
+                                "EMSA THETIS-MRV · NOAA AIS",
+                                "CEA India Grid (710 gCO2/kWh)"
+                            ].map((badge) => (
+                                <span key={badge} className="px-2.5 py-1.5 border border-[#334155] rounded-md text-[11px] text-[#CBD5E1] font-mono bg-[#1E293B]">
+                                    {badge}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
 
-                {/* Middle: description */}
-                <div className="text-center mb-7">
-                    <p className="text-[13px] text-[#8AB8D4] font-semibold mb-2">
-                        Q-Flow &mdash; Quantum-Inspired Fuel Consumption Prediction and Green Fleet Optimization
-                    </p>
-                    <p className="text-[12px] text-[#3A6A90] max-w-[720px] mx-auto leading-relaxed">
-                        An auditable decision-support platform predicting voyage fuel burn, evaluating Well-to-Wake lifecycle GHG emissions and INR operating costs, and using multi-objective quantum-behaved particle swarm optimization (MO-QPSO) to select Pareto-optimal fleet deployments.
-                    </p>
-                </div>
-
-                {/* Compliance badges */}
-                <div className="flex flex-wrap justify-center items-center gap-3 mb-7">
-                    {[
-                        "IMO MEPC.391(81)",
-                        "FuelEU Maritime 2025/2030",
-                        "ISO 19030 Propeller Metrics",
-                        "MO-QPSO · NSGA-II Benchmark",
-                        "WtT · TtW · WtW Lifecycle",
-                        "EMSA THETIS-MRV · NOAA AIS",
-                        "CEA India Grid (710 gCO₂/kWh)",
-                    ].map((badge) => (
-                        <span key={badge}
-                            className="px-2.5 py-1 border border-[#0D3460] text-[10px] text-[#3A6A90] font-mono bg-[#071828] tracking-wide">
-                            {badge}
-                        </span>
-                    ))}
-                </div>
-
-                {/* Bottom bar */}
-                <div className="border-t border-[#0D2D4A] pt-5 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-[#2A4A65]">
-                    <span className="font-mono">SIH 2026 · Problem Statement SIH26138 · Clean &amp; Green Technology · Team Egreen Quanta</span>
-                    <span className="font-mono">Data: EMSA MRV · NOAA AIS · Copernicus ERA5 · Shifts Marine Benchmark</span>
+                {/* Bottom Legal/Meta */}
+                <div className="border-t border-[#1E293B] pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-[#64748B] font-mono">
+                    <span>
+                        SIH 2026 · Problem Statement SIH26138 · Egreen Quanta
+                    </span>
+                    <span className="text-center md:text-right">
+                        Sources: EMSA MRV · NOAA AIS · Copernicus ERA5 · Synthetic
+                    </span>
                 </div>
             </div>
         </footer>

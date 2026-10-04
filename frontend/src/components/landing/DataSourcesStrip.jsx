@@ -1,26 +1,29 @@
-import React from "react";
+﻿import React from "react";
+import { Database, Radio, CloudRain, Cpu, Scale } from "lucide-react";
 
 const SOURCES = [
-    { icon: "fas fa-database",          label: "EMSA THETIS-MRV",           sub: "Fuel & CO₂ reporting" },
-    { icon: "fas fa-satellite-dish",    label: "NOAA Marine AIS",            sub: "Vessel movement & speed" },
-    { icon: "fas fa-cloud-sun-rain",    label: "Copernicus ERA5",            sub: "Wind, wave, ocean data" },
-    { icon: "fas fa-atom",              label: "MO-QPSO Engine",             sub: "Quantum-inspired optimizer" },
-    { icon: "fas fa-balance-scale",     label: "IMO LCA Framework",          sub: "WtW lifecycle factors" },
+    { icon: Database,     label: "EMSA THETIS-MRV",           sub: "Fuel & CO2 reporting" },
+    { icon: Radio,        label: "NOAA Marine AIS",            sub: "Vessel movement & speed" },
+    { icon: CloudRain,    label: "Copernicus ERA5",            sub: "Wind, wave, ocean data" },
+    { icon: Cpu,          label: "MO-QPSO Engine",             sub: "Quantum-inspired optimizer" },
+    { icon: Scale,        label: "IMO LCA Framework",          sub: "WtW lifecycle factors" },
 ];
 
 export default function DataSourcesStrip() {
     return (
-        <section className="bg-[#EBF3FB] border-y border-[#C8DDEF] py-5">
-            <div className="max-w-[1280px] mx-auto px-6">
-                <div className="flex flex-wrap items-stretch justify-around gap-0 divide-x divide-[#C8DDEF]">
+        <section className="bg-[#F8FAFC] border-y border-[#E2E8F0] py-10">
+            <div className="max-w-[1440px] mx-auto px-6">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0 md:divide-x divide-[#CBD5E1]">
                     {SOURCES.map((s, i) => (
-                        <div key={i} className="flex items-center gap-3 px-6 py-1">
-                            <i className={`${s.icon} text-[#1264AB] text-[16px] shrink-0`} />
-                            <div>
-                                <div className="text-[11px] font-bold text-[#0A3870] uppercase tracking-wider leading-tight">
+                        <div key={i} className="flex flex-col md:flex-row items-center md:items-start gap-4 px-8 w-full md:w-1/5 text-center md:text-left group cursor-default">
+                            <div className="w-10 h-10 rounded-full bg-white border border-[#E2E8F0] flex items-center justify-center shrink-0 shadow-sm group-hover:border-[#0076a8] group-hover:shadow transition-all">
+                                <s.icon className="text-[#64748B] group-hover:text-[#0076a8] w-4 h-4 transition-colors" />
+                            </div>
+                            <div className="flex flex-col">
+                                <div className="text-[12px] font-bold text-[#0F172A] uppercase tracking-widest leading-tight group-hover:text-[#0076a8] transition-colors">
                                     {s.label}
                                 </div>
-                                <div className="text-[10px] text-[#4A7A9B] leading-tight mt-0.5">
+                                <div className="text-[12px] text-[#64748B] font-medium leading-tight mt-1.5">
                                     {s.sub}
                                 </div>
                             </div>

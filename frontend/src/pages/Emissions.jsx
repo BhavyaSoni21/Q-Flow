@@ -19,16 +19,16 @@ const DATASETS = [
     { value: "CONCAWE / IEA",    label: "CONCAWE / IEA (2024)" },
 ];
 
-// Fixed custom legend ΓÇö no overlap
+// Fixed custom legend Î“Ã‡Ã¶ no overlap
 function ChartLegend() {
     return (
-        <div className="flex items-center justify-center gap-5 mt-2 text-[11px] text-muted-foreground">
-            <span className="inline-flex items-center gap-1.5">
-                <span className="w-3 h-3 inline-block rounded-sm" style={{ background: CHART.line2 }} />
+        <div className="flex items-center justify-center gap-6 mt-4 text-[12px] font-semibold text-[#475569]">
+            <span className="inline-flex items-center gap-2 hover:text-[#0F172A] transition-colors cursor-default">
+                <span className="w-4 h-4 inline-block rounded-sm shadow-sm" style={{ background: CHART.wtt }} />
                 Well-to-Tank (WtT)
             </span>
-            <span className="inline-flex items-center gap-1.5">
-                <span className="w-3 h-3 inline-block rounded-sm" style={{ background: CHART.line1 }} />
+            <span className="inline-flex items-center gap-2 hover:text-[#0F172A] transition-colors cursor-default">
+                <span className="w-4 h-4 inline-block rounded-sm shadow-sm" style={{ background: CHART.ttw }} />
                 Tank-to-Wake (TtW)
             </span>
         </div>
@@ -38,22 +38,30 @@ function ChartLegend() {
 // Tooltip for the stacked bar
 function EmissionsTooltip({ active, payload, label }) {
     if (!active || !payload?.length) return null;
-    const total = payload.reduce((s, p) => s + (Number(p.value) || 0), 0);
+    const wtt = payload.find(p => p.dataKey === "WtT");
+    const ttw = payload.find(p => p.dataKey === "TtW");
+    const total = (wtt?.value || 0) + (ttw?.value || 0);
+
     return (
-        <div className="bg-white dark:bg-[#1e293b] border border-border rounded-lg px-3 py-2 text-xs shadow-lg min-w-[150px]">
-            <p className="font-semibold text-foreground mb-1.5">{label}</p>
-            {payload.map((p, i) => (
-                <div key={i} className="flex items-center justify-between gap-4">
-                    <span className="flex items-center gap-1.5 text-muted-foreground">
-                        <span className="w-2 h-2 inline-block rounded-sm" style={{ background: p.fill }} />
-                        {p.name}
+        <div className="border border-[#CBD5E1] bg-white/95 backdrop-blur-md px-4 py-3 text-[13px] shadow-lg rounded-md">
+            <div className="font-bold text-[#0F172A] mb-3 border-b border-[#E2E8F0] pb-2">{label}</div>
+            <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between gap-6">
+                    <span className="text-[#475569] font-medium flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-sm shadow-sm" style={{ background: CHART.wtt }}/> Well-to-Tank:
                     </span>
-                    <span className="num font-medium">{Number(p.value).toFixed(1)}</span>
+                    <span className="font-mono font-semibold text-[#0F172A]">{wtt?.value.toFixed(1)}</span>
                 </div>
-            ))}
-            <div className="border-t border-border mt-1.5 pt-1.5 flex justify-between">
-                <span className="text-muted-foreground font-semibold">WtW Total</span>
-                <span className="num font-bold text-foreground">{total.toFixed(1)} gCOΓéée/MJ</span>
+                <div className="flex items-center justify-between gap-6">
+                    <span className="text-[#475569] font-medium flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-sm shadow-sm" style={{ background: CHART.ttw }}/> Tank-to-Wake:
+                    </span>
+                    <span className="font-mono font-semibold text-[#0F172A]">{ttw?.value.toFixed(1)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-6 mt-1 pt-2 border-t border-[#E2E8F0]">
+                    <span className="text-[#0F172A] font-bold">Total WtW:</span>
+                    <span className="font-mono font-bold text-[#0F172A]">{total.toFixed(1)} gCOâ‚‚e</span>
+                </div>
             </div>
         </div>
     );
@@ -106,9 +114,9 @@ export default function Emissions() {
         ? [{
             fuel: "Shore power",
             pathway: "Grid",
-            lhv: "ΓÇö",
-            wtt: "ΓÇö",
-            ttw: "ΓÇö",
+            lhv: "Î“Ã‡Ã¶",
+            wtt: "Î“Ã‡Ã¶",
+            ttw: "Î“Ã‡Ã¶",
             wtw: ((config.gridEmissionFactor || 380) / 3.6).toFixed(1),
             source: "Grid operator",
             version: "2025",
@@ -121,23 +129,23 @@ export default function Emissions() {
     return (
         <div className="p-4 sm:p-6 flex flex-col gap-4">
 
-            {/* ΓöÇΓöÇ How to use this page ΓöÇΓöÇ */}
+            {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ How to use this page Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
             <div className="flex gap-3 p-3 bg-[#e8f4fb] dark:bg-[#0f1e2d] border border-[#bae7ff] dark:border-[#1e3a5a] rounded-sm text-xs">
                 <Info size={15} className="text-[#0076a8] dark:text-[#38bdf8] shrink-0 mt-0.5" />
                 <div className="text-[#334155] dark:text-[#94a3b8]">
                     <span className="font-semibold text-[#0076a8] dark:text-[#38bdf8]">How to use this page: </span>
-                    The bar chart shows Well-to-Wake (WtW) emissions per fuel ΓÇö shorter bars = cleaner fuel.
+                    The bar chart shows Well-to-Wake (WtW) emissions per fuel Î“Ã‡Ã¶ shorter bars = cleaner fuel.
                     Use the <strong>CII checker</strong> below to test regulatory compliance for your vessel.
                     Fuel pathways can be changed in the <strong>Scenario</strong> section.
                 </div>
             </div>
 
-            {/* ΓöÇΓöÇ WtW Chart ΓöÇΓöÇ */}
+            {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ WtW Chart Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
             <Panel
                 title="Well-to-Wake Emissions per Fuel Pathway"
                 actions={<LabeledSelect value={dataset} onChange={setDataset} options={DATASETS} />}
             >
-                {/* ΓöÇΓöÇ Custom Legend (fixed, no overlap) ΓöÇΓöÇ */}
+                {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Custom Legend (fixed, no overlap) Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
                 <ChartLegend />
 
                 <div style={{ height: 300 }} className="mt-3">
@@ -152,40 +160,40 @@ export default function Emissions() {
                                 dataKey="fuel"
                                 {...axisProps}
                                 interval={0}
-                                tick={{ fontSize: 10, fill: CHART.axis, fontFamily: CHART.fontFamily }}
+                                tick={{ fontSize: 12, fill: CHART.axis, fontFamily: CHART.fontFamily, fontWeight: 500 }}
                                 tickLine={false}
                                 angle={-25}
                                 textAnchor="end"
-                                height={52}
+                                height={60} tickMargin={10}
                             />
                             <YAxis
                                 {...axisProps}
                                 label={{
-                                    value: "gCOΓéée / MJ",
+                                    value: "gCOÎ“Ã©Ã©e / MJ",
                                     angle: -90,
                                     position: "insideLeft",
                                     offset: 4,
-                                    fontSize: 11,
+                                    fontSize: 12, fontWeight: 500,
                                     fill: CHART.axis,
                                     style: { fontFamily: CHART.fontFamily },
                                 }}
-                                width={52}
+                                width={60} tickMargin={8}
                             />
                             <Tooltip content={<EmissionsTooltip />} cursor={{ fill: "rgba(0,118,168,0.06)" }} />
-                            <Bar dataKey="WtT" stackId="a" fill={CHART.line2} name="Well-to-Tank (WtT)" radius={[0, 0, 0, 0]}>
+                            <Bar dataKey="WtT" stackId="a" fill={CHART.wtt} name="Well-to-Tank (WtT)" radius={[0, 0, 0, 0]}>
                                 {chartData.map((entry, index) => (
                                     <Cell
                                         key={index}
-                                        fill={CHART.line2}
+                                        fill={CHART.wtt}
                                         opacity={entry.WtT + entry.TtW === minWtw ? 1 : 0.85}
                                     />
                                 ))}
                             </Bar>
-                            <Bar dataKey="TtW" stackId="a" fill={CHART.line1} name="Tank-to-Wake (TtW)" radius={[2, 2, 0, 0]}>
+                            <Bar dataKey="TtW" stackId="a" fill={CHART.ttw} name="Tank-to-Wake (TtW)" radius={[2, 2, 0, 0]}>
                                 {chartData.map((entry, index) => (
                                     <Cell
                                         key={index}
-                                        fill={CHART.line1}
+                                        fill={CHART.ttw}
                                         opacity={entry.WtT + entry.TtW === minWtw ? 1 : 0.85}
                                     />
                                 ))}
@@ -200,7 +208,7 @@ export default function Emissions() {
                     return (
                         <div className="mt-3 flex items-center gap-2 text-[11px] text-[hsl(var(--status-green))] bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800/40 px-2.5 py-1.5 rounded-sm">
                             <TrendingDown size={12} />
-                            <strong>{best.fuel}</strong> has the lowest WtW emissions ({(best.WtT + best.TtW).toFixed(1)} gCOΓéée/MJ) in the selected pathways.
+                            <strong>{best.fuel}</strong> has the lowest WtW emissions ({(best.WtT + best.TtW).toFixed(1)} gCOÎ“Ã©Ã©e/MJ) in the selected pathways.
                         </div>
                     );
                 })()}
@@ -210,7 +218,7 @@ export default function Emissions() {
                 </p>
             </Panel>
 
-            {/* ΓöÇΓöÇ Emission Factors Table ΓöÇΓöÇ */}
+            {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Emission Factors Table Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
             <Panel
                 title="Emission Factors Reference Table"
                 actions={<ExportCsv rows={[...factorRows, ...shorePowerRow]} filename="emission_factors.csv" />}
@@ -220,9 +228,9 @@ export default function Emissions() {
                         { key: "fuel",    header: "Fuel" },
                         { key: "pathway", header: "Pathway" },
                         { key: "lhv",     header: "LHV (MJ/kg)",      numeric: true, render: (r) => r.lhv },
-                        { key: "wtt",     header: "WtT (gCOΓéée/MJ)",   numeric: true },
-                        { key: "ttw",     header: "TtW (gCOΓéée/MJ)",   numeric: true },
-                        { key: "wtw",     header: "WtW (gCOΓéée/MJ)",   numeric: true },
+                        { key: "wtt",     header: "WtT (gCOÎ“Ã©Ã©e/MJ)",   numeric: true },
+                        { key: "ttw",     header: "TtW (gCOÎ“Ã©Ã©e/MJ)",   numeric: true },
+                        { key: "wtw",     header: "WtW (gCOÎ“Ã©Ã©e/MJ)",   numeric: true },
                         { key: "source",  header: "Source" },
                         { key: "version", header: "Version" },
                     ]}
@@ -231,8 +239,8 @@ export default function Emissions() {
                 />
             </Panel>
 
-            {/* ΓöÇΓöÇ CII Checker ΓöÇΓöÇ */}
-            <Panel title="Regulatory KPI ΓÇö Indicative CII-Style Check">
+            {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ CII Checker Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
+            <Panel title="Regulatory KPI Î“Ã‡Ã¶ Indicative CII-Style Check">
                 <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
                     Enter your vessel's voyage data below to get an indicative CII result. A <strong>violation of 0</strong> and status <strong>Within limit</strong> means the vessel meets the set threshold.
                 </p>
@@ -259,7 +267,7 @@ export default function Emissions() {
                         <div className="flex flex-col gap-0.5">
                             <span className="label-eyebrow">Status</span>
                             <span className={`text-sm font-bold ${cii.satisfied ? "text-[hsl(var(--status-green))]" : "text-[hsl(var(--status-red))]"}`}>
-                                {cii.satisfied ? "Γ£ô Within limit" : "Γ£ù Over limit"}
+                                {cii.satisfied ? "Î“Â£Ã´ Within limit" : "Î“Â£Ã¹ Over limit"}
                             </span>
                         </div>
                     </div>
@@ -269,14 +277,14 @@ export default function Emissions() {
                 </p>
             </Panel>
 
-            {/* ΓöÇΓöÇ Note ΓöÇΓöÇ */}
+            {/* Î“Ã¶Ã‡Î“Ã¶Ã‡ Note Î“Ã¶Ã‡Î“Ã¶Ã‡ */}
             <div className="border border-border/50 bg-muted/30 rounded-sm p-3 text-[11px] text-muted-foreground leading-relaxed">
                 <p className="label-eyebrow mb-1">Methodology Note</p>
                 <p>
                     Well-to-Wake (WtW) = Well-to-Tank (WtT) + Tank-to-Wake (TtW).
                     WtT covers extraction, production and distribution of the fuel.
                     TtW covers combustion/conversion on board.
-                    Shore power is shown as electricity ├ù grid emission factor (gCOΓéée/kWh ΓåÆ gCOΓéée/MJ at 3.6 MJ/kWh).
+                    Shore power is shown as electricity â”œÃ¹ grid emission factor (gCOÎ“Ã©Ã©e/kWh Î“Ã¥Ã† gCOÎ“Ã©Ã©e/MJ at 3.6 MJ/kWh).
                 </p>
             </div>
         </div>
