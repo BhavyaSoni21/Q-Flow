@@ -4,14 +4,14 @@ import { api } from "@/lib/api";
 const StoreContext = createContext(null);
 
 const DEFAULT_CONFIG = {
-    originPort: "Port 1",
-    destinationPort: "Port 2",
-    distance: 600,
-    deadline: 52,
-    portTime: 8,
-    bufferTime: 2,
+    originPort: "Rotterdam",
+    destinationPort: "New York",
+    distance: 3300,
+    deadline: 240,
+    portTime: 12,
+    bufferTime: 6,
     weather: "Normal",
-    cargoDemand: 45000,
+    cargoDemand: 50000,
     selectedVessels: ["V001", "V002", "V003"],
     selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"],
     fuelPrices: {},
@@ -29,7 +29,7 @@ const DEFAULT_CONFIG = {
 
 // Versioned session key — bump the version when the stored schema changes to
 // avoid stale data causing runtime errors.
-const SESSION_KEY = "qflow_store_v1";
+const SESSION_KEY = "qflow_store_v2";
 
 function loadSession() {
     try {
@@ -82,8 +82,18 @@ export function StoreProvider({ children }) {
         setResults(null);
         setSelectedPoint(null);
         if (m === "road") {
-            setConfig((c) => ({ ...c, distance: 300, cargoDemand: 4000, deadline: 8,
-                selectedVessels: [], selectedFuels: ["DIESEL"] }));
+            setConfig((c) => ({
+                ...c,
+                originPort: "Depot A",
+                destinationPort: "Hub B",
+                distance: 300,
+                cargoDemand: 4000,
+                deadline: 12,
+                portTime: 1,
+                bufferTime: 1,
+                selectedVessels: ["R001", "R002", "R003", "R004"],
+                selectedFuels: ["DIESEL", "GASOLINE", "ELECTRICITY"]
+            }));
         } else {
             setConfig(DEFAULT_CONFIG);
         }

@@ -14,9 +14,9 @@ import DataStatus from "@/components/shared/DataStatus";
 import { useNavigate } from "react-router-dom";
 import { OptimizationView } from "@/pages/Optimization";
 
-// ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ─────────────────────────────────────────────────────────────────────────────
 // Optimization Toast
-// ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ─────────────────────────────────────────────────────────────────────────────
 function OptimizationToast({ onDismiss, onNavigate, type = "success", message }) {
     const [progress, setProgress] = useState(100);
     const DURATION = 6000;
@@ -109,9 +109,9 @@ function OptimizationToast({ onDismiss, onNavigate, type = "success", message })
     );
 }
 
-// ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ─────────────────────────────────────────────────────────────────────────────
 // Main Scenario page
-// ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ─────────────────────────────────────────────────────────────────────────────
 export default function Scenario() {
     const {
         config, updateConfig, runOptimization, running, progress,
@@ -246,7 +246,7 @@ export default function Scenario() {
             </div>
 
             <div className="grid grid-cols-12 gap-4 sm:gap-5">
-                {/* ΓöÇΓöÇ Left column: form ΓöÇΓöÇ */}
+                {/* ── Left column: form ── */}
                 <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
 
                     {/* Route panel */}
@@ -377,7 +377,7 @@ export default function Scenario() {
                                             <td className="px-2 py-1.5 font-medium">{v.name}</td>
                                             <td className="px-2 py-1.5 text-muted-foreground">{v.type}</td>
                                             <td className="px-2 py-1.5 text-right num">{v.capacity.toLocaleString()}</td>
-                                            <td className="px-2 py-1.5 text-right num">{v.minSpeed}ΓÇô{v.maxSpeed}</td>
+                                            <td className="px-2 py-1.5 text-right num">{v.minSpeed}–{v.maxSpeed}</td>
                                             <td className="px-2 py-1.5 text-center text-muted-foreground">{v.shorePower ? "Y" : "N"}</td>
                                             <td className="px-2 py-1.5 text-center"><StatusDot status={v.available} /></td>
                                         </tr>
@@ -455,7 +455,7 @@ export default function Scenario() {
                             </table>
                         </div>
                         <p className="text-[10px] text-muted-foreground/70 mt-2">
-                            Source: {fuelList[0]?.source} ┬╖ {fuelList[0]?.version}. WtW factor shown for selected pathway.
+                            Source: {fuelList[0]?.source} · {fuelList[0]?.version}. WtW factor shown for selected pathway.
                         </p>
                         {validation.fuels && (
                             <p className="text-[11px] text-[hsl(var(--status-red))] mt-1 flex items-center gap-1">
@@ -516,7 +516,7 @@ export default function Scenario() {
                         </div>
                     </Panel>
 
-                    {/* ΓöÇΓöÇ Action Buttons ΓöÇΓöÇ */}
+                    {/* ── Action Buttons ── */}
                     <div className="flex gap-2">
                         <SquareButton
                             onClick={handleRun}
@@ -553,7 +553,7 @@ export default function Scenario() {
                         </SquareButton>
                     </div>
 
-                    {/* ΓöÇΓöÇ View Optimization Button (appears once simulation is run) ΓöÇΓöÇ */}
+                    {/* ── View Optimization Button (appears once simulation is run) ── */}
                     {results && !running && (
                         <button
                             type="button"
@@ -565,7 +565,7 @@ export default function Scenario() {
                         </button>
                     )}
 
-                    {/* ΓöÇΓöÇ Loading Progress Bar ΓöÇΓöÇ */}
+                    {/* ── Loading Progress Bar ── */}
                     {running && (
                         <div className="border border-[#0076a8]/20 bg-[#e8f4fb] dark:bg-[#0f1e2d] rounded-sm p-4 flex flex-col gap-2.5 fade-in">
                             <div className="flex justify-between items-center text-xs">
@@ -573,7 +573,7 @@ export default function Scenario() {
                                     <Loader2 size={13} className="animate-spin" /> Running Optimization
                                 </span>
                                 <span className="num text-muted-foreground">
-                                    {progress}% ┬╖ {Math.round(progress / 100 * config.iterations)}/{config.iterations} iter
+                                    {progress}% · {Math.round(progress / 100 * config.iterations)}/{config.iterations} iter
                                 </span>
                             </div>
                             <div className="h-2 bg-[#bae7ff]/50 dark:bg-[#1e293b] rounded-full overflow-hidden">
@@ -589,14 +589,14 @@ export default function Scenario() {
                         </div>
                     )}
 
-                    {/* ΓöÇΓöÇ Inline error (fallback if toast dismissed) ΓöÇΓöÇ */}
+                    {/* ── Inline error (fallback if toast dismissed) ── */}
                     {error && !running && (
                         <div className="border border-[hsl(var(--status-red))/40] bg-[hsl(var(--status-red))/5] p-3 text-xs text-[hsl(var(--status-red))] flex items-center gap-2 rounded-sm">
                             <AlertTriangle size={14} strokeWidth={1.5} className="shrink-0" /> {error}
                         </div>
                     )}
 
-                    {/* ΓöÇΓöÇ Robustness results ΓöÇΓöÇ */}
+                    {/* ── Robustness results ── */}
                     {robustness && (
                         <Panel title="Weather Robustness">
                             <div className="flex items-center justify-between mb-2 text-xs">
@@ -608,14 +608,14 @@ export default function Scenario() {
                                     <div className="flex justify-between">
                                         <span className="font-medium">{s.name}</span>
                                         <span className="num text-muted-foreground">
-                                            {s.status === "ok" ? `${s.wtw_ghg_t} tCO2e ┬╖ ${s.cost_inr} INR` : s.reason || "Unavailable"}
+                                            {s.status === "ok" ? `${s.wtw_ghg_t} tCO2e · ${s.cost_inr} INR` : s.reason || "Unavailable"}
                                         </span>
                                     </div>
                                     {s.monte_carlo && (
                                         <div className="text-[10px] text-muted-foreground mt-1 leading-relaxed">
                                             P95 cost <span className="num">{s.monte_carlo.confidence_intervals.cost_inr.p95}</span>
-                                            {" ┬╖ "}P95 GHG <span className="num">{s.monte_carlo.confidence_intervals.wtw_ghg_t.p95}</span>
-                                            {" ┬╖ "}Feasible prob. <span className="num">{(s.monte_carlo.feasibility_probability * 100).toFixed(1)}%</span>
+                                            {" · "}P95 GHG <span className="num">{s.monte_carlo.confidence_intervals.wtw_ghg_t.p95}</span>
+                                            {" · "}Feasible prob. <span className="num">{(s.monte_carlo.feasibility_probability * 100).toFixed(1)}%</span>
                                         </div>
                                     )}
                                 </div>
@@ -627,7 +627,7 @@ export default function Scenario() {
                     )}
                 </div>
 
-                {/* ΓöÇΓöÇ Right column: live summary ΓöÇΓöÇ */}
+                {/* ── Right column: live summary ── */}
                 <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
                     <Panel title="Scenario Summary (Read-only)">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-0 text-xs">
@@ -642,7 +642,7 @@ export default function Scenario() {
                                 ["Fuels selected", config.selectedFuels.length],
                                 ["Shore power", config.shorePowerEnabled ? "Enabled" : "Disabled"],
                                 ["Algorithm", config.algorithm],
-                                ["Population ├ù iterations", `${config.population} ├ù ${config.iterations}`],
+                                ["Population × iterations", `${config.population} × ${config.iterations}`],
                                 ["Seed", config.seed],
                             ].map(([k, v]) => (
                                 <div key={k} className="flex justify-between items-center border-b border-border/40 py-1.5 last:border-b-0">
@@ -657,7 +657,7 @@ export default function Scenario() {
                         <div className="flex flex-col">
                             {[
                                 {
-                                    label: "Cargo demand satisfied by ΓëÑ1 vessel",
+                                    label: "Cargo demand satisfied by ≥1 vessel",
                                     pass: vesselList.some((v) => v.capacity >= config.cargoDemand),
                                 },
                                 {
@@ -696,8 +696,8 @@ export default function Scenario() {
                                 {[
                                     ["Feasible", results.feasible ? "Yes" : "No"],
                                     ["Pareto points", results.pareto?.length ?? 0],
-                                    ["Final hypervolume", results.finalHypervolume?.toFixed(4) ?? "ΓÇö"],
-                                    ["Run ID", results.runId ?? "ΓÇö"],
+                                    ["Final hypervolume", results.finalHypervolume?.toFixed(4) ?? "—"],
+                                    ["Run ID", results.runId ?? "—"],
                                     ["Violated constraint", results.violated ?? "None"],
                                 ].map(([k, v]) => (
                                     <div key={k} className="flex justify-between items-center border-b border-border/40 py-1.5 last:border-b-0">
@@ -722,7 +722,7 @@ export default function Scenario() {
                 </div>
             </div>
 
-            {/* ΓöÇΓöÇ Full-Screen Near-Modal Optimization Overlay with Backdrop Blur ΓöÇΓöÇ */}
+            {/* ── Full-Screen Near-Modal Optimization Overlay with Backdrop Blur ── */}
             {showOptimizationOverlay && (
                 <div
                     className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
