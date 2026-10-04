@@ -23,13 +23,16 @@ app = FastAPI(title="Q-Flow API", version="0.6.0")
 logging.basicConfig(level=os.environ.get("QFLOW_LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(name)s %(message)s")
 app.add_middleware(OperationalMiddleware)
 
-# CORS allow-list: "*" (default, dev only) or a comma-separated list of origins.
+# CORS allow-list: "http://localhost:5173" (default, dev only) or a comma-separated list of origins.
 _cors = os.environ.get("CORS_ORIGINS", "*").strip()
-_allow_origins = ["*"] if _cors == "*" else [o.strip() for o in _cors.split(",") if o.strip()]
+if _cors == "*":
+    _cors = "http://localhost:5173,http://127.0.0.1:5173"
+_allow_origins = [o.strip() for o in _cors.split(",") if o.strip()]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_allow_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
