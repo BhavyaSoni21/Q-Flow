@@ -94,18 +94,32 @@ export default function SiteHeader() {
                             >
                                 Home
                             </NavLink>
-                            <a
-                                href="/#about"
-                                className="text-[12px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-md text-[#334155] dark:text-[#cbd5e1] hover:text-[#0076a8] hover:bg-muted transition-colors"
+                            <NavLink
+                                to="/about"
+                                className={({ isActive }) =>
+                                    cn(
+                                        "text-[12px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-md transition-colors",
+                                        isActive
+                                            ? "text-[#0076a8] bg-[#e6f4fe]"
+                                            : "text-[#334155] dark:text-[#cbd5e1] hover:text-[#0076a8] hover:bg-muted"
+                                    )
+                                }
                             >
                                 About
-                            </a>
-                            <a
-                                href="/#features"
-                                className="text-[12px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-md text-[#334155] dark:text-[#cbd5e1] hover:text-[#0076a8] hover:bg-muted transition-colors"
+                            </NavLink>
+                            <NavLink
+                                to="/features"
+                                className={({ isActive }) =>
+                                    cn(
+                                        "text-[12px] font-bold uppercase tracking-wider px-3.5 py-2 rounded-md transition-colors",
+                                        isActive
+                                            ? "text-[#0076a8] bg-[#e6f4fe]"
+                                            : "text-[#334155] dark:text-[#cbd5e1] hover:text-[#0076a8] hover:bg-muted"
+                                    )
+                                }
                             >
                                 Features
-                            </a>
+                            </NavLink>
                             <div className="ml-3 pl-3 border-l border-[#e2e8f0]">
                                 <Link
                                     to="/login"
@@ -252,12 +266,12 @@ export default function SiteHeader() {
                             <Link to="/" className="text-xs font-bold uppercase tracking-wider py-2" onClick={() => setMobileOpen(false)}>
                                 Home
                             </Link>
-                            <a href="/#about" className="text-xs font-bold uppercase tracking-wider py-2" onClick={() => setMobileOpen(false)}>
+                            <Link to="/about" className="text-xs font-bold uppercase tracking-wider py-2" onClick={() => setMobileOpen(false)}>
                                 About
-                            </a>
-                            <a href="/#features" className="text-xs font-bold uppercase tracking-wider py-2" onClick={() => setMobileOpen(false)}>
+                            </Link>
+                            <Link to="/features" className="text-xs font-bold uppercase tracking-wider py-2" onClick={() => setMobileOpen(false)}>
                                 Features
-                            </a>
+                            </Link>
                             <div className="pt-2 border-t mt-1">
                                 <Link to="/login" className="inline-block text-xs font-bold px-4 py-2 bg-[#0076a8] text-white rounded-md" onClick={() => setMobileOpen(false)}>
                                     Login

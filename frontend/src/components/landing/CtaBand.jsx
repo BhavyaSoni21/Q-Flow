@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 export default function CtaBand() {
@@ -62,19 +62,18 @@ export default function CtaBand() {
                             Launch Route Simulator
                         </Link>
                         <Link
-                            to="/benchmarking"
+                            to="/features"
                             className="bg-white/10 hover:bg-white/20 border border-white/30 text-white px-8 py-3 text-[13px] font-semibold uppercase tracking-wide transition-colors"
                         >
-                            <i className="fas fa-chart-bar mr-2" />
-                            View Benchmarks
+                            <i className="fas fa-layer-group mr-2" />
+                            Explore Features
                         </Link>
-                        <button
-                            type="button"
-                            onClick={() => setFeedbackOpen(true)}
+                        <Link
+                            to="/about"
                             className="border border-white/25 text-[#A8CCE8] hover:border-white/60 hover:text-white px-8 py-3 text-[13px] font-semibold uppercase tracking-wide transition-colors"
                         >
-                            Share Feedback
-                        </button>
+                            About Team &amp; Mission
+                        </Link>
                     </div>
 
                     {/* Core Pipeline */}

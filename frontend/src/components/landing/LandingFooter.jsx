@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 const LINKS = [
     { to: "/", label: "Home" },
+    { to: "/features", label: "Features" },
+    { to: "/about", label: "About Us" },
     { to: "/scenario", label: "Scenario Builder" },
     { to: "/optimization", label: "Fleet Optimizer" },
     { to: "/prediction", label: "Fuel Prediction" },
@@ -47,23 +49,23 @@ export default function LandingFooter() {
                 {/* Middle: description */}
                 <div className="text-center mb-7">
                     <p className="text-[13px] text-[#8AB8D4] font-semibold mb-2">
-                        QFlow / Q-GreenFleet &mdash; Quantum-Inspired Fuel Consumption Prediction and Green Fleet Optimization
+                        Q-Flow &mdash; Quantum-Inspired Fuel Consumption Prediction and Green Fleet Optimization
                     </p>
-                    <p className="text-[12px] text-[#3A6A90] max-w-[680px] mx-auto leading-relaxed">
-                        An auditable decision-support platform predicting vessel fuel consumption, evaluating fuel-pathway
-                        lifecycle emissions and operating cost, and using a quantum-inspired multi-objective optimizer
-                        to select feasible vessel, speed, fuel, and shore-power decisions.
+                    <p className="text-[12px] text-[#3A6A90] max-w-[720px] mx-auto leading-relaxed">
+                        An auditable decision-support platform predicting voyage fuel burn, evaluating Well-to-Wake lifecycle GHG emissions and INR operating costs, and using multi-objective quantum-behaved particle swarm optimization (MO-QPSO) to select Pareto-optimal fleet deployments.
                     </p>
                 </div>
 
                 {/* Compliance badges */}
                 <div className="flex flex-wrap justify-center items-center gap-3 mb-7">
                     {[
-                        "IMO MEPC.328(76)",
-                        "ISO 19030 Compliant",
+                        "IMO MEPC.391(81)",
+                        "FuelEU Maritime 2025/2030",
+                        "ISO 19030 Propeller Metrics",
                         "MO-QPSO · NSGA-II Benchmark",
                         "WtT · TtW · WtW Lifecycle",
-                        "EMSA THETIS-MRV",
+                        "EMSA THETIS-MRV · NOAA AIS",
+                        "CEA India Grid (710 gCO₂/kWh)",
                     ].map((badge) => (
                         <span key={badge}
                             className="px-2.5 py-1 border border-[#0D3460] text-[10px] text-[#3A6A90] font-mono bg-[#071828] tracking-wide">
@@ -74,8 +76,8 @@ export default function LandingFooter() {
 
                 {/* Bottom bar */}
                 <div className="border-t border-[#0D2D4A] pt-5 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-[#2A4A65]">
-                    <span className="font-mono">SIH 2026 · Problem Statement SIH26138 · Clean &amp; Green Technology · Egreen Quanta</span>
-                    <span className="font-mono">Data: EMSA MRV · NOAA AIS · Copernicus ERA5 · Synthetic (labeled)</span>
+                    <span className="font-mono">SIH 2026 · Problem Statement SIH26138 · Clean &amp; Green Technology · Team Egreen Quanta</span>
+                    <span className="font-mono">Data: EMSA MRV · NOAA AIS · Copernicus ERA5 · Shifts Marine Benchmark</span>
                 </div>
             </div>
         </footer>

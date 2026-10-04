@@ -22,7 +22,8 @@ import Emissions from '@/pages/Emissions';
 import Provenance from '@/pages/Provenance';
 import Profile from '@/pages/Profile';
 import Landing from '@/pages/Landing';
-// Add page imports here
+import About from '@/pages/About';
+import Features from '@/pages/Features';
 
 const AuthenticatedApp = () => {
     const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +53,8 @@ const AuthenticatedApp = () => {
         <StoreProvider>
             <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/features" element={<Features />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />

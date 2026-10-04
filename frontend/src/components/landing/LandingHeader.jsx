@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 
@@ -28,24 +28,23 @@ export default function LandingHeader() {
                 {/* Navigation */}
                 <nav className="flex items-center gap-0">
                     {[
-                        { id: null,       href: "/",         label: "Home" },
-                        { id: "features", href: "#features", label: "Features" },
-                        { id: "about",    href: "#about",    label: "About Us" },
+                        { to: "/", label: "Home" },
+                        { to: "/features", label: "Features" },
+                        { to: "/about", label: "About Us" },
                     ].map((item) => (
-                        <a
+                        <NavLink
                             key={item.label}
-                            href={item.href}
-                            onClick={(e) => {
-                                if (item.id) {
-                                    e.preventDefault();
-                                    const el = document.getElementById(item.id);
-                                    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                                }
-                            }}
-                            className="text-[13px] font-semibold px-3.5 py-4 border-b-2 border-transparent text-[#1E3A5A] hover:text-[#1264AB] hover:border-[#1264AB] transition-colors duration-150 whitespace-nowrap cursor-pointer"
+                            to={item.to}
+                            className={({ isActive }) =>
+                                `text-[13px] font-semibold px-3.5 py-4 border-b-2 transition-colors duration-150 whitespace-nowrap cursor-pointer ${
+                                    isActive
+                                        ? "text-[#1264AB] border-[#1264AB]"
+                                        : "border-transparent text-[#1E3A5A] hover:text-[#1264AB] hover:border-[#1264AB]"
+                                }`
+                            }
                         >
                             {item.label}
-                        </a>
+                        </NavLink>
                     ))}
 
                     <div className="ml-4 pl-4 border-l border-[#e2e8f0] flex items-center gap-2">

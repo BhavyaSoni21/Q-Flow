@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 
 export default function SiteFooter() {
@@ -16,7 +16,9 @@ export default function SiteFooter() {
                             <span className="text-[#475569] text-[11px] pl-2 border-l border-[#334155]">Maritime Intelligence</span>
                         </div>
                         <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-1 text-[#94a3b8]">
-                            <Link to="/" className="hover:text-white transition-colors hover:underline underline-offset-2">About</Link>
+                            <Link to="/" className="hover:text-white transition-colors hover:underline underline-offset-2">Home</Link>
+                            <Link to="/features" className="hover:text-white transition-colors hover:underline underline-offset-2">Features</Link>
+                            <Link to="/about" className="hover:text-white transition-colors hover:underline underline-offset-2">About</Link>
                             <Link to="/scenario" className="hover:text-white transition-colors hover:underline underline-offset-2">Scenario</Link>
                             <Link to="/optimization" className="hover:text-white transition-colors hover:underline underline-offset-2">Optimization</Link>
                             <Link to="/benchmarking" className="hover:text-white transition-colors hover:underline underline-offset-2">Benchmarks</Link>
@@ -31,11 +33,11 @@ export default function SiteFooter() {
                     {/* Bottom row */}
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#64748b]">
                         <p className="text-center sm:text-left leading-relaxed">
-                            <strong className="text-[#94a3b8]">Q-Flow</strong> ΓÇö Quantum-Inspired Fuel Prediction &amp; Green Fleet Optimization.
-                            An auditable, multi-modal decision-support platform.
+                            <strong className="text-[#94a3b8]">Q-Flow</strong> &mdash; Quantum-Inspired Fuel Prediction &amp; Green Fleet Optimization.
+                            Auditable, multi-modal decision-support platform for IMO MEPC.391(81) and FuelEU compliance.
                         </p>
-                        <p className="shrink-0 text-[10px] text-[#475569] tracking-wide">
-                            SIH26138 ┬╖ Reproducible ┬╖ Oct 2026
+                        <p className="shrink-0 text-[10px] text-[#475569] tracking-wide font-mono">
+                            SIH26138 · Team Egreen Quanta · Reproducible &amp; Auditable
                         </p>
                     </div>
                 </div>
