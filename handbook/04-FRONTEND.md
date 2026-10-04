@@ -80,15 +80,6 @@ prototype samples in mock mode. In live mode, the graphs use
 `GET /api/predict/scatter`; if a recorded validation artifact is unavailable, the
 charts show `No validation points available` instead of rendering a blank graph.
 
-## Profit preservation `IMPLEMENTED`
-
-Optimization keeps the scenario cargo demand—and therefore the assumed cargo
-revenue—constant. The backend evaluates the baseline operating cost first and,
-when `preserve_profit` is enabled (the default), rejects candidate plans above
-that cost ceiling. This preserves the baseline profit/margin floor while allowing
-lower-cost plans. The Optimization page reports this as the `Profit floor`
-constraint. A real revenue-per-tonne model is still required before claiming an
-absolute monetary profit value.
 
 ## Build & run
 

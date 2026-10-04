@@ -86,7 +86,6 @@ export default function Optimization() {
         { label: "Fuel compatibility", pass: true, margin: "Engine-rated" },
         { label: "Bunkering", pass: true, margin: "Ports OK" },
         { label: "OPS compatibility", pass: !deployment[0]?.shorePower || deployment[0]?.shorePower, margin: deployment[0]?.shorePower ? "Compatible" : "N/A" },
-        { label: "Profit floor", pass: results.constraints?.profit_preserved !== false && (deployment[0]?.cost ?? 0) <= (baseline?.cost ?? Infinity), margin: `${(deployment[0]?.cost ?? 0).toLocaleString()} ≤ ${(baseline?.cost ?? 0).toLocaleString()} INR` },
     ];
 
     const comparisonRows = [

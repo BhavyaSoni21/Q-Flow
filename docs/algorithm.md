@@ -50,11 +50,6 @@ penalty** (soft, master doc §7.5): `J ← J·(1 + v/cap) + v` when the cap is e
   (`selection.select_balanced`); plus min-fuel / min-cost / min-GHG extremes. The
   frontend recomputes this recommendation as preference weights move and displays
   the baseline and optimized values for fuel, cost, and WtW GHG side by side.
-- When `preserve_profit` is enabled, the baseline plan is evaluated first and its
-  operating cost becomes a hard ceiling for candidate plans. Since cargo demand
-  (and the prototype's implied revenue) is unchanged, this preserves the baseline
-  profit/margin floor while permitting cost reductions. Absolute profit requires a
-  configured revenue-per-tonne model and is not fabricated by the current engine.
 
 ## Termination & reproducibility
 Fixed iteration budget (`iters`); fixed `(request, seed, vessels)` → identical output

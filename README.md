@@ -114,7 +114,6 @@ Three cooperating components turn a scenario into an explainable recommendation:
 
 - **5.1 Multi-objective Pareto optimization** — MO-QPSO returns a frontier of non-dominated plans (fuel ↔ cost ↔ GHG), with a balanced recommendation plus cost/GHG/fuel extremes tagged. The Optimization page renders a fixed cost-vs-WtW chart with a connected trade-off line, fuel-colored selectable plans, and a baseline marker. `IMPLEMENTED`
 - **5.2 Predictor-in-the-loop** — every candidate's fuel is predicted, then priced by the emissions engine; no hard-coded fuel. `IMPLEMENTED`
-- **5.2a Profit-preserving selection** — cargo/revenue is held constant and returned optimization plans must not exceed the baseline operating cost, preserving the baseline margin floor while still allowing cost reductions. `IMPLEMENTED`
 - **5.3 Independent benchmarking** — NSGA-II / classical PSO vs MO-QPSO over multiple seeds: hypervolume, convergence curves, scalability sweep, box plots. `IMPLEMENTED`
 - **5.4 Live, recomputable benchmarks** — the Benchmarking page computes from the real engine on demand (cached, with a Recompute button). `IMPLEMENTED`
 - **5.5 Provenance & experiment log** — every field tagged measured/derived/synthetic; every run recorded with seed, dataset, model version. `IMPLEMENTED`
