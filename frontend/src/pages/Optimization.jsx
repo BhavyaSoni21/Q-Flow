@@ -1,4 +1,4 @@
-﻿import React, { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/lib/store";
 import { Panel } from "@/components/shared/Panel";
@@ -26,7 +26,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
     const engineMetadata = results?.engineMetadata;
     const CASE_CONFIG = {
         A: { weather: "Normal", selectedFuels: ["HFO", "VLSFO"], shorePowerEnabled: false, carbonPrice: 0, seed: 42 },
-        B: { weather: "Normal", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, carbonPrice: 0, deadline: 44, seed: 43 },
+        B: { weather: "Normal", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, carbonPrice: 0, deadline: Math.max(24, Math.round((config.distance / 18.5) + (config.portTime || 12) + (config.bufferTime || 6))), seed: 43 },
         C: { weather: "Normal", selectedFuels: ["METHANOL", "HYDROGEN", "AMMONIA"], shorePowerEnabled: true, carbonPrice: 1500, seed: 44 },
         D: { weather: "Severe", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, bufferTime: 6, seed: 45 },
     };
@@ -62,22 +62,38 @@ export function OptimizationView({ isOverlay = false, onClose }) {
 
     if (!results.feasible) {
         return (
-            <div className="relative p-4">
-                {/* Close button ΓÇö top right corner */}
+            <div className="relative p-6 flex flex-col gap-4">
+                {/* Close button — top right corner */}
                 <button
                     type="button"
-                    onClick={() => navigate("/scenario")}
-                    className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 shadow hover:bg-red-50 hover:border-red-300 transition-colors"
+                    onClick={onClose || (() => navigate("/scenario"))}
+                    className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-slate-800 border border-border shadow hover:bg-red-50 hover:border-red-300 transition-colors"
                     aria-label="Back to Scenario"
                 >
-                    <X size={16} className="text-gray-500 hover:text-red-500" />
+                    <X size={16} className="text-muted-foreground hover:text-red-500" />
                 </button>
-                <div className="border border-status-red/50 bg-status-red/5 p-6 flex items-start gap-3">
-                    <AlertTriangle size={18} strokeWidth={1.5} className="text-status-red mt-0.5" />
-                    <div>
-                        <h3 className="font-semibold text-status-red text-sm uppercase tracking-wide">No feasible solution</h3>
-                        <p className="text-xs mt-1">Violated constraint: <span className="num">{results.violated}</span></p>
-                        <p className="text-xs text-muted-foreground mt-2">Adjust the scenario (deadline, fleet, fuels) and re-run.</p>
+                <div className="border border-status-red/50 bg-status-red/5 rounded-md p-6 flex items-start gap-4">
+                    <div className="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0 mt-0.5">
+                        <AlertTriangle size={18} strokeWidth={2} className="text-status-red" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-status-red text-sm uppercase tracking-wide">No Feasible Fleet Solution</h3>
+                        <p className="text-xs mt-1 leading-relaxed text-foreground/90">
+                            <strong>Violated Constraint:</strong> <span className="num font-medium text-status-red">{results.violated}</span>
+                        </p>
+                        <div className="mt-3 text-xs text-muted-foreground space-y-1">
+                            <p>• Ensure your <strong>Deadline</strong> is sufficient for the sailing distance (e.g. for {config.distance} nm, minimum feasible deadline at max fleet speed is ~{Math.ceil(config.distance / 20 + config.portTime + config.bufferTime)} h).</p>
+                            <p>• Select vessels whose combined cargo capacity satisfies the <strong>Cargo Demand</strong> ({config.cargoDemand.toLocaleString()} t).</p>
+                        </div>
+                        <div className="mt-4">
+                            <button
+                                type="button"
+                                onClick={onClose || (() => navigate("/scenario"))}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0076a8] hover:bg-[#005e86] px-4 py-2 rounded transition-colors shadow-sm"
+                            >
+                                Reconfigure Scenario & Retry
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
