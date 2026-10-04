@@ -275,7 +275,7 @@ export default function Scenario() {
                 ))}
             </div>
 
-            <div className="grid grid-cols-12 gap-4 sm:gap-5">
+            <div className="grid grid-cols-12 gap-4 sm:gap-5 items-start">
                 {/* ── Left column: form ── */}
                 <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
 
@@ -670,8 +670,8 @@ export default function Scenario() {
                     )}
                 </div>
 
-                {/* ── Right column: live summary ── */}
-                <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
+                {/* ── Right column: live summary (Sticky pinned) ── */}
+                <div className="col-span-12 lg:col-span-7 flex flex-col gap-4 lg:sticky lg:top-4 self-start">
                     <Panel title="Scenario Summary (Read-only)">
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-0 text-xs">
                             {[
