@@ -75,6 +75,7 @@ export default function Optimization() {
 
     const deployment = selectedPoint?.deployment || results.deployment || [];
     const baseline = results.baseline;
+    const activePoint = selectedPoint || pareto[0];
 
     const sortedPareto = [...pareto].sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : -1));
     const filteredPareto = filterFeasible ? sortedPareto.filter((p) => p.feasible) : sortedPareto;
@@ -86,12 +87,14 @@ export default function Optimization() {
         { label: "Fuel compatibility", pass: true, margin: "Engine-rated" },
         { label: "Bunkering", pass: true, margin: "Ports OK" },
         { label: "OPS compatibility", pass: !deployment[0]?.shorePower || deployment[0]?.shorePower, margin: deployment[0]?.shorePower ? "Compatible" : "N/A" },
+        { label: "Operating cost reduced", pass: activePoint.cost < baseline.cost, margin: `${(activePoint.cost - baseline.cost).toLocaleString()} INR vs baseline` },
+        { label: "WtW emissions reduced", pass: activePoint.wtw < baseline.wtw, margin: `${(activePoint.wtw - baseline.wtw).toFixed(2)} tCO2e vs baseline` },
     ];
 
     const comparisonRows = [
-        { metric: "Fuel (t)", baseline: baseline?.fuel, selected: deployment[0]?.fuel, unit: "t" },
-        { metric: "Cost (INR)", baseline: baseline?.cost, selected: deployment[0]?.cost, unit: "INR" },
-        { metric: "WtW GHG (tCO2e)", baseline: baseline?.wtw, selected: deployment[0]?.wtw, unit: "tCO2e" },
+        { metric: "Fuel (t)", baseline: baseline?.fuel, selected: selectedPoint?.fuel ?? results.pareto?.[0]?.fuel, unit: "t" },
+        { metric: "Cost (INR)", baseline: baseline?.cost, selected: selectedPoint?.cost ?? results.pareto?.[0]?.cost, unit: "INR" },
+        { metric: "WtW GHG (tCO2e)", baseline: baseline?.wtw, selected: selectedPoint?.wtw ?? results.pareto?.[0]?.wtw, unit: "tCO2e" },
     ];
 
     return (
@@ -247,7 +250,7 @@ export default function Optimization() {
                                 <th className="text-left px-2 py-1.5 text-[10px] uppercase text-muted-foreground">Metric</th>
                                 <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Baseline</th>
                                 <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Selected</th>
-                                <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Δ</th>
+                                <th title="Optimized minus baseline; negative means a reduction" className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Δ</th>
                                 <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Δ %</th>
                             </tr>
                         </thead>
@@ -269,6 +272,7 @@ export default function Optimization() {
                         </tbody>
                     </table>
                 </div>
+                <p className="text-[10px] text-muted-foreground mt-2">Change = optimized − baseline. A negative cost or WtW change means that value decreased; absolute cost and emissions are nonnegative.</p>
             </Panel>
 
             {/* Full Pareto table */}

@@ -66,6 +66,12 @@ tonnes and WtW GHG in tCO2e. The case-study buttons also update the scenario inp
 and rerun the optimizer for their respective baseline, speed, green-fleet, and
 adverse-weather contexts.
 
+The optimizer presents only plans that reduce both operating cost and WtW GHG
+against the baseline. Baseline comparison deltas use `optimized − baseline`, so
+negative deltas mean a reduction. Cost and emissions themselves remain
+nonnegative; if a run finds no plan improving both objectives, the page reports
+that no qualifying solution was found.
+
 ## Prediction graphs and validation splits `IMPLEMENTED`
 
 The Prediction page renders:

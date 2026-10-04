@@ -463,7 +463,6 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
     if algo not in ("MO-QPSO", "NSGA-II", "MOPSO"):
         return dict(status="error", reason=f"Unknown algo {algo}")
     res = run_algo(algo, pr, pop, iters, seed)
-    k = select_balanced(res["F"], weights)
     base_f = pr.evaluate_plan(pr.baseline_plan())
     # hypervolume convergence curve (normalised to the run's own final front)
     try:
@@ -476,10 +475,27 @@ def optimize_fleet(request: dict, vessels=None, algo="auto", pop=100, iters=100,
         plan = pr.decode(x, count=False)
         _, rows = pr.evaluate_plan(plan, detail=True)
         ghg_real = float(sum(rw["wtw_ghg_t"] for rw in rows)) if rows else float(f[2])
-        sols.append(dict(objectives=dict(fuel_energy_gj=float(f[0]), cost_usd=float(f[1]), wtw_ghg_t=float(f[2])),
-                         plan=rows, constraints=_constraints.constraint_report(pr, plan, ghg_real)))
+        cost_real = float(sum(rw["cost_usd"] for rw in rows)) if rows else float(f[1])
+        sols.append((dict(objectives=dict(fuel_energy_gj=float(f[0]), cost_usd=cost_real, wtw_ghg_t=ghg_real),
+                          plan=rows, constraints=_constraints.constraint_report(pr, plan, ghg_real)),
+                     np.asarray(f, float)))
+    _, baseline_rows = pr.evaluate_plan(pr.baseline_plan(), detail=True)
+    baseline_cost = float(sum(row["cost_usd"] for row in baseline_rows or []))
+    baseline_ghg = float(sum(row["wtw_ghg_t"] for row in baseline_rows or []))
+    # Only recommend plans that strictly improve both operating cost and lifecycle GHG.
+    improving = [(solution, objective) for solution, objective in sols
+                 if solution["objectives"]["cost_usd"] < baseline_cost - 1e-6
+                 and solution["objectives"]["wtw_ghg_t"] < baseline_ghg - 1e-6]
+    if not improving:
+        return dict(status="infeasible",
+                    reason="No feasible plan in this optimization run reduces both operating cost and WtW emissions versus the baseline. Adjust the fleet, fuels, deadline, or run budget.",
+                    baseline=dict(fuel_energy_gj=float(base_f[0]), cost_usd=baseline_cost, wtw_ghg_t=baseline_ghg),
+                    pareto=[])
+    sols = [solution for solution, _ in improving]
+    filtered_f = np.vstack([objective for _, objective in improving])
+    k = select_balanced(filtered_f, weights)
     return dict(status="ok", algorithm=res["algo"], seed=seed, runtime_s=res["runtime"],
-                baseline=dict(fuel_energy_gj=float(base_f[0]), cost_usd=float(base_f[1]), wtw_ghg_t=float(base_f[2])),
+                baseline=dict(fuel_energy_gj=float(base_f[0]), cost_usd=baseline_cost, wtw_ghg_t=baseline_ghg),
                 balanced_index=k, pareto=sols, convergence=convergence,
                 constraints=dict(cargo_demand_t=route["cargo_demand_t"], deadline_h=route["deadline_h"],
                                  min_speed_for_schedule_kn=round(pr.s_req, 2)),

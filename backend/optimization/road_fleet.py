@@ -239,15 +239,29 @@ def optimize_road_fleet(request: dict, vehicles=None, algo="auto", pop=100, iter
     if algo == "auto":
         algo = "MO-QPSO" if pr.N <= 50 else "NSGA-II"
     res = _run_algo(algo, pr, pop, iters, seed)
-    k = select_balanced(res["F"], weights)
     base_f = pr.evaluate_plan(pr.baseline_plan())
     sols = []
     for x, f in zip(res["X"], res["F"]):
         _, rows = pr.describe(x)
-        sols.append(dict(objectives=dict(energy_mj=float(f[0]), cost_usd=float(f[1]), wtw_ghg_t=float(f[2])),
-                         plan=rows))
+        actual_cost = float(sum(row["cost_usd"] for row in rows or []))
+        actual_ghg = float(sum(row["wtw_ghg_t"] for row in rows or []))
+        sols.append((dict(objectives=dict(energy_mj=float(f[0]), cost_usd=actual_cost, wtw_ghg_t=actual_ghg),
+                          plan=rows), np.asarray(f, float)))
+    _, baseline_rows = pr.evaluate_plan(pr.baseline_plan(), detail=True)
+    baseline_cost = float(sum(row["cost_usd"] for row in baseline_rows or []))
+    baseline_ghg = float(sum(row["wtw_ghg_t"] for row in baseline_rows or []))
+    improving = [(solution, objective) for solution, objective in sols
+                 if solution["objectives"]["cost_usd"] < baseline_cost - 1e-9
+                 and solution["objectives"]["wtw_ghg_t"] < baseline_ghg - 1e-9]
+    if not improving:
+        return dict(status="infeasible", mode="road",
+                    reason="No feasible plan in this optimization run reduces both operating cost and WtW emissions versus the baseline. Adjust the fleet, fuels, deadline, or run budget.",
+                    baseline=dict(energy_mj=float(base_f[0]), cost_usd=baseline_cost, wtw_ghg_t=baseline_ghg),
+                    pareto=[])
+    sols = [solution for solution, _ in improving]
+    k = select_balanced(np.vstack([objective for _, objective in improving]), weights)
     return dict(status="ok", mode="road", algorithm=res["algo"], seed=seed, runtime_s=res["runtime"],
-                baseline=dict(energy_mj=float(base_f[0]), cost_usd=float(base_f[1]), wtw_ghg_t=float(base_f[2])),
+                baseline=dict(energy_mj=float(base_f[0]), cost_usd=baseline_cost, wtw_ghg_t=baseline_ghg),
                 balanced_index=k, pareto=sols,
                 units=dict(energy="MJ", cost="INR", ghg="tCO2e (well-to-wake)"))
 
@@ -255,6 +269,5 @@ def optimize_road_fleet(request: dict, vehicles=None, algo="auto", pop=100, iter
 if __name__ == "__main__":
     out = optimize_road_fleet(dict(cargo_demand_kg=4000), iters=30)
     print(out["status"], len(out.get("pareto", [])), out.get("baseline"))
-
 
 

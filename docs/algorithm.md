@@ -50,6 +50,11 @@ penalty** (soft, master doc §7.5): `J ← J·(1 + v/cap) + v` when the cap is e
   (`selection.select_balanced`); plus min-fuel / min-cost / min-GHG extremes. The
   frontend recomputes this recommendation as preference weights move and displays
   the baseline and optimized values for fuel, cost, and WtW GHG side by side.
+- Ship and road optimizer recommendations are filtered against the corresponding
+  baseline and include only plans with strictly lower operating cost and WtW GHG.
+  If the run finds no such candidate, it reports no qualifying feasible solution.
+  Frontend changes are signed as `optimized − baseline`, where a negative value
+  means a reduction; absolute cost and emissions remain nonnegative.
 
 ## Termination & reproducibility
 Fixed iteration budget (`iters`); fixed `(request, seed, vessels)` → identical output

@@ -206,6 +206,17 @@ export function runMockOptimization(config) {
         });
     }
 
+    const improvingPareto = pareto.filter((point) => point.cost < baseline.cost && point.wtw < baseline.wtw);
+    if (improvingPareto.length === 0) {
+        return {
+            pareto: [], baseline, deployment: [], feasible: false,
+            violated: "No feasible plan in this run reduces both operating cost and WtW emissions versus the baseline. Adjust the fleet, fuels, deadline, or run budget.",
+            progress: [],
+        };
+    }
+    pareto.length = 0;
+    pareto.push(...improvingPareto);
+
     // Tag extremes + balanced (TOPSIS on normalised objectives).
     if (pareto.length) {
         const minCost = pareto.reduce((a, b) => (b.cost < a.cost ? b : a));

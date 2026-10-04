@@ -177,7 +177,7 @@ The prototype telemetry model can be regenerated locally with `python prediction
 - [x] Prototype digital-twin reporting and green-corridor route selection.
 - [x] EACF definition and explicit prototype implementation mapping.
 - [x] Prediction validation graphs with distinct prototype holdout views and empty-state handling.
-- [x] Baseline profit-floor protection through same-cargo operating-cost ceiling.
+- [x] Ship and road optimization filter recommendations to plans that reduce both operating cost and WtW emissions; signed comparison deltas show reductions as negative values.
 
 ## Audit limitations
 

@@ -44,7 +44,14 @@ function KpiCell({ label, baseline, optimized, unit, delta, deltaPct, improved, 
 
 export default function KpiStrip() {
     const { results, selectedPoint, running, config } = useStore();
-    const opt = selectedPoint?.deployment?.[0] || results?.deployment?.[0];
+    const selectedDeployment = selectedPoint?.deployment || results?.deployment || [];
+    const selectedCargo = selectedDeployment.reduce((sum, row) => sum + (Number(row.cargo) || 0), 0);
+    const selectedSailingTime = selectedDeployment.reduce((longest, row) => Math.max(longest, Number(row.sailingTime) || 0), 0);
+    const opt = selectedPoint || (selectedDeployment.length ? {
+        fuel: selectedDeployment.reduce((sum, row) => sum + (Number(row.fuel) || 0), 0),
+        cost: selectedDeployment.reduce((sum, row) => sum + (Number(row.cost) || 0), 0),
+        wtw: selectedDeployment.reduce((sum, row) => sum + (Number(row.wtw) || 0), 0),
+    } : null);
     const base = results?.baseline;
     const state = running ? "loading" : !results ? "empty" : "ready";
 
@@ -54,8 +61,10 @@ export default function KpiStrip() {
     const pct = (d, b) => (b ? (d / b) * 100 : 0);
 
     const constraints = [
-        { label: "Cargo demand satisfied", pass: (opt?.cargo ?? 0) >= ((base?.cargo ?? 0) * 0.95) },
-        { label: "Schedule feasible", pass: (opt?.sailingTime ?? 999) <= (config?.deadline ?? 52) + (config?.bufferTime ?? 2) },
+        { label: "Cargo demand satisfied", pass: selectedCargo >= (config?.cargoDemand ?? base?.cargo ?? 0) * 0.95 },
+        { label: "Schedule feasible", pass: (selectedSailingTime || 999) <= (config?.deadline ?? 52) + (config?.bufferTime ?? 2) },
+        { label: "Operating cost reduced", pass: !!opt && opt.cost < (base?.cost ?? Infinity) },
+        { label: "WtW emissions reduced", pass: !!opt && opt.wtw < (base?.wtw ?? Infinity) },
         { label: "Fuel compatibility", pass: true },
         { label: "Vessel availability", pass: true },
     ];
