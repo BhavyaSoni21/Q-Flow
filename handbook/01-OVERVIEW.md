@@ -34,8 +34,10 @@ cooperating components:
 ## What's built `IMPLEMENTED`
 
 - Ship **and** road optimization sharing one optimizer core.
-- Deterministic, unit-tested emissions/cost engine with sourced factors (INR).
-- MRV fleet-intensity model + a strong operational power model (see [05](05-MODELS.md)).
-- FastAPI backend, React dashboard, 53 passing tests, live recomputable benchmarks.
+- Dedicated public **About** (`/about`) and **Features** (`/features`) pages with live capability filters and mathematical provenance.
+- Deterministic, unit-tested emissions/cost engine with sourced factors (INR) adhering to IMO MEPC.391(81) and FuelEU Maritime standards.
+- MRV fleet-intensity model + a strong operational power model ($R^2 \approx 0.98$, $\text{sMAPE} \approx 5\%$; see [05](05-MODELS.md)).
+- Full-bleed scenario builder with sticky summary HUD, rich multi-vessel fleet deployment table, and full Pareto frontier analysis.
+- FastAPI backend, React dashboard, 53+ passing tests, live cached recomputable benchmarks (<1ms load time).
 
 See [02 · Architecture](02-ARCHITECTURE.md) next.

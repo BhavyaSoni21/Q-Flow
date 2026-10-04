@@ -4,6 +4,9 @@ The Q-Flow **handbook** is the authoritative, code-verified reference for the
 project. It explains what is actually built (not aspirational), tagged with the
 same claim labels used in the [README](../README.md).
 
+> **Single-file edition:** [`MASTER.md`](MASTER.md) consolidates all ten chapters
+> into one document for hand-off, review, and judging.
+
 ## Reading order
 
 1. [01 · Overview](01-OVERVIEW.md) — the problem, the solution, the principles.

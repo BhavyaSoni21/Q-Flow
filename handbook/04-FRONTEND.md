@@ -7,17 +7,18 @@ charts, a single data layer that toggles between mock and the live backend.
 
 | Page | What it does |
 |------|--------------|
+| `Landing.jsx` | Public portal with Hero search, In-Focus highlights, quick module grid, live AIS vessel counts, and quick-start links |
+| `About.jsx` | Dedicated company, mission, and team overview (Team Egreen Quanta, SIH26138) highlighting regulatory compliance (IMO MEPC.391(81), FuelEU Maritime, CEA India grid) and scientific integrity |
+| `Features.jsx` | Interactive capability showcase with categorized filters (Quantum Optimizer, Fuel AI, Lifecycle Emissions, Audit & Benchmarking) and the 5-step evaluation pipeline |
 | `Dashboard.jsx` | Post-login home — fetches and displays dynamic simulation history, carbon metrics, company profile, and quick-start cards from the SQLite backend |
 | `Profile.jsx` | Manage user profile settings and view account information, syncing with the SQLite backend |
-| `Scenario.jsx` | Build a scenario; Ship/Road mode toggle; **From/To port-pair selectors** (auto-fill distance from route presets); fleet, fuels, distance, deadline, carbon price, and Monte Carlo weather/risk tests; full-screen optimization overlay after a run |
-| `Optimization.jsx` | Run the optimizer; `DataStatus` banner + `DataModeBadge` on Pareto panel; connected cost-vs-WtW Pareto frontier, deployment plan, balanced slider selection, constraint repair note, and KPIs (INR) |
-| `Prediction.jsx` | Single-prediction tool with physics sanity check, current-input explanation, SHAP graphs, and holdout validation graphs |
-| `Benchmarking.jsx` | Live, recomputable optimizer + prediction benchmarks (Recompute button) |
+| `Scenario.jsx` | Full-bleed scenario builder with sticky summary HUD; Ship/Road mode toggle; **From/To port-pair selectors**; fleet, fuels, distance, deadline, carbon price, and Monte Carlo weather/risk tests |
+| `Optimization.jsx` | Run the optimizer; `DataStatus` banner; rich multi-vessel fleet deployment table, connected cost-vs-WtW Pareto frontier, balanced slider selection, and operational KPIs (INR) |
+| `Prediction.jsx` | Single-prediction tool with physics sanity check, current-input explanation, global & local SHAP graphs, and holdout validation graphs |
+| `Benchmarking.jsx` | Instant (<1ms precomputed) & live recomputable optimizer + prediction benchmarks with hypervolume (HV) and boxplot metrics |
 | `Provenance.jsx` | Data-provenance ledger, experiment log (incl. `originPort`/`destinationPort` per run), and MRV/ERA5/AIS/GFW availability |
-| API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, EACF, profile, dashboard, and feedback contracts are exposed through `src/lib/api.js` |
-| Authentication bridge | `AuthContext` synchronizes `/api/auth/session`; live API calls use same-origin cookies with `credentials: include`; no bearer secret is stored in browser build variables |
-| `Emissions.jsx` | Lifecycle factors plus indicative CII-style KPI check |
-| `Landing.jsx`, auth pages | Marketing landing + read-only Sandbox/Demo access for independent auditing |
+| `Emissions.jsx` | Lifecycle factors (WtT, TtW, WtW), OPS shore power cold-ironing calculations, plus indicative CII-style KPI check |
+| Auth & Modals | User login, registration, password reset, and interactive review feedback modal |
 
 ## Data layer (`src/lib/`)
 
@@ -96,13 +97,12 @@ prototype samples in mock mode. In live mode, the graphs use
 charts show `No validation points available` instead of rendering a blank graph.
 
 
-## SEO, Accessibility & Route Selection `IMPLEMENTED`
+## Navigation & Layout Structure `IMPLEMENTED`
 
-The frontend includes `robots.txt`, `sitemap.xml`, and `site.webmanifest` to ensure proper search engine indexing and accessibility. State management (`store.jsx`) and authentication context (`AuthContext.jsx`) have been hardened to improve route selection, ensuring authenticated states and correct mode states (Ship/Road) are securely maintained across page navigation. Routing and SPA behavior are strictly governed by `vercel.json` which supports these assets natively.
-
-## Port-pair route selection `IMPLEMENTED`
-
-The Scenario page replaces the old single `routeId` dropdown with two independent **From / To** port selectors. Available ports are defined in `src/lib/types.js` (`PORTS` array). When the selected pair matches a known route preset (`ROUTES`), the distance field is auto-filled from `getRouteDistance(origin, destination)`. The backend mirrors these presets at `GET /api/ports` and `GET /api/routes` for live clients. The `originPort` and `destinationPort` values are forwarded with every optimization request and recorded in the run log for provenance.
+The application provides a polished dual-layer navigation experience:
+- **Public Layout (`LandingHeader.jsx`, `LandingFooter.jsx`):** Powers `/`, `/about`, and `/features` with smooth active route indicators, light/dark accessibility toggles, and direct links to live modules.
+- **Application Layout (`SiteHeader.jsx`, `SiteFooter.jsx`):** Powers authenticated routes with the Dashboard, Scenario builder, Insights mega-menu (Benchmarking, Prediction, Emissions, Provenance), user profile management, and logout.
+- **Footers:** Standardized across both layouts with regulatory compliance badges (IMO MEPC.391(81), FuelEU Maritime 2025/2030, ISO 19030, CEA India Grid 710 gCO₂/kWh) and direct links to all subpages.
 
 ## Build & run
 

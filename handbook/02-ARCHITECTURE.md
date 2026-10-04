@@ -5,7 +5,7 @@
 ```mermaid
 flowchart TB
     subgraph FE[Frontend · React + Vite · Vercel]
-      UI[Pages: Scenario / Optimization / Prediction / Benchmarking / Provenance]
+      UI[Pages: Home / About / Features / Dashboard / Scenario / Optimization / Prediction / Benchmarking / Provenance]
       UI --> DL[api.js data layer]
       DL -->|USE_MOCK| MOCK[mock.js representative data]
       DL -->|live| HTTP[/api fetch/]

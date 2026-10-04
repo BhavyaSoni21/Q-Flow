@@ -26,6 +26,7 @@ The authoritative, code-verified reference lives in [`handbook/`](handbook/):
 
 | Doc | What's inside |
 |-----|---------------|
+| [**Master handbook**](handbook/MASTER.md) | **All chapters consolidated into one file** — start here for hand-off/review |
 | [00 · Start here](handbook/00-START-HERE.md) | How the docs fit together, reading order |
 | [01 · Overview](handbook/01-OVERVIEW.md) | Problem, solution, guiding principles |
 | [02 · Architecture](handbook/02-ARCHITECTURE.md) | System + data-flow architecture |
@@ -122,6 +123,8 @@ Three cooperating components turn a scenario into an explainable recommendation:
 - **5.8 Independent Audit & Sandbox Mode** — includes a transparent [SIH26138 Audit Report](docs/qflow-sih26138-audit.md) and provides a read-only **Sandbox / Demo Mode** for reviewers to verify outputs using deterministic, representative scenarios without requiring admin credentials. `IMPLEMENTED`
 - **5.9 Dashboard & user persistence** — post-login Dashboard with simulation history and quick-start cards; completed optimization runs and user profiles are persisted to a SQLite database (`user_db.sqlite`) so results survive page navigation and restarts. `IMPLEMENTED`
 - **5.10 Port-pair route selection** — Scenario builder uses **From/To port selectors** that auto-fill route distance from presets; `originPort`/`destinationPort` are forwarded to the backend and recorded per run for provenance. `IMPLEMENTED`
+- **5.11 Dedicated About & Features portals** — dedicated public `/about` (mission, Team Egreen Quanta, IMO MEPC.391(81) & FuelEU compliance, architectural pillars) and `/features` (interactive categorized capability grid, 5-step execution pipeline) with active navigation and standardized footers. `IMPLEMENTED`
+- **5.12 Multi-vessel deployment & sticky UI** — optimization outputs display rich multi-vessel fleet deployment schedules with aggregate metrics alongside the cost-vs-WtW Pareto frontier; scenario builder features an independent scroll layout with a sticky HUD. `IMPLEMENTED`
 
 ## 6. Innovation & uniqueness
 
@@ -240,9 +243,9 @@ Q-Flow/
 │   ├── schemas/               # pydantic request/response (OptimizeRequest incl. origin_port/destination_port)
 │   └── tests/                 # 53 tests
 ├── frontend/
-│   ├── src/pages/             # Dashboard, Scenario, Optimization, Prediction, Benchmarking, Provenance…
+│   ├── src/pages/             # Landing, About, Features, Dashboard, Scenario, Optimization, Prediction, Benchmarking…
 │   ├── src/lib/               # api.js (mock↔live), store.jsx (mode + sessionStorage), types.js (PORTS, ROUTES, getRouteDistance)
-│   ├── src/components/        # charts, layout, shared UI
+│   ├── src/components/        # charts, layout, landing, shared UI
 │   └── vercel.json            # SPA rewrites
 ├── docs/                      # architecture, algorithm, model-versions, provenance…
 ├── handbook/                  # this project's authoritative reference
