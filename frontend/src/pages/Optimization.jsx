@@ -8,7 +8,7 @@ import { LabeledSelect, SquareButton } from "@/components/shared/Field";
 import { ExportCsv } from "@/components/shared/ExportButtons";
 import ParetoChart from "@/components/charts/ParetoChart";
 import { cn } from "@/lib/utils";
-import { AlertTriangle, X, Sparkles } from "lucide-react";
+import { AlertTriangle, X, Sparkles, Loader2 } from "lucide-react";
 
 const CASE_STUDIES = [
     { id: "A", label: "Baseline fleet" },
@@ -19,18 +19,25 @@ const CASE_STUDIES = [
 
 export function OptimizationView({ isOverlay = false, onClose }) {
     const navigate = useNavigate();
-    const { results, selectedPoint, setSelectedPoint, weights, setWeights, caseStudy, setCaseStudy, config, updateConfig, runOptimization } = useStore();
+    const { results, selectedPoint, setSelectedPoint, weights, setWeights, caseStudy, setCaseStudy, config, updateConfig, runOptimization, running } = useStore();
     const [sortKey, setSortKey] = useState("cost");
     const [filterFeasible, setFilterFeasible] = useState(false);
     const pareto = results?.pareto || [];
     const engineMetadata = results?.engineMetadata;
+
     const CASE_CONFIG = {
         A: { weather: "Normal", selectedFuels: ["HFO", "VLSFO"], shorePowerEnabled: false, carbonPrice: 0, seed: 42 },
-        B: { weather: "Normal", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, carbonPrice: 0, deadline: Math.max(24, Math.round((config.distance / 18.5) + (config.portTime || 12) + (config.bufferTime || 6))), seed: 43 },
+        B: { weather: "Normal", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, carbonPrice: 0, deadline: Math.max(24, Math.round((config.distance / 17.5) + (config.portTime || 12) + (config.bufferTime || 6))), seed: 43 },
         C: { weather: "Normal", selectedFuels: ["METHANOL", "HYDROGEN", "AMMONIA"], shorePowerEnabled: true, carbonPrice: 1500, seed: 44 },
         D: { weather: "Severe", selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"], shorePowerEnabled: false, bufferTime: 6, seed: 45 },
     };
-    const selectCaseStudy = (id) => { setCaseStudy(id); updateConfig(CASE_CONFIG[id]); runOptimization(CASE_CONFIG[id]); };
+
+    const selectCaseStudy = async (id) => {
+        setCaseStudy(id);
+        const patch = CASE_CONFIG[id];
+        updateConfig(patch);
+        await runOptimization(patch);
+    };
 
     const weightedPoint = useMemo(() => {
         if (!pareto.length) return null;
@@ -52,7 +59,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
         });
     }, [pareto, weights]);
 
-    if (!results) {
+    if (!results && !running) {
         return (
             <div className="p-4">
                 <Panel title="Optimization results"><EmptyRun /></Panel>
@@ -60,7 +67,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
         );
     }
 
-    if (!results.feasible) {
+    if (results && !results.feasible && !running) {
         return (
             <div className="relative p-6 flex flex-col gap-4">
                 {/* Close button — top right corner */}
@@ -89,7 +96,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                             <button
                                 type="button"
                                 onClick={onClose || (() => navigate("/scenario"))}
-                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0076a8] hover:bg-[#005e86] px-4 py-2 rounded transition-colors shadow-sm"
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#0076a8] hover:bg-[#005e86] px-4 py-2 rounded transition-colors shadow-sm cursor-pointer"
                             >
                                 Reconfigure Scenario & Retry
                             </button>
@@ -100,28 +107,28 @@ export function OptimizationView({ isOverlay = false, onClose }) {
         );
     }
 
-    const deployment = selectedPoint?.deployment || results.deployment || [];
-    const baseline = results.baseline;
-    const activePoint = selectedPoint || pareto[0];
+    const deployment = selectedPoint?.deployment || results?.deployment || [];
+    const baseline = results?.baseline;
+    const activePoint = selectedPoint || pareto[0] || {};
 
     const sortedPareto = [...pareto].sort((a, b) => (a[sortKey] > b[sortKey] ? 1 : -1));
     const filteredPareto = filterFeasible ? sortedPareto.filter((p) => p.feasible) : sortedPareto;
 
     const constraintChecks = [
-        { label: "Cargo demand", pass: deployment[0]?.cargo >= baseline?.cargo * 0.95, margin: `${(deployment[0]?.cargo ?? 0).toLocaleString()} / ${baseline?.cargo?.toLocaleString()} t` },
-        { label: "Deadline", pass: (deployment[0]?.sailingTime ?? 999) <= config.deadline + config.bufferTime, margin: `${deployment[0]?.sailingTime ?? "ΓÇö"} h Γëñ ${config.deadline + config.bufferTime} h` },
+        { label: "Cargo demand", pass: (deployment[0]?.cargo ?? 0) >= (baseline?.cargo ?? config.cargoDemand) * 0.95, margin: `${(deployment[0]?.cargo ?? 0).toLocaleString()} / ${(baseline?.cargo ?? config.cargoDemand).toLocaleString()} t` },
+        { label: "Deadline", pass: (deployment[0]?.sailingTime ?? 999) <= config.deadline + config.bufferTime, margin: `${deployment[0]?.sailingTime ?? "—"} h ≤ ${config.deadline + config.bufferTime} h` },
         { label: "Vessel availability", pass: true, margin: "All available" },
         { label: "Fuel compatibility", pass: true, margin: "Engine-rated" },
         { label: "Bunkering", pass: true, margin: "Ports OK" },
         { label: "OPS compatibility", pass: !deployment[0]?.shorePower || deployment[0]?.shorePower, margin: deployment[0]?.shorePower ? "Compatible" : "N/A" },
-        { label: "Operating cost reduced", pass: activePoint.cost < baseline.cost, margin: `${(activePoint.cost - baseline.cost).toLocaleString()} INR vs baseline` },
-        { label: "WtW emissions reduced", pass: activePoint.wtw < baseline.wtw, margin: `${(activePoint.wtw - baseline.wtw).toFixed(2)} tCO2e vs baseline` },
+        { label: "Operating cost reduced", pass: baseline ? activePoint.cost < baseline.cost : true, margin: baseline ? `${(activePoint.cost - baseline.cost).toLocaleString()} INR vs baseline` : "Optimized" },
+        { label: "WtW emissions reduced", pass: baseline ? activePoint.wtw < baseline.wtw : true, margin: baseline ? `${(activePoint.wtw - baseline.wtw).toFixed(2)} tCO2e vs baseline` : "Optimized" },
     ];
 
     const comparisonRows = [
-        { metric: "Fuel (t)", baseline: baseline?.fuel, selected: selectedPoint?.fuel ?? results.pareto?.[0]?.fuel, unit: "t" },
-        { metric: "Cost (INR)", baseline: baseline?.cost, selected: selectedPoint?.cost ?? results.pareto?.[0]?.cost, unit: "INR" },
-        { metric: "WtW GHG (tCO2e)", baseline: baseline?.wtw, selected: selectedPoint?.wtw ?? results.pareto?.[0]?.wtw, unit: "tCO2e" },
+        { metric: "Fuel (t)", baseline: baseline?.fuel, selected: selectedPoint?.fuel ?? results?.pareto?.[0]?.fuel, unit: "t" },
+        { metric: "Cost (INR)", baseline: baseline?.cost, selected: selectedPoint?.cost ?? results?.pareto?.[0]?.cost, unit: "INR" },
+        { metric: "WtW GHG (tCO2e)", baseline: baseline?.wtw, selected: selectedPoint?.wtw ?? results?.pareto?.[0]?.wtw, unit: "tCO2e" },
     ];
 
     return (
@@ -140,7 +147,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                 </span>
                             </div>
                             <p className="text-[11px] text-sky-100">
-                                3-Objective Pareto front (Fuel ┬╖ Operating Cost ┬╖ Lifecycle WtW GHG)
+                                3-Objective Pareto front (Fuel · Operating Cost · Lifecycle WtW GHG)
                             </p>
                         </div>
                     </div>
@@ -158,36 +165,40 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                 </div>
             )}
             {engineMetadata && (
-                <div className="border bg-card px-3 py-2 text-[11px] text-muted-foreground">
-                    <span className="label-eyebrow mr-2">Calculation context</span>
-                    <span className="num">{engineMetadata.model_version}</span>
-                    <span className="mx-2">┬╖</span>
+                <div className="border bg-card px-3 py-2 text-[11px] text-muted-foreground flex items-center flex-wrap gap-2">
+                    <span className="label-eyebrow">Calculation context</span>
+                    <span className="num font-medium text-foreground">{engineMetadata.model_version}</span>
+                    <span>·</span>
                     <span>{engineMetadata.fleet_data_status.replaceAll("_", " ")}</span>
-                    <span className="mx-2">┬╖</span>
+                    <span>·</span>
                     <span>{engineMetadata.fuel_factor_status.replaceAll("_", " ")}</span>
                 </div>
             )}
             {/* Case study tabs */}
-            <div className="flex border bg-card">
+            <div className="flex border bg-card overflow-x-auto rounded-sm">
                 {CASE_STUDIES.map((cs) => (
                     <button
                         key={cs.id}
                         onClick={() => selectCaseStudy(cs.id)}
+                        disabled={running}
                         className={cn(
-                            "px-3 h-9 text-xs border-r last:border-r-0 transition-colors duration-150",
-                            caseStudy === cs.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                            "px-4 h-9 text-xs border-r last:border-r-0 transition-colors duration-150 inline-flex items-center gap-1.5 whitespace-nowrap cursor-pointer",
+                            caseStudy === cs.id ? "bg-[#0076a8] text-white font-semibold shadow-inner" : "hover:bg-muted text-muted-foreground hover:text-foreground"
                         )}
                     >
-                        <span className="num mr-1.5">{cs.id}</span>{cs.label}
+                        {running && caseStudy === cs.id ? (
+                            <Loader2 size={12} className="animate-spin" />
+                        ) : (
+                            <span className="num font-bold opacity-80">{cs.id}</span>
+                        )}
+                        <span>{cs.label}</span>
                     </button>
                 ))}
-            </div>
-
-            <div className="grid grid-cols-12 gap-4">
+                    <div className="grid grid-cols-12 gap-4">
                 {/* Left 60% Pareto */}
                 <div className="col-span-12 lg:col-span-7">
                     <Panel
-                        title="Pareto front ΓÇö 3 objectives"
+                        title="Pareto Front — 3 Objectives"
                         actions={null}
                     >
                         <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
@@ -197,29 +208,36 @@ export function OptimizationView({ isOverlay = false, onClose }) {
 
                 {/* Right 40% selected solution */}
                 <div className="col-span-12 lg:col-span-5 flex flex-col gap-3">
-                    <Panel title="Selected solution ΓÇö deployment">
+                    <Panel title="Selected Solution — Deployment Plan">
                         <div className="overflow-x-auto">
-                            <table className="w-full text-xs">
+                            <table className="w-full text-xs min-w-[480px]">
                                 <thead>
                                     <tr className="border-b bg-[hsl(var(--panel-header))]">
-                                        {["Vessel", "Speed kn", "Fuel", "OPS", "Cargo t", "Sail h", "Fuel t ┬▒err", "Cost INR", "WtW tCO2e", "Feas"].map((h) => (
-                                            <th key={h} className={cn("px-1.5 py-1.5 text-[10px] uppercase text-muted-foreground", h === "Vessel" ? "text-left" : "text-right num")}>{h}</th>
-                                        ))}
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-left">Vessel</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-right num">Speed</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-left">Fuel</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-center">OPS</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-right num">Cargo (t)</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-right num">Sail (h)</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-right num">Fuel (t)</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-right num">Cost (INR)</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-right num">WtW</th>
+                                        <th className="px-2 py-2 text-[10px] uppercase text-muted-foreground text-center">Feas</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {deployment.map((d, i) => (
-                                        <tr key={i} className="border-b last:border-b-0">
-                                            <td className="px-1.5 py-1.5 num">{d.vesselId}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.speed}</td>
-                                            <td className="px-1.5 py-1.5">{d.fuelId}</td>
-                                            <td className="px-1.5 py-1.5 text-center">{d.shorePower ? "Y" : "N"}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.cargo.toLocaleString()}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.sailingTime}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.fuel} ┬▒{d.fuelError}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.cost.toLocaleString()}</td>
-                                            <td className="px-1.5 py-1.5 text-right num">{d.wtw}</td>
-                                            <td className="px-1.5 py-1.5 text-center"><StatusDot status={d.feasible} /></td>
+                                        <tr key={i} className="border-b last:border-b-0 hover:bg-muted/40 transition-colors">
+                                            <td className="px-2 py-2 num font-semibold text-foreground">{d.vesselId}</td>
+                                            <td className="px-2 py-2 text-right num">{d.speed} kn</td>
+                                            <td className="px-2 py-2 font-medium">{d.fuelId}</td>
+                                            <td className="px-2 py-2 text-center text-muted-foreground">{d.shorePower ? "Yes" : "No"}</td>
+                                            <td className="px-2 py-2 text-right num">{d.cargo.toLocaleString()}</td>
+                                            <td className="px-2 py-2 text-right num">{d.sailingTime}</td>
+                                            <td className="px-2 py-2 text-right num">{d.fuel} ±{d.fuelError}</td>
+                                            <td className="px-2 py-2 text-right num font-medium">{d.cost.toLocaleString()}</td>
+                                            <td className="px-2 py-2 text-right num">{d.wtw}</td>
+                                            <td className="px-2 py-2 text-center"><StatusDot status={d.feasible} /></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -227,11 +245,11 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                         </div>
                     </Panel>
 
-                    <Panel title="Constraint checks">
+                    <Panel title="Constraint Checks">
                         <div className="flex flex-col gap-1.5">
                             {constraintChecks.map((c) => (
-                                <div key={c.label} className="flex items-center justify-between border-b py-1.5 last:border-b-0">
-                                    <span className="text-xs">{c.label}</span>
+                                <div key={c.label} className="flex items-center justify-between border-b py-2 last:border-b-0">
+                                    <span className="text-xs text-foreground/85">{c.label}</span>
                                     <div className="flex items-center gap-3">
                                         <span className="text-[11px] text-muted-foreground num">{c.margin}</span>
                                         <StatusDot status={c.pass} label={c.pass ? "Pass" : "Fail"} />
@@ -244,13 +262,13 @@ export function OptimizationView({ isOverlay = false, onClose }) {
             </div>
 
             {/* Balanced selection sliders */}
-            <Panel title="Balanced selection ΓÇö preference weights">
+            <Panel title="Balanced Selection — Preference Weights">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {(["fuel", "cost", "wtw"]).map((k) => (
-                        <div key={k} className="flex flex-col gap-2 min-w-0 border p-3">
+                        <div key={k} className="flex flex-col gap-2 min-w-0 border p-3 rounded-sm bg-card">
                             <div className="flex items-center justify-between gap-3">
                                 <label className="label-eyebrow whitespace-nowrap">{k === "wtw" ? "GHG weight" : `${k[0].toUpperCase() + k.slice(1)} weight`}</label>
-                                <span className="num text-xs whitespace-nowrap">Weight {Number(weights[k]).toFixed(2)}</span>
+                                <span className="num text-xs whitespace-nowrap font-medium">Weight {Number(weights[k]).toFixed(2)}</span>
                             </div>
                             <input
                                 type="range"
@@ -261,10 +279,10 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                 onChange={(e) => setWeights({ ...weights, [k]: Number(e.target.value) })}
                                 className="w-full accent-[hsl(var(--accent))]"
                             />
-                            <div className="grid grid-cols-2 gap-2 text-[11px] num">
+                            <div className="grid grid-cols-2 gap-2 text-[11px] num pt-1">
                                 <div className="min-w-0">
                                     <div className="text-muted-foreground uppercase tracking-wide text-[9px]">Original</div>
-                                    <div className="whitespace-nowrap truncate">
+                                    <div className="whitespace-nowrap truncate font-medium">
                                         {k === "fuel"
                                             ? `${Number(baseline?.fuel || 0).toFixed(1)} t`
                                             : k === "cost"
@@ -274,7 +292,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                 </div>
                                 <div className="min-w-0">
                                     <div className="text-muted-foreground uppercase tracking-wide text-[9px]">Optimized</div>
-                                    <div className="whitespace-nowrap truncate text-accent">
+                                    <div className="whitespace-nowrap truncate text-accent font-semibold">
                                         {k === "fuel"
                                             ? `${Number(weightedPoint?.fuel || 0).toFixed(1)} t`
                                             : k === "cost"
@@ -287,12 +305,12 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                     ))}
                 </div>
                 {weightedPoint && (
-                    <div className="mt-3 flex items-center justify-between border-t pt-2">
-                        <span className="text-xs text-muted-foreground whitespace-nowrap">Recommended (TOPSIS):</span>
-                        <div className="flex gap-4 text-xs num">
-                            <span>Fuel {weightedPoint.fuel.toFixed(1)} t</span>
-                            <span>Cost {Math.max(0, Number(weightedPoint.cost || 0)).toLocaleString()} INR</span>
-                            <span>WtW {weightedPoint.wtw.toFixed(2)} tCO2e</span>
+                    <div className="mt-3 flex items-center justify-between border-t pt-3 flex-wrap gap-2">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">Recommended (TOPSIS):</span>
+                        <div className="flex items-center gap-4 text-xs num">
+                            <span>Fuel: <strong>{weightedPoint.fuel.toFixed(1)} t</strong></span>
+                            <span>Cost: <strong>{Math.max(0, Number(weightedPoint.cost || 0)).toLocaleString()} INR</strong></span>
+                            <span>WtW: <strong>{weightedPoint.wtw.toFixed(2)} tCO2e</strong></span>
                             <SquareButton variant="secondary" onClick={() => setSelectedPoint(weightedPoint)}>Select</SquareButton>
                         </div>
                     </div>
@@ -300,16 +318,16 @@ export function OptimizationView({ isOverlay = false, onClose }) {
             </Panel>
 
             {/* Comparison block */}
-            <Panel title="Baseline vs selected">
+            <Panel title="Baseline vs Selected Solution">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
+                    <table className="w-full text-xs min-w-[500px]">
                         <thead>
                             <tr className="border-b bg-[hsl(var(--panel-header))]">
-                                <th className="text-left px-2 py-1.5 text-[10px] uppercase text-muted-foreground">Metric</th>
-                                <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Baseline</th>
-                                <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">Selected</th>
-                                <th title="Optimized minus baseline; negative means a reduction" className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">╬ö</th>
-                                <th className="text-right px-2 py-1.5 text-[10px] uppercase text-muted-foreground num">╬ö %</th>
+                                <th className="text-left px-3 py-2 text-[10px] uppercase text-muted-foreground">Metric</th>
+                                <th className="text-right px-3 py-2 text-[10px] uppercase text-muted-foreground num">Baseline</th>
+                                <th className="text-right px-3 py-2 text-[10px] uppercase text-muted-foreground num">Selected</th>
+                                <th title="Optimized minus baseline; negative means a reduction" className="text-right px-3 py-2 text-[10px] uppercase text-muted-foreground num">Δ Difference</th>
+                                <th className="text-right px-3 py-2 text-[10px] uppercase text-muted-foreground num">Δ %</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -318,19 +336,19 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                 const pct = r.baseline ? (delta / r.baseline) * 100 : 0;
                                 const better = r.metric.includes("Fuel") || r.metric.includes("Cost") || r.metric.includes("GHG") ? delta <= 0 : delta >= 0;
                                 return (
-                                    <tr key={r.metric} className="border-b last:border-b-0">
-                                        <td className="px-2 py-1.5">{r.metric}</td>
-                                        <td className="px-2 py-1.5 text-right num">{r.baseline?.toLocaleString()}</td>
-                                        <td className="px-2 py-1.5 text-right num">{r.selected?.toLocaleString()}</td>
-                                        <td className={cn("px-2 py-1.5 text-right num", better ? "text-status-green" : "text-status-red")}>{delta >= 0 ? "+" : ""}{delta.toLocaleString()}</td>
-                                        <td className={cn("px-2 py-1.5 text-right num", better ? "text-status-green" : "text-status-red")}>{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%</td>
+                                    <tr key={r.metric} className="border-b last:border-b-0 hover:bg-muted/40 transition-colors">
+                                        <td className="px-3 py-2 font-medium">{r.metric}</td>
+                                        <td className="px-3 py-2 text-right num">{r.baseline?.toLocaleString()}</td>
+                                        <td className="px-3 py-2 text-right num font-semibold">{r.selected?.toLocaleString()}</td>
+                                        <td className={cn("px-3 py-2 text-right num font-medium", better ? "text-status-green" : "text-status-red")}>{delta >= 0 ? "+" : ""}{delta.toLocaleString()}</td>
+                                        <td className={cn("px-3 py-2 text-right num font-medium", better ? "text-status-green" : "text-status-red")}>{pct >= 0 ? "+" : ""}{pct.toFixed(1)}%</td>
                                     </tr>
                                 );
                             })}
                         </tbody>
                     </table>
                 </div>
-                <p className="text-[10px] text-muted-foreground mt-2">Change = optimized ΓêÆ baseline. A negative cost or WtW change means that value decreased; absolute cost and emissions are nonnegative.</p>
+                <p className="text-[10px] text-muted-foreground mt-2">Change = optimized − baseline. A negative cost or WtW change means that value decreased; absolute cost and emissions are nonnegative.</p>
             </Panel>
 
             {/* Full Pareto table */}
