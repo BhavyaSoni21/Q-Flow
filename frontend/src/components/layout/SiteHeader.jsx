@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -213,10 +213,14 @@ export default function SiteHeader() {
 
                             {/* User & Logout Section */}
                             <div className="flex items-center gap-2.5 ml-4 pl-4 border-l border-[#e2e8f0] dark:border-[#334155]">
-                                <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#0076a8] dark:text-[#38bdf8] bg-[#e6f7ff] dark:bg-[#1e293b] px-3 py-1 rounded-full border border-[#bae7ff] dark:border-[#334155]">
+                                <Link
+                                    to="/profile"
+                                    className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#0076a8] dark:text-[#38bdf8] bg-[#e6f7ff] dark:bg-[#1e293b] hover:bg-[#bae7ff]/50 px-3 py-1 rounded-full border border-[#bae7ff] dark:border-[#334155] transition-colors"
+                                    title="View & Edit User Profile"
+                                >
                                     <User size={12} />
-                                    {user?.full_name || "Fleet Officer"}
-                                </span>
+                                    {user?.full_name || "Capt. Ashutosh Amale"}
+                                </Link>
                                 <button
                                     onClick={logout}
                                     className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1 rounded-full bg-red-600 text-white hover:bg-red-700 transition-colors cursor-pointer"

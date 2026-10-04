@@ -1,4 +1,4 @@
-﻿import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -20,6 +20,7 @@ import Benchmarking from '@/pages/Benchmarking';
 import Prediction from '@/pages/Prediction';
 import Emissions from '@/pages/Emissions';
 import Provenance from '@/pages/Provenance';
+import Profile from '@/pages/Profile';
 import Landing from '@/pages/Landing';
 // Add page imports here
 
@@ -58,6 +59,7 @@ const AuthenticatedApp = () => {
                 <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
                     <Route element={<AppLayout />}>
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/profile" element={<Profile />} />
                         <Route path="/scenario" element={<Scenario />} />
                         <Route path="/optimization" element={<Optimization />} />
                         <Route path="/benchmarking" element={<Benchmarking />} />

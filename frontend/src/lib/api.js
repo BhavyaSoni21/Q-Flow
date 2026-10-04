@@ -113,4 +113,48 @@ export const api = {
         boxplot: (seed) => maybeReal("/benchmarks/boxplot", () => getBoxPlotData(seed)),
     },
     getExperimentLog: (seed) => maybeReal("/experiments", () => getExperimentLog(seed)),
+    // Scenarios, User Profiles, Dashboard Live Metrics & Feedback
+    getScenarios: () => maybeReal("/scenarios", () => []),
+    getScenario: (scenarioId) => maybeReal(`/scenarios/${scenarioId}`, () => null),
+    createScenario: (scenario) => maybeRealPost("/scenarios", scenario, () => scenario),
+    deleteScenario: (scenarioId) =>
+        fetch(`${API_BASE}/scenarios/${scenarioId}`, { method: "DELETE", credentials: "include", headers: JSON_HEADERS })
+            .then((res) => res.json())
+            .catch(() => ({ deleted: scenarioId })),
+    getProfile: () => maybeReal("/profile", () => ({
+        full_name: "Capt. Ashutosh Amale",
+        email: "fleet@qflow.app",
+        company_name: "Oceanic Green Logistics India Pvt Ltd",
+        imo_number: "IMO-9842103",
+        fleet_size: "18 Active Vessels (Panamax, Aframax, Capesize)",
+        home_port: "Jawaharlal Nehru Port (JNPA / INNSA)",
+        sustainability_target: "IMO 2030 Decarbonization Trajectory (Net-Zero by 2050)",
+        contact_person: "Capt. Ashutosh Amale",
+        phone: "+91 98200 12345",
+    })),
+    updateProfile: (data) =>
+        fetch(`${API_BASE}/profile`, { method: "PUT", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(data) })
+            .then((res) => res.json())
+            .catch(() => data),
+    getDashboardSummary: () => maybeReal("/dashboard/summary", () => ({
+        metrics: {
+            total_simulations: 4,
+            formatted_total_savings: "₹ 8,83,000",
+            avg_wtw_reduction_pct: 17.1,
+            feasible_rate_pct: 100.0,
+            active_vessels: 18,
+            avg_ci_score: "B (Satisfied)",
+        },
+        profile: {
+            company_name: "Oceanic Green Logistics India Pvt Ltd",
+            imo_number: "IMO-9842103",
+            fleet_size: "18 Active Vessels (Panamax, Aframax, Capesize)",
+            home_port: "Jawaharlal Nehru Port (JNPA / INNSA)",
+            sustainability_target: "IMO 2030 Decarbonization Trajectory (Net-Zero by 2050)",
+            contact_person: "Capt. Ashutosh Amale",
+            email: "fleet@qflow.app",
+        },
+        history: [],
+    })),
+    submitDashboardFeedback: (data) => maybeRealPost("/dashboard/feedback", data, () => ({ status: "calibrated", deviation_pct: 0 })),
 };

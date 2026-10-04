@@ -4,7 +4,7 @@ import os
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from api import compat, engine_state as es
-from data import fleet_db as fleet_store, provenance, scenario_store
+from data import fleet_db as fleet_store, provenance, scenario_store, user_db
 from emissions import pathways
 from experiments import results_store
 from optimization import corridor
@@ -264,19 +264,37 @@ def experiment_log(limit: int = 20):
 
 
 @router.post("/scenarios")
-def create_scenario(scenario: dict):
-    return scenario_store.save(scenario)
+def create_scenario(scenario: dict, request: Request):
+    user = session_user(request)
+    user_id = user.get("id", "user-1") if user else scenario.get("user_id", "user-1")
+    # Save to legacy/file-backed scenario_store first to maintain versioning and schemas
+    legacy_saved = scenario_store.save(scenario)
+    # Save to user_db SQLite
+    user_db.save_user_scenario(legacy_saved, user_id=user_id)
+    return legacy_saved
 
 
 @router.get("/scenarios")
-def list_scenarios():
-    return scenario_store.list_scenarios()
+def list_scenarios(request: Request):
+    user = session_user(request)
+    user_id = user.get("id", "user-1") if user else "user-1"
+    rows = scenario_store.list_scenarios()
+    if not rows:
+        rows = user_db.list_user_scenarios(user_id=user_id)
+    return rows
 
 
 @router.post("/scenarios/compare")
 def compare_scenarios(payload: dict):
     ids = payload.get("scenario_ids") or []
-    rows = [scenario_store.get(sid) for sid in ids]
+    rows = []
+    for sid in ids:
+        item = scenario_store.get(sid)
+        if item is None:
+            db_item = user_db.get_user_scenario(sid) if hasattr(user_db, "get_user_scenario") else None
+            if db_item:
+                item = db_item
+        rows.append(item)
     found = [row for row in rows if row is not None]
     return dict(scenario_ids=ids, found=len(found), missing=[sid for sid, row in zip(ids, rows) if row is None], scenarios=found)
 
@@ -285,5 +303,51 @@ def compare_scenarios(payload: dict):
 def get_scenario(scenario_id: str):
     s = scenario_store.get(scenario_id)
     if s is None:
+        scenarios = user_db.list_user_scenarios()
+        for sc in scenarios:
+            if sc.get("scenario_id") == scenario_id:
+                return sc
         raise HTTPException(status_code=404, detail=f"Unknown scenario_id {scenario_id}")
     return s
+
+
+@router.delete("/scenarios/{scenario_id}")
+def delete_scenario(scenario_id: str, request: Request):
+    user = session_user(request)
+    user_id = user.get("id") if user else None
+    deleted = user_db.delete_user_scenario(scenario_id, user_id=user_id)
+    return {"deleted": scenario_id, "success": deleted}
+
+
+# ---------------------------------------------------------------------------
+# User Profile & Dynamic Dashboard Endpoints
+# ---------------------------------------------------------------------------
+
+@router.get("/profile")
+def get_profile(request: Request):
+    user = session_user(request)
+    user_id = user.get("id", "user-1") if user else "user-1"
+    profile = user_db.get_user_profile(user_id=user_id)
+    return profile or {}
+
+
+@router.put("/profile")
+def update_profile(data: dict, request: Request):
+    user = session_user(request)
+    user_id = user.get("id", "user-1") if user else "user-1"
+    return user_db.update_user_profile(user_id=user_id, data=data)
+
+
+@router.get("/dashboard/summary")
+def get_dashboard_summary(request: Request):
+    user = session_user(request)
+    user_id = user.get("id", "user-1") if user else "user-1"
+    return user_db.get_dashboard_summary(user_id=user_id)
+
+
+@router.post("/dashboard/feedback")
+def submit_dashboard_feedback(payload: dict, request: Request):
+    user = session_user(request)
+    user_id = user.get("id", "user-1") if user else "user-1"
+    return user_db.record_feedback(user_id=user_id, data=payload)
+

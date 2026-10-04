@@ -1,4 +1,4 @@
-﻿import {
+import {
     LayoutDashboard,
     SlidersHorizontal,
     GitCompareArrows,
@@ -10,6 +10,7 @@
 
 export const NAV_ITEMS = [
     { to: "/dashboard", label: "Dashboard", end: true, section: "Fleet Dashboard", crumb: ["Dashboard"] },
+    { to: "/profile", label: "Profile", end: true, section: "User Profile & Enterprise Settings", crumb: ["Profile"], hiddenFromNav: true },
     { to: "/scenario", label: "Scenario", end: true, section: "Scenario Setup", crumb: ["Scenario"] },
     { to: "/optimization", label: "Optimization", section: "Optimization Results", crumb: ["Optimization", "Results"], hiddenFromNav: true },
     { to: "/benchmarking", label: "Benchmarking", section: "Benchmarking Lab", crumb: ["Insights", "Benchmarking"] },

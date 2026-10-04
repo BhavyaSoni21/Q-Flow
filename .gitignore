@@ -44,6 +44,8 @@ results/runs/
 results/scenarios/
 results/fleet/
 results/fleet/*.db
+results/store/
+results/store/*.db
 models/archive/
 
 # Raw datasets & handoff archive (large / reproducible public data)
