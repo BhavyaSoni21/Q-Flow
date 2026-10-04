@@ -13,6 +13,8 @@ import {
 import DataStatus from "@/components/shared/DataStatus";
 import { useNavigate } from "react-router-dom";
 import { OptimizationView } from "@/pages/Optimization";
+import TopUtilityBar from "@/components/layout/TopUtilityBar";
+import SiteHeader from "@/components/layout/SiteHeader";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Optimization Toast
@@ -725,16 +727,20 @@ export default function Scenario() {
             {/* ── Full-Screen Near-Modal Optimization Overlay with Backdrop Blur ── */}
             {showOptimizationOverlay && (
                 <div
-                    className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-5 md:p-8 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200"
+                    className="fixed inset-0 z-[120] flex flex-col bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200"
                     role="dialog"
                     aria-modal="true"
                     aria-label="Fleet Optimization Results Overlay"
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) setShowOptimizationOverlay(false);
-                    }}
                 >
-                    <div className="relative w-full max-w-[1440px] h-[92vh] bg-background border border-border shadow-2xl rounded-lg flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
-                        <div className="flex-1 overflow-y-auto">
+                    {/* Top persistent Navbar & Utility Bar */}
+                    <div className="shrink-0 z-20 shadow-md">
+                        <TopUtilityBar />
+                        <SiteHeader />
+                    </div>
+
+                    {/* Main scrollable Optimization container */}
+                    <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 flex justify-center">
+                        <div className="w-full max-w-[1440px] bg-background border border-border shadow-2xl rounded-lg flex flex-col overflow-hidden mb-6">
                             <OptimizationView isOverlay={true} onClose={() => setShowOptimizationOverlay(false)} />
                         </div>
                     </div>
