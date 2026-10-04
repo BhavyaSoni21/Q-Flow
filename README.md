@@ -116,10 +116,12 @@ Three cooperating components turn a scenario into an explainable recommendation:
 - **5.2 Predictor-in-the-loop** — every candidate's fuel is predicted, then priced by the emissions engine; no hard-coded fuel. `IMPLEMENTED`
 - **5.3 Independent benchmarking** — NSGA-II / classical PSO vs MO-QPSO over multiple seeds: hypervolume, convergence curves, scalability sweep, box plots. `IMPLEMENTED`
 - **5.4 Live, recomputable benchmarks** — the Benchmarking page computes from the real engine on demand (cached, with a Recompute button). `IMPLEMENTED`
-- **5.5 Provenance & experiment log** — every field tagged measured/derived/synthetic; every run recorded with seed, dataset, model version. `IMPLEMENTED`
+- **5.5 Provenance & experiment log** — every field tagged measured/derived/synthetic; every run recorded with seed, dataset, model version, and **port-pair route context**. `IMPLEMENTED`
 - **5.6 Multi-modal** — the same optimizer core runs **ship** and **road** fleets, selectable from the UI. `IMPLEMENTED`
 - **5.7 SEO & Accessibility** — frontend configured with `robots.txt`, `sitemap.xml`, and web manifest to support search indexing and modern web standards. `IMPLEMENTED`
 - **5.8 Independent Audit & Sandbox Mode** — includes a transparent [SIH26138 Audit Report](docs/qflow-sih26138-audit.md) and provides a read-only **Sandbox / Demo Mode** for reviewers to verify outputs using deterministic, representative scenarios without requiring admin credentials. `IMPLEMENTED`
+- **5.9 Dashboard & session persistence** — post-login Dashboard with simulation history and quick-start cards; completed optimization runs are persisted to `sessionStorage` so results survive page navigation. `IMPLEMENTED`
+- **5.10 Port-pair route selection** — Scenario builder uses **From/To port selectors** that auto-fill route distance from presets; `originPort`/`destinationPort` are forwarded to the backend and recorded per run for provenance. `IMPLEMENTED`
 
 ## 6. Innovation & uniqueness
 
@@ -235,11 +237,11 @@ Q-Flow/
 │   ├── emissions/             # sourced factors, lifecycle, cost
 │   ├── data/                  # MRV/ERA5/GFW loaders, provenance, splits, governance
 │   ├── experiments/           # benchmarks + benchmark_service (live, cached)
-│   ├── schemas/               # pydantic request/response
+│   ├── schemas/               # pydantic request/response (OptimizeRequest incl. origin_port/destination_port)
 │   └── tests/                 # 53 tests
 ├── frontend/
-│   ├── src/pages/             # Scenario, Optimization, Prediction, Benchmarking, Provenance…
-│   ├── src/lib/               # api.js (mock↔live), store.jsx (mode state)
+│   ├── src/pages/             # Dashboard, Scenario, Optimization, Prediction, Benchmarking, Provenance…
+│   ├── src/lib/               # api.js (mock↔live), store.jsx (mode + sessionStorage), types.js (PORTS, ROUTES, getRouteDistance)
 │   ├── src/components/        # charts, layout, shared UI
 │   └── vercel.json            # SPA rewrites
 ├── docs/                      # architecture, algorithm, model-versions, provenance…

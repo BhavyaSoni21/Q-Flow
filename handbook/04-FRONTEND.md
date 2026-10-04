@@ -7,11 +7,12 @@ charts, a single data layer that toggles between mock and the live backend.
 
 | Page | What it does |
 |------|--------------|
-| `Scenario.jsx` | Build a scenario; Ship/Road mode toggle; pick fleet, fuels, distance, deadline, carbon price, and run Monte Carlo weather/risk tests |
-| `Optimization.jsx` | Run the optimizer; connected cost-vs-WtW Pareto frontier, deployment plan, balanced slider selection, and KPIs (INR) |
+| `Dashboard.jsx` | Post-login home — simulation history table, quick-start cards, company profile, and Q-Flow assistant panel |
+| `Scenario.jsx` | Build a scenario; Ship/Road mode toggle; **From/To port-pair selectors** (auto-fill distance from route presets); fleet, fuels, distance, deadline, carbon price, and Monte Carlo weather/risk tests; full-screen optimization overlay after a run |
+| `Optimization.jsx` | Run the optimizer; `DataStatus` banner + `DataModeBadge` on Pareto panel; connected cost-vs-WtW Pareto frontier, deployment plan, balanced slider selection, constraint repair note, and KPIs (INR) |
 | `Prediction.jsx` | Single-prediction tool with physics sanity check, current-input explanation, SHAP graphs, and holdout validation graphs |
 | `Benchmarking.jsx` | Live, recomputable optimizer + prediction benchmarks (Recompute button) |
-| `Provenance.jsx` | Data-provenance ledger, experiment log, and MRV/ERA5/AIS/GFW availability |
+| `Provenance.jsx` | Data-provenance ledger, experiment log (incl. `originPort`/`destinationPort` per run), and MRV/ERA5/AIS/GFW availability |
 | API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, and EACF contracts are exposed through `src/lib/api.js` |
 | Authentication bridge | `AuthContext` synchronizes `/api/auth/session`; live API calls use same-origin cookies with `credentials: include`; no bearer secret is stored in browser build variables |
 | `Emissions.jsx` | Lifecycle factors plus indicative CII-style KPI check |
@@ -23,8 +24,15 @@ charts, a single data layer that toggles between mock and the live backend.
   `${API_BASE}${path}` when `USE_MOCK` is false, falling back to mock on failure.
   `API_BASE = import.meta.env.VITE_API_BASE || "/api"`.
 - **`store.jsx`** — global config + `mode` ("ship"/"road"); `runOptimization`
-  dispatches to the ship or road endpoint based on mode.
+  dispatches to the ship or road endpoint based on mode. `DEFAULT_CONFIG` now uses
+  `originPort`/`destinationPort` instead of `routeId`. Completed runs are **persisted
+  to `sessionStorage`** (key `qflow_store_v1`) so navigation between pages and hard
+  refreshes do not lose a finished optimization result.
+- **`types.js`** — exports `PORTS` (list of known port names), `ROUTES` (presets with
+  `{origin, destination, refDistance}`), and `getRouteDistance(origin, destination)` to
+  look up reference distances. The old `routeId`-based `ROUTES` array is replaced.
 - **`mock.js`** — representative, seeded data; `USE_MOCK = VITE_USE_MOCK !== "false"`.
+- **`nav.js`** — updated navigation entries including the new `/dashboard` route.
 
 `Scenario`, `Prediction`, and `Provenance` render the shared `DataStatus`
 component. In live mode it displays the active model version and fleet-data
@@ -90,6 +98,10 @@ charts show `No validation points available` instead of rendering a blank graph.
 ## SEO, Accessibility & Route Selection `IMPLEMENTED`
 
 The frontend includes `robots.txt`, `sitemap.xml`, and `site.webmanifest` to ensure proper search engine indexing and accessibility. State management (`store.jsx`) and authentication context (`AuthContext.jsx`) have been hardened to improve route selection, ensuring authenticated states and correct mode states (Ship/Road) are securely maintained across page navigation. Routing and SPA behavior are strictly governed by `vercel.json` which supports these assets natively.
+
+## Port-pair route selection `IMPLEMENTED`
+
+The Scenario page replaces the old single `routeId` dropdown with two independent **From / To** port selectors. Available ports are defined in `src/lib/types.js` (`PORTS` array). When the selected pair matches a known route preset (`ROUTES`), the distance field is auto-filled from `getRouteDistance(origin, destination)`. The backend mirrors these presets at `GET /api/ports` and `GET /api/routes` for live clients. The `originPort` and `destinationPort` values are forwarded with every optimization request and recorded in the run log for provenance.
 
 ## Build & run
 

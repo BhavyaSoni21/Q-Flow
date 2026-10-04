@@ -48,7 +48,9 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 | `GET /api/vessels` · `POST/PUT/DELETE /api/vessels/{id}` · `/vessels/{id}/availability` · `/vessels/{id}/availability-history` | SQLite-backed fleet metadata, CRUD, and availability audit history |
 | `GET /api/fleet/storage` · `POST /api/fleet/backups` | Storage schema status and admin-only consistent SQLite backup |
 | `GET /api/fuels/pathways` | Versioned pathway factors, provenance, and availability labels |
-| `GET /api/provenance` · `/experiments` | Provenance ledger & run log |
+| `GET /api/ports` | List of known port names for the Scenario port-pair selectors |
+| `GET /api/routes` | Route presets with reference distances (nm) mirroring `types.js` |
+| `GET /api/provenance` · `/experiments` | Provenance ledger & run log (each run now includes `originPort`/`destinationPort`) |
 | `POST /api/scenarios` · `GET /api/scenarios` · `GET /api/scenarios/{id}` · `POST /api/scenarios/compare` | Persist, list, load, and compare versioned scenarios |
 
 ## The engine contract `DESIGN`
@@ -57,6 +59,12 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 (non-blocking). The optimizer calls `problem.evaluate` per candidate, which calls
 the predictor + emissions engine — never a hard-coded fuel number. Results carry
 objectives (fuel/energy, cost INR, WtW GHG), a feasibility flag, and a run id.
+
+The `OptimizeRequest` schema now includes optional `origin_port` and `destination_port`
+fields. These are forwarded from the frontend's `originPort`/`destinationPort` config,
+recorded in the run log for provenance, and returned in `GET /api/experiments`.
+The `route_distance_nm` field remains authoritative for the engine; port names are
+used for labeling and corridor context only.
 
 ## Engine trust metadata `IMPLEMENTED`
 

@@ -48,7 +48,8 @@ certification without approved reference data and review.
 
 - `GET /api/provenance` → the field-level data ledger (type, source, status, version).
 - `GET /api/experiments` → the run log; each run records config JSON, seed, model
-  version, runtime, hypervolume, feasibility.
+  version, runtime, hypervolume, feasibility, and (from the port-pair UI) **`originPort`
+  and `destinationPort`** so each run's route context is traceable.
 - The **Provenance** page renders both; click a run to inspect its full config.
 
 ## Honesty log
