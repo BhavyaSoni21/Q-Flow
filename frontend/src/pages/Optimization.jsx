@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+﻿import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "@/lib/store";
 import { Panel } from "@/components/shared/Panel";
@@ -23,7 +23,12 @@ import {
     CheckCircle2,
     Layers,
     ShieldCheck,
-    BarChart3
+    BarChart3,
+    Check,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    ArrowRight
 } from "lucide-react";
 
 const CASE_STUDIES = [
@@ -38,6 +43,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
     const { results, selectedPoint, setSelectedPoint, weights, setWeights, caseStudy, setCaseStudy, config, updateConfig, runOptimization, running } = useStore();
     const [sortKey, setSortKey] = useState("cost");
     const [filterFeasible, setFilterFeasible] = useState(false);
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
     const pareto = results?.pareto || [];
     const engineMetadata = results?.engineMetadata;
 
@@ -50,6 +57,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
 
     const selectCaseStudy = async (id) => {
         setCaseStudy(id);
+        setPage(1);
         const patch = CASE_CONFIG[id];
         updateConfig(patch);
         await runOptimization(patch);
@@ -120,8 +128,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                             <strong>Violated Constraint:</strong> <span className="num font-medium text-status-red">{results.violated}</span>
                         </p>
                         <div className="mt-3 text-xs text-muted-foreground space-y-1">
-                            <p>• Ensure your <strong>Deadline</strong> is sufficient for the sailing distance (e.g. for {config.distance} nm, minimum feasible deadline at max fleet speed is ~{Math.ceil(config.distance / 20 + config.portTime + config.bufferTime)} h).</p>
-                            <p>• Select vessels whose combined cargo capacity satisfies the <strong>Cargo Demand</strong> ({config.cargoDemand.toLocaleString()} t).</p>
+                            <p>â€¢ Ensure your <strong>Deadline</strong> is sufficient for the sailing distance (e.g. for {config.distance} nm, minimum feasible deadline at max fleet speed is ~{Math.ceil(config.distance / 20 + config.portTime + config.bufferTime)} h).</p>
+                            <p>â€¢ Select vessels whose combined cargo capacity satisfies the <strong>Cargo Demand</strong> ({config.cargoDemand.toLocaleString()} t).</p>
                         </div>
                         <div className="mt-4">
                             <button
@@ -170,7 +178,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
         {
             label: "Schedule deadline compliance",
             pass: maxSailTime <= (config.deadline + config.bufferTime),
-            margin: `${maxSailTime} h ≤ ${config.deadline + config.bufferTime} h (${scheduleSlack} h slack)`
+            margin: `${maxSailTime} h â‰¤ ${config.deadline + config.bufferTime} h (${scheduleSlack} h slack)`
         },
         {
             label: "Fleet availability & readiness",
@@ -207,22 +215,22 @@ export function OptimizationView({ isOverlay = false, onClose }) {
     ];
 
     return (
-        <div className="flex flex-col gap-5 w-full">
+        <div className="flex flex-col gap-6 w-full pb-12 font-['Open_Sans',sans-serif]">
             {isOverlay && (
-                <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-[#1e293b] border border-border rounded-md shadow-xs shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-[#0076a8]/10 text-[#0076a8] dark:text-[#38bdf8] flex items-center justify-center shrink-0">
-                            <Sparkles size={16} />
+                <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-[#E2E8F0] shadow-sm shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-[#F0F9FF] border border-[#B9E6FE] text-[#0076a8] flex items-center justify-center shrink-0">
+                            <Sparkles size={20} strokeWidth={2} />
                         </div>
                         <div>
-                            <div className="flex items-center gap-2">
-                                <h2 className="text-xs font-bold text-foreground uppercase tracking-wide">Multi-Objective Pareto Frontier</h2>
-                                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
-                                    <CheckCircle2 size={10} /> {pareto.length} Feasible Solutions
+                            <div className="flex items-center gap-3 mb-1">
+                                <h2 className="text-[14px] font-extrabold text-[#0F172A] uppercase tracking-wide">Multi-Objective Pareto Frontier</h2>
+                                <span className="bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1.5 uppercase tracking-wider shadow-sm">
+                                    <CheckCircle2 size={12} strokeWidth={3} /> {pareto.length} Feasible Solutions
                                 </span>
                             </div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">
-                                Evaluated across Fuel Consumption (t), Operating Cost (INR), and Well-to-Wake Lifecycle GHG (tCO2e)
+                            <p className="text-[12px] font-medium text-[#64748B]">
+                                Evaluated across Fuel Consumption (t), Operating Cost (INR), and Well-to-Wake Lifecycle GHG (tCOâ‚‚e)
                             </p>
                         </div>
                     </div>
@@ -230,408 +238,478 @@ export function OptimizationView({ isOverlay = false, onClose }) {
             )}
 
             {engineMetadata && (
-                <div className="border bg-card px-4 py-2.5 rounded-md text-[11px] text-muted-foreground flex items-center flex-wrap gap-2.5 shadow-xs">
-                    <span className="label-eyebrow text-foreground/80 font-bold uppercase tracking-wider text-[10px]">Calculation Context</span>
-                    <span className="num font-semibold text-foreground px-2 py-0.5 bg-muted rounded">{engineMetadata.model_version}</span>
-                    <span>•</span>
-                    <span className="text-foreground/90 font-medium">{engineMetadata.fleet_data_status?.replaceAll("_", " ")}</span>
-                    <span>•</span>
-                    <span className="text-foreground/90 font-medium">{engineMetadata.fuel_factor_status?.replaceAll("_", " ")}</span>
+                <div className="px-6 mt-4">
+                    <div className="bg-white border border-[#E2E8F0] px-5 py-3 rounded-xl text-[11px] text-[#64748B] flex items-center flex-wrap gap-3 shadow-sm">
+                        <span className="font-bold uppercase tracking-wider text-[#0F172A]">Calculation Context</span>
+                        <div className="w-1 h-1 rounded-full bg-[#CBD5E1]" />
+                        <span className="font-semibold text-[#0F172A] px-2.5 py-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-md shadow-sm">{engineMetadata.model_version}</span>
+                        <div className="w-1 h-1 rounded-full bg-[#CBD5E1]" />
+                        <span className="font-semibold text-[#0076a8]">{engineMetadata.fleet_data_status?.replaceAll("_", " ")}</span>
+                        <div className="w-1 h-1 rounded-full bg-[#CBD5E1]" />
+                        <span className="font-semibold text-[#0076a8]">{engineMetadata.fuel_factor_status?.replaceAll("_", " ")}</span>
+                    </div>
                 </div>
             )}
 
             {/* Case study tabs */}
-            <div className="flex border bg-card overflow-x-auto rounded-md shadow-xs">
-                {CASE_STUDIES.map((cs) => (
-                    <button
-                        key={cs.id}
-                        onClick={() => selectCaseStudy(cs.id)}
-                        disabled={running}
-                        className={cn(
-                            "px-4 h-10 text-xs border-r last:border-r-0 transition-colors duration-150 inline-flex items-center gap-2 whitespace-nowrap cursor-pointer",
-                            caseStudy === cs.id ? "bg-[#0076a8] text-white font-semibold shadow-inner" : "hover:bg-muted text-muted-foreground hover:text-foreground"
-                        )}
-                    >
-                        {running && caseStudy === cs.id ? (
-                            <Loader2 size={13} className="animate-spin" />
-                        ) : (
-                            <span className="num font-bold px-1.5 py-0.5 rounded bg-black/15 text-[10px]">{cs.id}</span>
-                        )}
-                        <span>{cs.label}</span>
-                    </button>
-                ))}
-            </div>
-
-            {/* Strategy quick selectors */}
-            <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-foreground/90 flex items-center gap-1.5">
-                        <BarChart3 size={14} className="text-[#0076a8]" /> Key Optimization Trade-Off Strategies:
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">Click any strategy to inspect detailed fleet deployment & metrics</span>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                    {strategies.map((st) => {
-                        const Icon = st.icon;
-                        const isSelected = activePoint === st.point;
-                        return (
-                            <button
-                                key={st.id}
-                                type="button"
-                                onClick={() => setSelectedPoint(st.point)}
-                                className={cn(
-                                    "flex flex-col p-3 rounded-md border text-left transition-all duration-200 cursor-pointer text-xs",
-                                    isSelected
-                                        ? "ring-2 ring-[#0076a8] border-[#0076a8] bg-[#0076a8]/10 shadow-sm"
-                                        : "bg-card border-border hover:border-[#0076a8]/50 hover:bg-muted/50"
-                                )}
-                            >
-                                <div className="flex items-center justify-between gap-1 mb-1.5">
-                                    <span className="font-semibold text-foreground flex items-center gap-1.5 truncate">
-                                        <Icon size={13} className="shrink-0 text-[#0076a8]" />
-                                        {st.label}
-                                    </span>
-                                    {isSelected && <span className="h-2 w-2 rounded-full bg-[#0076a8] shrink-0" />}
-                                </div>
-                                <div className="grid grid-cols-3 gap-1 text-[10px] num text-muted-foreground pt-1 border-t border-border/50">
-                                    <div><span className="block text-[9px] text-muted-foreground/80">Fuel</span><span className="font-medium text-foreground">{st.point?.fuel} t</span></div>
-                                    <div><span className="block text-[9px] text-muted-foreground/80">Cost</span><span className="font-medium text-foreground">₹{(st.point?.cost / 1000).toFixed(0)}k</span></div>
-                                    <div><span className="block text-[9px] text-muted-foreground/80">WtW</span><span className="font-medium text-foreground">{st.point?.wtw} t</span></div>
-                                </div>
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
-
-            {/* Main Pareto & Deployment Plan Grid */}
-            <div className="grid grid-cols-12 gap-5">
-                {/* Left 60% Pareto Chart */}
-                <div className="col-span-12 lg:col-span-6 flex flex-col gap-4">
-                    <Panel title="Pareto Front — 3 Objectives Frontier">
-                        <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
-                        <div className="text-[11px] text-muted-foreground mt-3 flex items-center justify-between border-t pt-2 flex-wrap gap-2">
-                            <span>X = operating cost, Y = WtW GHG, color = fuel pathway.</span>
-                            <span className="font-medium text-foreground">Selected: {activePoint.tag || "Custom Solution"} ({activePoint.fuelId})</span>
-                        </div>
-                    </Panel>
-
-                    {/* Operational Dynamics & Diagnostic Metrics Cards */}
-                    <Panel title="Voyage Operational & Engine Dynamics">
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                            <div className="p-3 bg-muted/40 border rounded-md">
-                                <span className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-                                    <Activity size={12} /> Avg Fleet Speed
-                                </span>
-                                <div className="text-base font-bold text-foreground mt-1 num">{avgSpeed} kn</div>
-                                <span className="text-[10px] text-muted-foreground">Optimal cruising tempo</span>
-                            </div>
-                            <div className="p-3 bg-muted/40 border rounded-md">
-                                <span className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-                                    <Clock size={12} /> Transit & Port ETA
-                                </span>
-                                <div className="text-base font-bold text-foreground mt-1 num">{maxSailTime} h</div>
-                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">+{scheduleSlack} h slack buffer</span>
-                            </div>
-                            <div className="p-3 bg-muted/40 border rounded-md">
-                                <span className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-                                    <Fuel size={12} /> Daily Burn Rate
-                                </span>
-                                <div className="text-base font-bold text-foreground mt-1 num">{dailyBurnRate} t/d</div>
-                                <span className="text-[10px] text-muted-foreground">Main + Aux energy</span>
-                            </div>
-                            <div className="p-3 bg-muted/40 border rounded-md">
-                                <span className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-                                    <DollarSign size={12} /> Unit Freight Cost
-                                </span>
-                                <div className="text-base font-bold text-foreground mt-1 num">₹{costPerTonne} /t</div>
-                                <span className="text-[10px] text-muted-foreground">Cargo delivery index</span>
-                            </div>
-                        </div>
-                    </Panel>
-                </div>
-
-                {/* Right 60% Multi-Vessel Deployment Plan & Constraint Checks */}
-                <div className="col-span-12 lg:col-span-6 flex flex-col gap-4">
-                    <Panel
-                        title={`Selected Solution — Fleet Deployment Plan (${deployment.length} Vessel${deployment.length > 1 ? "s" : ""} Assigned)`}
-                        actions={
-                            <div className="flex items-center gap-2">
-                                <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                                    {allVesselsFeasible ? "✓ Feasible Deployment" : "Constraint Attention"}
-                                </span>
-                            </div>
-                        }
-                    >
-                        <div className="overflow-x-auto border rounded-md">
-                            <table className="w-full text-xs min-w-[560px]">
-                                <thead>
-                                    <tr className="border-b bg-muted/60 text-muted-foreground text-[10px] uppercase font-semibold">
-                                        <th className="px-3 py-2 text-left">Vessel / Class</th>
-                                        <th className="px-2 py-2 text-right num">Speed</th>
-                                        <th className="px-2 py-2 text-left">Fuel</th>
-                                        <th className="px-2 py-2 text-center">OPS</th>
-                                        <th className="px-2 py-2 text-right num">Cargo (t)</th>
-                                        <th className="px-2 py-2 text-right num">Sail (h)</th>
-                                        <th className="px-2 py-2 text-right num">Fuel (t)</th>
-                                        <th className="px-2 py-2 text-right num">Cost (INR)</th>
-                                        <th className="px-2 py-2 text-right num">WtW</th>
-                                        <th className="px-2 py-2 text-center">Feas</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {deployment.map((d, i) => (
-                                        <tr key={i} className="border-b last:border-b-0 hover:bg-muted/40 transition-colors">
-                                            <td className="px-3 py-2.5">
-                                                <div className="font-semibold text-foreground flex items-center gap-1.5">
-                                                    <Ship size={13} className="text-[#0076a8] shrink-0" />
-                                                    <span>{d.vesselId}</span>
-                                                </div>
-                                                <div className="text-[10px] text-muted-foreground">{d.vesselType || d.vesselName || "Commercial Vessel"}</div>
-                                            </td>
-                                            <td className="px-2 py-2.5 text-right num font-medium">{d.speed} kn</td>
-                                            <td className="px-2 py-2.5 font-medium">
-                                                <span className="px-1.5 py-0.5 rounded bg-muted text-[11px] font-mono">{d.fuelId}</span>
-                                            </td>
-                                            <td className="px-2 py-2.5 text-center text-muted-foreground text-[11px]">
-                                                {d.shorePower ? (
-                                                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Yes</span>
-                                                ) : (
-                                                    <span className="text-muted-foreground">No</span>
-                                                )}
-                                            </td>
-                                            <td className="px-2 py-2.5 text-right num font-medium">{d.cargo?.toLocaleString()}</td>
-                                            <td className="px-2 py-2.5 text-right num">{d.sailingTime}</td>
-                                            <td className="px-2 py-2.5 text-right num font-medium">{d.fuel} <span className="text-[10px] text-muted-foreground">±{d.fuelError}</span></td>
-                                            <td className="px-2 py-2.5 text-right num font-semibold text-foreground">₹{d.cost?.toLocaleString()}</td>
-                                            <td className="px-2 py-2.5 text-right num font-medium">{d.wtw}</td>
-                                            <td className="px-2 py-2.5 text-center">
-                                                <StatusDot status={d.feasible} label={d.feasible ? "Pass" : "Fail"} />
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                                <tfoot>
-                                    <tr className="bg-muted/80 border-t-2 font-semibold text-foreground text-xs">
-                                        <td className="px-3 py-2 text-left uppercase text-[10px] tracking-wider text-foreground/80">
-                                            Total Fleet ({deployment.length} Ships)
-                                        </td>
-                                        <td className="px-2 py-2 text-right num">{avgSpeed} kn</td>
-                                        <td className="px-2 py-2 text-left text-[11px] text-muted-foreground">—</td>
-                                        <td className="px-2 py-2 text-center text-[11px] text-muted-foreground">—</td>
-                                        <td className="px-2 py-2 text-right num text-[#0076a8] dark:text-[#38bdf8]">{totalCargoPlanned.toLocaleString()} t</td>
-                                        <td className="px-2 py-2 text-right num">{maxSailTime} h</td>
-                                        <td className="px-2 py-2 text-right num text-purple-600 dark:text-purple-400">{totalFuelBurn} t</td>
-                                        <td className="px-2 py-2 text-right num text-emerald-600 dark:text-emerald-400">₹{totalOperatingCost.toLocaleString()}</td>
-                                        <td className="px-2 py-2 text-right num text-sky-600 dark:text-sky-400">{totalWtwGhg} t</td>
-                                        <td className="px-2 py-2 text-center">
-                                            <StatusDot status={allVesselsFeasible} />
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </Panel>
-
-                    <Panel title="Operational & Regulatory Constraint Checks">
-                        <div className="flex flex-col gap-2">
-                            {constraintChecks.map((c) => (
-                                <div key={c.label} className="flex items-center justify-between border-b pb-2 last:border-b-0 last:pb-0">
-                                    <span className="text-xs text-foreground/90 font-medium">{c.label}</span>
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-[11px] text-muted-foreground num font-mono">{c.margin}</span>
-                                        <StatusDot status={c.pass} label={c.pass ? "Pass" : "Fail"} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </Panel>
-                </div>
-            </div>
-
-            {/* Balanced selection sliders */}
-            <Panel title="Multi-Objective Weighting & TOPSIS Preference">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {(["fuel", "cost", "wtw"]).map((k) => (
-                        <div key={k} className="flex flex-col gap-2.5 min-w-0 border p-3.5 rounded-md bg-card shadow-xs">
-                            <div className="flex items-center justify-between gap-3">
-                                <label className="label-eyebrow whitespace-nowrap text-[11px] font-semibold text-foreground/90">
-                                    {k === "wtw" ? "GHG Lifecycle Weight" : `${k[0].toUpperCase() + k.slice(1)} Priority`}
-                                </label>
-                                <span className="num text-xs whitespace-nowrap font-bold text-[#0076a8] dark:text-[#38bdf8] bg-muted px-2 py-0.5 rounded">
-                                    {Number(weights[k]).toFixed(2)}
-                                </span>
-                            </div>
-                            <input
-                                type="range"
-                                min={0}
-                                max={1}
-                                step={0.01}
-                                value={weights[k]}
-                                onChange={(e) => setWeights({ ...weights, [k]: Number(e.target.value) })}
-                                className="w-full accent-[#0076a8] cursor-pointer"
-                            />
-                            <div className="grid grid-cols-2 gap-2 text-[11px] num pt-1.5 border-t border-border/50">
-                                <div className="min-w-0">
-                                    <div className="text-muted-foreground uppercase tracking-wider text-[9px]">Baseline</div>
-                                    <div className="whitespace-nowrap truncate font-medium text-muted-foreground">
-                                        {k === "fuel"
-                                            ? `${Number(baseline?.fuel || 0).toFixed(1)} t`
-                                            : k === "cost"
-                                                ? `₹${Math.max(0, Number(baseline?.cost || 0)).toLocaleString()}`
-                                                : `${Number(baseline?.wtw || 0).toFixed(2)} tCO2e`}
-                                    </div>
-                                </div>
-                                <div className="min-w-0">
-                                    <div className="text-muted-foreground uppercase tracking-wider text-[9px]">Optimized</div>
-                                    <div className="whitespace-nowrap truncate text-emerald-600 dark:text-emerald-400 font-bold">
-                                        {k === "fuel"
-                                            ? `${Number(weightedPoint?.fuel || 0).toFixed(1)} t`
-                                            : k === "cost"
-                                                ? `₹${Math.max(0, Number(weightedPoint?.cost || 0)).toLocaleString()}`
-                                                : `${Number(weightedPoint?.wtw || 0).toFixed(2)} tCO2e`}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                {weightedPoint && (
-                    <div className="mt-4 flex items-center justify-between border-t pt-3 flex-wrap gap-3">
-                        <span className="text-xs text-foreground font-semibold flex items-center gap-1.5">
-                            <Sparkles size={14} className="text-amber-500" /> TOPSIS Compromise Solution:
-                        </span>
-                        <div className="flex items-center gap-4 text-xs num flex-wrap">
-                            <span>Fuel: <strong className="text-purple-600 dark:text-purple-400">{weightedPoint.fuel.toFixed(1)} t</strong></span>
-                            <span>Cost: <strong className="text-emerald-600 dark:text-emerald-400">₹{Math.max(0, Number(weightedPoint.cost || 0)).toLocaleString()}</strong></span>
-                            <span>WtW: <strong className="text-sky-600 dark:text-sky-400">{weightedPoint.wtw.toFixed(2)} tCO2e</strong></span>
-                            <SquareButton variant="secondary" onClick={() => setSelectedPoint(weightedPoint)}>
-                                Apply Weighted Point
-                            </SquareButton>
-                        </div>
-                    </div>
-                )}
-            </Panel>
-
-            {/* Baseline vs Selected Solution Comparison Table */}
-            <Panel title="Benchmark Variance — Baseline vs Selected Fleet Plan">
-                <div className="overflow-x-auto border rounded-md">
-                    <table className="w-full text-xs min-w-[540px]">
-                        <thead>
-                            <tr className="border-b bg-muted/60 text-muted-foreground text-[10px] uppercase font-semibold">
-                                <th className="text-left px-3.5 py-2.5">Key Performance Indicator</th>
-                                <th className="text-right px-3.5 py-2.5 num">Baseline Fleet</th>
-                                <th className="text-right px-3.5 py-2.5 num font-bold text-foreground">Optimized Plan</th>
-                                <th title="Optimized minus baseline; negative represents savings" className="text-right px-3.5 py-2.5 num">Δ Variance</th>
-                                <th className="text-right px-3.5 py-2.5 num">Reduction %</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {comparisonRows.map((r) => {
-                                const delta = (r.selected || 0) - (r.baseline || 0);
-                                const pct = r.baseline ? (delta / r.baseline) * 100 : 0;
-                                const better = delta <= 0;
-                                return (
-                                    <tr key={r.metric} className="border-b last:border-b-0 hover:bg-muted/40 transition-colors">
-                                        <td className="px-3.5 py-2.5 font-semibold text-foreground/90">{r.metric}</td>
-                                        <td className="px-3.5 py-2.5 text-right num text-muted-foreground">{r.baseline != null ? r.baseline.toLocaleString() : "—"}</td>
-                                        <td className="px-3.5 py-2.5 text-right num font-bold text-foreground">{r.selected != null ? r.selected.toLocaleString() : "—"}</td>
-                                        <td className={cn("px-3.5 py-2.5 text-right num font-semibold", better ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
-                                            {delta <= 0 ? "" : "+"}{delta.toLocaleString()}
-                                        </td>
-                                        <td className={cn("px-3.5 py-2.5 text-right num font-bold", better ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
-                                            {pct <= 0 ? "" : "+"}{pct.toFixed(1)}%
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-2">
-                    Negative Δ Variance confirms energy conservation and emission reduction against baseline operational benchmarks.
-                </p>
-            </Panel>
-
-            {/* Full Pareto Frontier Candidate Table */}
-            <Panel
-                title={`All Pareto Frontier Candidates (${filteredPareto.length} Solutions)`}
-                actions={
-                    <div className="flex items-center gap-2 flex-wrap">
+            <div className="px-6 mt-2">
+                <div className="flex gap-2 border-b border-[#E2E8F0] pb-1 overflow-x-auto no-scrollbar">
+                    {CASE_STUDIES.map((cs) => (
                         <button
-                            type="button"
-                            onClick={() => setFilterFeasible(!filterFeasible)}
+                            key={cs.id}
+                            onClick={() => selectCaseStudy(cs.id)}
+                            disabled={running}
                             className={cn(
-                                "text-[11px] border px-2.5 h-7 rounded transition-colors font-medium cursor-pointer",
-                                filterFeasible ? "bg-[#0076a8] text-white border-[#0076a8]" : "hover:bg-muted text-muted-foreground"
+                                "h-11 px-6 text-[12px] font-bold uppercase tracking-wider border-b-2 transition-all duration-200 inline-flex items-center gap-3 whitespace-nowrap cursor-pointer",
+                                caseStudy === cs.id 
+                                    ? "border-[#0076a8] text-[#0076a8] bg-[#F0F9FF] rounded-t-lg" 
+                                    : "border-transparent text-[#64748B] hover:text-[#0F172A] hover:bg-[#F8FAFC] rounded-t-lg"
                             )}
                         >
-                            {filterFeasible ? "Showing Feasible Only" : "Show All Candidates"}
+                            {running && caseStudy === cs.id ? (
+                                <Loader2 size={16} className="animate-spin text-[#0076a8]" />
+                            ) : (
+                                <span className={cn(
+                                    "px-2 py-0.5 rounded text-[10px] font-bold",
+                                    caseStudy === cs.id ? "bg-[#0076a8] text-white" : "bg-[#E2E8F0] text-[#475569]"
+                                )}>{cs.id}</span>
+                            )}
+                            {cs.label}
                         </button>
-                        <LabeledSelect
-                            value={sortKey}
-                            onChange={setSortKey}
-                            options={[
-                                { value: "cost", label: "Sort: Lowest Cost" },
-                                { value: "fuel", label: "Sort: Lowest Fuel" },
-                                { value: "wtw", label: "Sort: Lowest GHG" },
-                            ]}
-                        />
-                        <ExportCsv rows={filteredPareto} filename="fleet_pareto_front.csv" />
+                    ))}
+                </div>
+            </div>
+
+            <div className="px-6 flex flex-col gap-6 mt-4">
+                {/* Strategy quick selectors */}
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between">
+                        <span className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide flex items-center gap-2">
+                            <BarChart3 size={16} className="text-[#0076a8]" /> Key Optimization Trade-Off Strategies
+                        </span>
+                        <span className="text-[12px] font-medium text-[#64748B]">Click any strategy to inspect detailed fleet deployment & metrics</span>
                     </div>
-                }
-            >
-                <DataTable
-                    columns={[
-                        {
-                            key: "tag",
-                            header: "Solution Profile",
-                            render: (r) => (
-                                <div className="flex items-center gap-1.5">
-                                    {r.tag ? (
-                                        <Badge tone={r.tag === "Balanced" ? "accent" : r.tag.includes("cost") ? "positive" : "neutral"}>
-                                            {r.tag}
-                                        </Badge>
-                                    ) : (
-                                        <span className="text-[11px] text-muted-foreground font-mono">Candidate #{pareto.indexOf(r) + 1}</span>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        {strategies.map((st) => {
+                            const Icon = st.icon;
+                            const isSelected = activePoint === st.point;
+                            return (
+                                <button
+                                    key={st.id}
+                                    type="button"
+                                    onClick={() => setSelectedPoint(st.point)}
+                                    className={cn(
+                                        "flex flex-col p-4 rounded-xl border text-left transition-all duration-300 cursor-pointer text-xs group relative overflow-hidden",
+                                        isSelected
+                                            ? "border-[#0076a8] bg-[#0076a8]/5 shadow-sm ring-1 ring-[#0076a8]"
+                                            : "bg-white border-[#E2E8F0] hover:border-[#0076a8]/40 hover:bg-[#F8FAFC] hover:shadow-md"
                                     )}
-                                    {selectedPoint === r && (
-                                        <span className="text-[10px] bg-[#0076a8]/15 text-[#0076a8] font-bold px-1.5 py-0.5 rounded">
-                                            Active
+                                >
+                                    {isSelected && <div className="absolute top-0 left-0 w-1 h-full bg-[#0076a8]" />}
+                                    <div className="flex items-center justify-between gap-1 mb-3 ml-1">
+                                        <span className="font-extrabold text-[13px] text-[#0F172A] flex items-center gap-2 truncate">
+                                            <Icon size={16} strokeWidth={2.5} className="shrink-0 text-[#0076a8]" />
+                                            {st.label}
                                         </span>
-                                    )}
-                                </div>
-                            ),
-                        },
-                        {
-                            key: "deployment",
-                            header: "Fleet Size",
-                            render: (r) => (
-                                <span className="text-xs font-medium text-foreground">
-                                    {r.deployment?.length || 1} Ship{(r.deployment?.length || 1) > 1 ? "s" : ""}
+                                        {isSelected && <span className="h-2.5 w-2.5 rounded-full bg-[#0076a8] shrink-0" />}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-2 text-[10px] num pt-3 border-t border-[#E2E8F0] ml-1">
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-bold text-[#64748B] uppercase tracking-widest">Fuel</span>
+                                            <span className="font-mono text-[12px] font-bold text-[#0F172A]">{st.point?.fuel} <span className="text-[#94A3B8] font-semibold text-[10px]">t</span></span>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-bold text-[#64748B] uppercase tracking-widest">Cost</span>
+                                            <span className="font-mono text-[12px] font-bold text-[#0F172A]">â‚¹{(st.point?.cost / 1000).toFixed(0)}<span className="text-[#94A3B8] font-semibold text-[10px]">k</span></span>
+                                        </div>
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-bold text-[#64748B] uppercase tracking-widest">WtW</span>
+                                            <span className="font-mono text-[12px] font-bold text-[#0F172A]">{st.point?.wtw} <span className="text-[#94A3B8] font-semibold text-[10px]">t</span></span>
+                                        </div>
+                                    </div>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+
+                {/* Main Pareto & Deployment Plan Grid */}
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                    {/* Left 60% Pareto Chart */}
+                    <div className="xl:col-span-6 flex flex-col gap-6">
+                        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide mb-6">Pareto Front â€” 3 Objectives Frontier</h3>
+                            <div className="h-[300px]">
+                                <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
+                            </div>
+                            <div className="text-[11px] font-semibold text-[#64748B] mt-6 flex items-center justify-between border-t border-[#E2E8F0] pt-4 flex-wrap gap-3">
+                                <span>X = operating cost, Y = WtW GHG, color = fuel pathway.</span>
+                                <span className="font-bold text-[#0F172A] px-3 py-1 bg-[#F1F5F9] border border-[#E2E8F0] rounded-md">
+                                    Selected: {activePoint.tag || "Custom Solution"} <span className="text-[#0076a8]">({activePoint.fuelId})</span>
                                 </span>
-                            ),
-                        },
-                        { key: "fuel", header: "Fuel (t)", numeric: true, render: (r) => <span className="font-mono">{r.fuel.toFixed(1)}</span> },
-                        { key: "cost", header: "Cost (INR)", numeric: true, render: (r) => <span className="font-mono font-semibold">₹{r.cost.toLocaleString()}</span> },
-                        { key: "wtw", header: "WtW GHG (tCO2e)", numeric: true, render: (r) => <span className="font-mono">{r.wtw.toFixed(2)}</span> },
-                        {
-                            key: "fuelId",
-                            header: "Primary Fuel",
-                            render: (r) => <span className="px-1.5 py-0.5 rounded bg-muted text-[11px] font-mono">{r.fuelId}</span>,
-                        },
-                        {
-                            key: "feasible",
-                            header: "Feasibility",
-                            align: "center",
-                            render: (r) => <StatusDot status={r.feasible} label={r.feasible ? "Pass" : "Fail"} />,
-                        },
-                    ]}
-                    rows={filteredPareto}
-                    onRowClick={(r) => setSelectedPoint(r)}
-                    emptyMessage="No Pareto candidate solutions generated."
-                />
-            </Panel>
+                            </div>
+                        </div>
+
+                        {/* Operational Dynamics & Diagnostic Metrics Cards */}
+                        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide mb-5">Voyage Operational & Engine Dynamics</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl hover:border-[#CBD5E1] transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5 mb-2">
+                                        <Activity size={14} className="text-[#0076a8]" /> Avg Speed
+                                    </span>
+                                    <div className="text-[18px] font-mono font-bold text-[#0F172A] mb-1">{avgSpeed} <span className="text-[12px] font-semibold text-[#94A3B8]">kn</span></div>
+                                    <span className="text-[10px] font-medium text-[#64748B]">Optimal cruising tempo</span>
+                                </div>
+                                <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl hover:border-[#CBD5E1] transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5 mb-2">
+                                        <Clock size={14} className="text-[#0076a8]" /> Transit ETA
+                                    </span>
+                                    <div className="text-[18px] font-mono font-bold text-[#0F172A] mb-1">{maxSailTime} <span className="text-[12px] font-semibold text-[#94A3B8]">h</span></div>
+                                    <span className="text-[10px] font-bold text-[#059669] bg-[#ECFDF5] px-1.5 py-0.5 rounded">+{scheduleSlack} h slack</span>
+                                </div>
+                                <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl hover:border-[#CBD5E1] transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5 mb-2">
+                                        <Fuel size={14} className="text-[#0076a8]" /> Daily Burn
+                                    </span>
+                                    <div className="text-[18px] font-mono font-bold text-[#0F172A] mb-1">{dailyBurnRate} <span className="text-[12px] font-semibold text-[#94A3B8]">t/d</span></div>
+                                    <span className="text-[10px] font-medium text-[#64748B]">Main + Aux energy</span>
+                                </div>
+                                <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl hover:border-[#CBD5E1] transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5 mb-2">
+                                        <DollarSign size={14} className="text-[#0076a8]" /> Unit Cost
+                                    </span>
+                                    <div className="text-[18px] font-mono font-bold text-[#0F172A] mb-1">â‚¹{costPerTonne} <span className="text-[12px] font-semibold text-[#94A3B8]">/t</span></div>
+                                    <span className="text-[10px] font-medium text-[#64748B]">Cargo delivery index</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right 40% Deployment Table & Checklists */}
+                    <div className="xl:col-span-6 flex flex-col gap-6">
+                        <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden flex flex-col">
+                            <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] p-5 flex items-center justify-between">
+                                <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">Selected Solution â€” Fleet Deployment Plan</h3>
+                                {allVesselsFeasible ? (
+                                    <span className="bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 uppercase tracking-wider shadow-sm">
+                                        <Check size={14} strokeWidth={3} /> Feasible Deployment
+                                    </span>
+                                ) : (
+                                    <span className="bg-[#FFF1F2] text-[#E11D48] border border-[#FECDD3] text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 uppercase tracking-wider shadow-sm">
+                                        <AlertTriangle size={14} strokeWidth={3} /> Constraint Violation
+                                    </span>
+                                )}
+                            </div>
+                            <div className="p-0 overflow-x-auto">
+                                <table className="w-full text-left text-xs whitespace-nowrap">
+                                    <thead>
+                                        <tr className="border-b border-[#E2E8F0] bg-[#F1F5F9] text-[#64748B] text-[10px] uppercase font-bold tracking-wider">
+                                            <th className="px-5 py-3">Vessel / Class</th>
+                                            <th className="px-5 py-3 text-right">Speed</th>
+                                            <th className="px-5 py-3 text-center">Fuel</th>
+                                            <th className="px-5 py-3 text-center">OPS</th>
+                                            <th className="px-5 py-3 text-right">Cargo (t)</th>
+                                            <th className="px-5 py-3 text-right">Sail (h)</th>
+                                            <th className="px-5 py-3 text-right">Fuel (t)</th>
+                                            <th className="px-5 py-3 text-right">Cost (INR)</th>
+                                            <th className="px-5 py-3 text-right">WtW</th>
+                                            <th className="px-5 py-3 text-center">Feas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-[#E2E8F0]">
+                                        {deployment.map((d, i) => (
+                                            <tr key={i} className="hover:bg-[#F8FAFC] transition-colors">
+                                                <td className="px-5 py-3">
+                                                    <div className="font-extrabold text-[#0F172A] flex items-center gap-1.5">
+                                                        <Ship size={14} className="text-[#0076a8]" /> {d.id}
+                                                    </div>
+                                                    <div className="text-[10px] text-[#64748B] mt-0.5">{d.class}</div>
+                                                </td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <div className="font-mono font-bold text-[#0F172A]">{d.speed.toFixed(1)}</div>
+                                                    <div className="text-[10px] font-semibold text-[#94A3B8]">kn</div>
+                                                </td>
+                                                <td className="px-5 py-3 text-center">
+                                                    <Badge tone="neutral" className="bg-[#F1F5F9] border-[#CBD5E1] text-[#475569] font-bold text-[10px] uppercase">{d.fuelId}</Badge>
+                                                </td>
+                                                <td className="px-5 py-3 text-center text-[#64748B] font-medium">{d.shorePower ? "Yes" : "No"}</td>
+                                                <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">{d.cargo.toLocaleString()}</td>
+                                                <td className="px-5 py-3 text-right">
+                                                    <div className="font-mono font-bold text-[#0F172A]">{d.sailingTime}</div>
+                                                    <div className="text-[10px] text-[#059669] font-semibold">Â±{d.bufferUsed || 0}</div>
+                                                </td>
+                                                <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">{d.fuel.toFixed(1)}</td>
+                                                <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">â‚¹{d.cost.toLocaleString()}</td>
+                                                <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">{d.wtw.toFixed(4)}</td>
+                                                <td className="px-5 py-3 text-center">
+                                                    <StatusDot status={d.feasible ? "success" : "danger"} label={d.feasible ? "Pass" : "Fail"} />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        <tr className="bg-[#F8FAFC] border-t-2 border-[#CBD5E1]">
+                                            <td className="px-5 py-4 font-bold text-[11px] uppercase tracking-wider text-[#0F172A]">
+                                                Total Fleet ({deployment.length} Ships)
+                                            </td>
+                                            <td className="px-5 py-4 text-right font-mono font-bold text-[#0F172A]">{avgSpeed} <span className="text-[10px] text-[#64748B]">kn</span></td>
+                                            <td className="px-5 py-4 text-center text-[#94A3B8]">â€”</td>
+                                            <td className="px-5 py-4 text-center text-[#94A3B8]">â€”</td>
+                                            <td className="px-5 py-4 text-right font-mono font-bold text-[#0076a8]">{totalCargoPlanned.toLocaleString()} t</td>
+                                            <td className="px-5 py-4 text-right font-mono font-bold text-[#0F172A]">{maxSailTime} h</td>
+                                            <td className="px-5 py-4 text-right font-mono font-extrabold text-[#0076a8]">{totalFuelBurn} t</td>
+                                            <td className="px-5 py-4 text-right font-mono font-extrabold text-[#059669]">â‚¹{totalOperatingCost.toLocaleString()}</td>
+                                            <td className="px-5 py-4 text-right font-mono font-extrabold text-[#0076a8]">{totalWtwGhg} t</td>
+                                            <td className="px-5 py-4 text-center">
+                                                <StatusDot status={allVesselsFeasible ? "success" : "danger"} />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
+                            <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide mb-5">Operational & Regulatory Constraint Checks</h3>
+                            <div className="divide-y divide-[#E2E8F0]">
+                                {constraintChecks.map((c, i) => (
+                                    <div key={i} className="py-3 flex items-center justify-between text-[12px] group hover:bg-[#F8FAFC] -mx-4 px-4 rounded transition-colors">
+                                        <span className="font-semibold text-[#475569] group-hover:text-[#0F172A] transition-colors">{c.label}</span>
+                                        <div className="flex items-center gap-4">
+                                            <span className="font-mono text-[11px] font-medium text-[#64748B]">{c.margin}</span>
+                                            <StatusDot status={c.pass ? "success" : "danger"} label={c.pass ? "Pass" : "Fail"} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Preference Sliders */}
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm mt-2">
+                    <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide mb-6">Multi-Objective Weighting & TOPSIS Preference</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Fuel */}
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                                <span>Fuel Priority</span>
+                                <span className="bg-[#F0F9FF] border border-[#B9E6FE] text-[#0076a8] px-2 py-0.5 rounded">{weights.fuel.toFixed(2)}</span>
+                            </div>
+                            <input type="range" min="0" max="1" step="0.05" value={weights.fuel} onChange={(e) => setWeights({ ...weights, fuel: +e.target.value })} className="w-full accent-[#0076a8]" />
+                            <div className="flex justify-between text-[10px] font-mono text-[#64748B] mt-1">
+                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>{baseline?.fuel.toFixed(1)} t</span></div>
+                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">{weightedPoint?.fuel.toFixed(1)} t</span></div>
+                            </div>
+                        </div>
+                        {/* Cost */}
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                                <span>Cost Priority</span>
+                                <span className="bg-[#F0F9FF] border border-[#B9E6FE] text-[#0076a8] px-2 py-0.5 rounded">{weights.cost.toFixed(2)}</span>
+                            </div>
+                            <input type="range" min="0" max="1" step="0.05" value={weights.cost} onChange={(e) => setWeights({ ...weights, cost: +e.target.value })} className="w-full accent-[#0076a8]" />
+                            <div className="flex justify-between text-[10px] font-mono text-[#64748B] mt-1">
+                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>â‚¹{(baseline?.cost / 1000).toFixed(0)}k</span></div>
+                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">â‚¹{(weightedPoint?.cost / 1000).toFixed(0)}k</span></div>
+                            </div>
+                        </div>
+                        {/* GHG */}
+                        <div className="flex flex-col gap-3">
+                            <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                                <span>GHG Lifecycle Weight</span>
+                                <span className="bg-[#F0F9FF] border border-[#B9E6FE] text-[#0076a8] px-2 py-0.5 rounded">{weights.wtw.toFixed(2)}</span>
+                            </div>
+                            <input type="range" min="0" max="1" step="0.05" value={weights.wtw} onChange={(e) => setWeights({ ...weights, wtw: +e.target.value })} className="w-full accent-[#0076a8]" />
+                            <div className="flex justify-between text-[10px] font-mono text-[#64748B] mt-1">
+                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>{baseline?.wtw.toFixed(2)} tCOâ‚‚e</span></div>
+                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">{weightedPoint?.wtw.toFixed(2)} tCOâ‚‚e</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-8 pt-5 border-t border-[#E2E8F0] flex items-center justify-between bg-[#F8FAFC] -mx-6 px-6 -mb-6 pb-6 rounded-b-2xl">
+                        <div className="flex items-center gap-2 text-[12px] font-bold text-[#0F172A]">
+                            <Sparkles size={16} className="text-[#F59E0B]" /> TOPSIS Compromise Solution:
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="flex gap-4 font-mono text-[12px] font-bold text-[#0F172A]">
+                                <span>Fuel: <span className="text-[#0076a8]">{weightedPoint?.fuel.toFixed(1)} t</span></span>
+                                <span>Cost: <span className="text-[#059669]">â‚¹{weightedPoint?.cost.toLocaleString()}</span></span>
+                                <span>WtW: <span className="text-[#0076a8]">{weightedPoint?.wtw.toFixed(2)} tCOâ‚‚e</span></span>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedPoint(weightedPoint)}
+                                className="bg-white border border-[#CBD5E1] hover:border-[#0076a8] text-[#0F172A] hover:text-[#0076a8] px-4 py-2 rounded-lg text-[12px] font-bold shadow-sm transition-all cursor-pointer"
+                            >
+                                Apply Weighted Point
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Benchmark Variance */}
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden mt-2">
+                    <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] p-5">
+                        <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">Benchmark Variance â€” Baseline vs Selected Fleet Plan</h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs whitespace-nowrap">
+                            <thead>
+                                <tr className="border-b border-[#E2E8F0] bg-white text-[#64748B] text-[10px] uppercase font-bold tracking-wider">
+                                    <th className="px-6 py-4">Key Performance Indicator</th>
+                                    <th className="px-6 py-4 text-right">Baseline Fleet</th>
+                                    <th className="px-6 py-4 text-right">Optimized Plan</th>
+                                    <th title="Optimized minus baseline; negative represents savings" className="px-6 py-4 text-right">Î” Variance</th>
+                                    <th className="px-6 py-4 text-right">Reduction %</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#F1F5F9]">
+                                {comparisonRows.map((r) => {
+                                    const delta = (r.selected || 0) - (r.baseline || 0);
+                                    const pct = r.baseline ? (delta / r.baseline) * 100 : 0;
+                                    const better = delta <= 0;
+                                    return (
+                                        <tr key={r.metric} className="hover:bg-[#F8FAFC] transition-colors">
+                                            <td className="px-6 py-4 font-bold text-[#0F172A]">{r.metric}</td>
+                                            <td className="px-6 py-4 text-right font-mono font-medium text-[#64748B]">{r.baseline != null ? r.baseline.toLocaleString() : "â€”"}</td>
+                                            <td className="px-6 py-4 text-right font-mono font-extrabold text-[#0F172A]">{r.selected != null ? r.selected.toLocaleString() : "â€”"}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono font-bold", better ? "text-[#059669]" : "text-[#E11D48]")}>
+                                                {delta <= 0 ? "" : "+"}{delta.toLocaleString(undefined, {maximumFractionDigits: 1})}
+                                            </td>
+                                            <td className={cn("px-6 py-4 text-right font-mono font-extrabold", better ? "text-[#059669]" : "text-[#E11D48]")}>
+                                                {pct <= 0 ? "" : "+"}{pct.toFixed(1)}%
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="bg-[#F8FAFC] border-t border-[#E2E8F0] p-4">
+                        <p className="text-[11px] font-medium text-[#64748B]">
+                            Negative Î” Variance confirms energy conservation and emission reduction against baseline operational benchmarks.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Full Pareto Frontier Candidate Table */}
+                <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden mt-2 flex flex-col">
+                    <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] p-5 flex items-center justify-between flex-wrap gap-4">
+                        <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">All Pareto Frontier Candidates ({filteredPareto.length} Solutions)</h3>
+                        
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                onClick={() => { setFilterFeasible(!filterFeasible); setPage(1); }}
+                                className={cn(
+                                    "text-[11px] border px-3 h-8 rounded-lg font-bold uppercase tracking-wider transition-all cursor-pointer",
+                                    filterFeasible ? "bg-[#0F172A] text-white border-[#0F172A] shadow-sm" : "bg-white text-[#64748B] border-[#CBD5E1] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
+                                )}
+                            >
+                                {filterFeasible ? "Showing Feasible Only" : "Show All Candidates"}
+                            </button>
+                            <div className="w-[180px]">
+                                <LabeledSelect
+                                    value={sortKey}
+                                    onChange={(v) => { setSortKey(v); setPage(1); }}
+                                    options={[
+                                        { value: "cost", label: "Sort: Lowest Cost" },
+                                        { value: "fuel", label: "Sort: Lowest Fuel" },
+                                        { value: "wtw", label: "Sort: Lowest GHG" },
+                                    ]}
+                                />
+                            </div>
+                            <ExportCsv rows={filteredPareto.slice((page - 1) * pageSize, page * pageSize)} filename="fleet_pareto_front.csv" />
+                        </div>
+                    </div>
+                    
+                    <div className="p-0">
+                        <DataTable
+                            columns={[
+                                {
+                                    key: "tag",
+                                    header: "Solution Profile",
+                                    render: (r) => (
+                                        <div className="flex items-center gap-2">
+                                            {r.tag ? (
+                                                <span className={cn(
+                                                    "px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border",
+                                                    r.tag === "Balanced" ? "bg-[#FFFBEB] text-[#D97706] border-[#FDE68A]" :
+                                                    r.tag.includes("cost") ? "bg-[#ECFDF5] text-[#059669] border-[#A7F3D0]" :
+                                                    "bg-[#F0F9FF] text-[#0076a8] border-[#B9E6FE]"
+                                                )}>
+                                                    {r.tag}
+                                                </span>
+                                            ) : (
+                                                <span className="text-[11px] text-[#94A3B8] font-mono font-medium">Candidate #{pareto.indexOf(r) + 1}</span>
+                                            )}
+                                            {selectedPoint === r && (
+                                                <span className="text-[10px] bg-[#0F172A] text-white font-bold px-2 py-1 rounded-md">
+                                                    Active
+                                                </span>
+                                            )}
+                                        </div>
+                                    ),
+                                },
+                                {
+                                    key: "deployment",
+                                    header: "Fleet Size",
+                                    render: (r) => (
+                                        <span className="text-[12px] font-extrabold text-[#0F172A]">
+                                            {r.deployment?.length || 1} Ship{(r.deployment?.length || 1) > 1 ? "s" : ""}
+                                        </span>
+                                    ),
+                                },
+                                { key: "fuel", header: "Fuel (t)", numeric: true, render: (r) => <span className="font-mono font-bold text-[#0F172A]">{r.fuel.toFixed(1)}</span> },
+                                { key: "cost", header: "Cost (INR)", numeric: true, render: (r) => <span className="font-mono font-extrabold text-[#059669]">â‚¹{r.cost.toLocaleString()}</span> },
+                                { key: "wtw", header: "WtW GHG (tCOâ‚‚e)", numeric: true, render: (r) => <span className="font-mono font-bold text-[#0076a8]">{r.wtw.toFixed(2)}</span> },
+                                {
+                                    key: "fuelId",
+                                    header: "Primary Fuel",
+                                    render: (r) => <span className="px-2 py-1 rounded bg-[#F1F5F9] text-[#475569] border border-[#CBD5E1] text-[10px] font-bold tracking-wider uppercase">{r.fuelId}</span>,
+                                },
+                                {
+                                    key: "feasible",
+                                    header: "Feasibility",
+                                    align: "center",
+                                    render: (r) => <StatusDot status={r.feasible ? "success" : "danger"} label={r.feasible ? "Pass" : "Fail"} />,
+                                },
+                            ]}
+                            rows={filteredPareto.slice((page - 1) * pageSize, page * pageSize)}
+                            onRowClick={(r) => setSelectedPoint(r)}
+                            emptyMessage="No Pareto candidate solutions generated."
+                        />
+                        {filteredPareto.length > pageSize && (
+                            <div className="border-t border-[#E2E8F0] p-4 bg-[#F8FAFC] flex items-center justify-between">
+                                <span className="text-[11px] font-medium text-[#64748B]">
+                                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, filteredPareto.length)} of {filteredPareto.length} entries
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                        disabled={page === 1}
+                                        className="flex items-center justify-center w-8 h-8 bg-white border border-[#CBD5E1] rounded-md text-[#0F172A] shadow-sm hover:border-[#0076a8] hover:text-[#0076a8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <ChevronLeft size={16} />
+                                    </button>
+                                    <span className="text-[12px] font-bold text-[#0F172A] min-w-[60px] text-center">
+                                        Page {page} of {Math.ceil(filteredPareto.length / pageSize)}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPage((p) => Math.min(Math.ceil(filteredPareto.length / pageSize), p + 1))}
+                                        disabled={page === Math.ceil(filteredPareto.length / pageSize)}
+                                        className="flex items-center justify-center w-8 h-8 bg-white border border-[#CBD5E1] rounded-md text-[#0F172A] shadow-sm hover:border-[#0076a8] hover:text-[#0076a8] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
@@ -649,3 +727,7 @@ function EmptyRun() {
 export default function Optimization() {
     return <OptimizationView />;
 }
+
+
+
+

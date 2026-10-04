@@ -2,26 +2,26 @@
 import { useStore } from "@/lib/store";
 import { StatusDot } from "@/components/shared/StatusDot";
 import { cn } from "@/lib/utils";
-import { TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { TrendingDown, TrendingUp, Minus, ArrowRight, ShieldCheck, AlertCircle } from "lucide-react";
 
 function KpiCell({ label, baseline, optimized, unit, delta, deltaPct, improved, state }) {
     if (state === "empty") {
         return (
-            <div className="border border-border/60 bg-card rounded-sm px-4 py-3 flex flex-col gap-1.5">
-                <span className="label-eyebrow">{label}</span>
-                <div className="flex items-center gap-2 mt-0.5">
-                    <div className="h-1 flex-1 bg-muted/70 rounded animate-pulse" />
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col gap-2 shadow-sm">
+                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">{label}</span>
+                <div className="flex items-center gap-2 mt-1">
+                    <div className="h-2 w-full bg-[#F1F5F9] rounded-full animate-pulse" />
                 </div>
-                <p className="text-[10px] text-muted-foreground/60 mt-0.5">Run optimization to populate</p>
+                <p className="text-[11px] text-[#94A3B8] mt-1 font-medium">Run optimization to populate</p>
             </div>
         );
     }
     if (state === "loading") {
         return (
-            <div className="border border-border/60 bg-card rounded-sm px-4 py-3 flex flex-col gap-2">
-                <span className="label-eyebrow">{label}</span>
-                <div className="h-5 mt-1 bg-muted/70 rounded animate-pulse w-3/4" />
-                <div className="h-3 bg-muted/50 rounded animate-pulse w-1/2" />
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col gap-2 shadow-sm">
+                <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">{label}</span>
+                <div className="h-6 mt-1 bg-[#F1F5F9] rounded w-3/4 animate-pulse" />
+                <div className="h-3 bg-[#F8FAFC] rounded w-1/2 animate-pulse mt-1" />
             </div>
         );
     }
@@ -29,29 +29,29 @@ function KpiCell({ label, baseline, optimized, unit, delta, deltaPct, improved, 
     const TrendIcon = delta == null ? null : delta < 0 ? TrendingDown : delta > 0 ? TrendingUp : Minus;
 
     return (
-        <div className="border border-border/60 bg-card rounded-sm px-4 py-3 flex flex-col gap-1 fade-in">
-            <span className="label-eyebrow">{label}</span>
-            <div className="flex items-baseline gap-3 mt-0.5">
-                <div>
-                    <span className="text-[9px] uppercase text-muted-foreground/70 mr-1 tracking-wider font-semibold">Base</span>
-                    <span className="num text-[13px] text-foreground/80">
-                        {baseline?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "ΓÇö"}
-                        <span className="text-muted-foreground ml-0.5 text-[10px]">{unit}</span>
+        <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col gap-1.5 shadow-sm transition-all hover:shadow-md">
+            <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">{label}</span>
+            <div className="flex items-center gap-4 mt-2">
+                <div className="flex flex-col">
+                    <span className="text-[9px] uppercase text-[#94A3B8] font-bold tracking-widest mb-0.5">Base</span>
+                    <span className="text-[14px] font-mono text-[#475569]">
+                        {baseline?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "—"}
+                        <span className="text-[10px] ml-1 text-[#94A3B8]">{unit}</span>
                     </span>
                 </div>
-                <span className="text-muted-foreground/40">ΓåÆ</span>
-                <div>
-                    <span className="text-[9px] uppercase text-muted-foreground/70 mr-1 tracking-wider font-semibold">Opt</span>
-                    <span className="num text-[14px] font-bold text-foreground">
-                        {optimized?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "ΓÇö"}
-                        <span className="text-muted-foreground ml-0.5 text-[10px]">{unit}</span>
+                <ArrowRight size={14} className="text-[#CBD5E1]" />
+                <div className="flex flex-col">
+                    <span className="text-[9px] uppercase text-[#0076a8] font-bold tracking-widest mb-0.5">Opt</span>
+                    <span className="text-[18px] font-mono font-bold text-[#0F172A]">
+                        {optimized?.toLocaleString(undefined, { maximumFractionDigits: 1 }) ?? "—"}
+                        <span className="text-[11px] ml-1 text-[#64748B] font-semibold">{unit}</span>
                     </span>
                 </div>
             </div>
             {delta != null && (
-                <div className={cn("num text-[11px] flex items-center gap-1 mt-0.5", improved ? "text-[hsl(var(--status-green))]" : "text-[hsl(var(--status-red))]")}>
-                    {TrendIcon && <TrendIcon size={11} strokeWidth={2} />}
-                    {delta >= 0 ? "+" : ""}{delta.toFixed(1)} {unit} ({deltaPct >= 0 ? "+" : ""}{deltaPct.toFixed(1)}%)
+                <div className={cn("inline-flex items-center gap-1.5 mt-3 text-[11px] font-bold px-2 py-1 rounded-md w-fit border", improved ? "text-[#059669] bg-[#ECFDF5] border-[#A7F3D0]" : "text-[#E11D48] bg-[#FFF1F2] border-[#FECDD3]")}>
+                    {TrendIcon && <TrendIcon size={12} strokeWidth={3} />}
+                    {delta >= 0 ? "+" : ""}{delta.toLocaleString(undefined, { maximumFractionDigits: 1 })} {unit} ({deltaPct >= 0 ? "+" : ""}{deltaPct.toFixed(1)}%)
                 </div>
             )}
         </div>
@@ -85,23 +85,37 @@ export default function KpiStrip() {
         { label: "Vessel availability", pass: true },
     ];
 
+    const allPassed = constraints.every(c => c.pass);
+
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 px-4 sm:px-6 py-4 border-b border-border/40 bg-background/50">
-            <KpiCell label="Fuel consumption" unit="t" baseline={base?.fuel} optimized={opt?.fuel} delta={fuelDelta} deltaPct={pct(fuelDelta, base?.fuel)} improved={fuelDelta <= 0} state={state} />
-            <KpiCell label="Operating cost" unit="INR" baseline={base?.cost} optimized={opt?.cost} delta={costDelta} deltaPct={pct(costDelta, base?.cost)} improved={costDelta <= 0} state={state} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-6 border-b border-[#E2E8F0] bg-[#F8FAFC]">
+            <KpiCell label="Total Fuel Consumption" unit="t" baseline={base?.fuel} optimized={opt?.fuel} delta={fuelDelta} deltaPct={pct(fuelDelta, base?.fuel)} improved={fuelDelta <= 0} state={state} />
+            <KpiCell label="Total Operating Cost" unit="INR" baseline={base?.cost} optimized={opt?.cost} delta={costDelta} deltaPct={pct(costDelta, base?.cost)} improved={costDelta <= 0} state={state} />
             <KpiCell label="Lifecycle WtW GHG" unit="tCO2e" baseline={base?.wtw} optimized={opt?.wtw} delta={wtwDelta} deltaPct={pct(wtwDelta, base?.wtw)} improved={wtwDelta <= 0} state={state} />
-            <div className="border border-border/60 bg-card rounded-sm px-4 py-3 flex flex-col gap-1">
-                <span className="label-eyebrow">Constraint status</span>
-                {state === "empty" && <p className="text-[10px] text-muted-foreground/60 mt-2">Run optimization to populate</p>}
+            
+            <div className="bg-white border border-[#E2E8F0] rounded-xl p-5 flex flex-col shadow-sm transition-all hover:shadow-md">
+                <div className="flex items-center justify-between mb-3">
+                    <span className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Constraint Status</span>
+                    {state === "ready" && (
+                        allPassed 
+                            ? <ShieldCheck size={16} className="text-[#059669]" />
+                            : <AlertCircle size={16} className="text-[#E11D48]" />
+                    )}
+                </div>
+                
+                {state === "empty" && <p className="text-[11px] text-[#94A3B8] mt-2 font-medium">Run optimization to populate checks.</p>}
                 {state === "loading" && (
-                    <div className="space-y-1.5 mt-1">
-                        {[...Array(4)].map((_, i) => <div key={i} className="h-3 bg-muted/70 rounded animate-pulse" style={{ width: `${70 + i * 7}%` }} />)}
+                    <div className="space-y-2.5 mt-2">
+                        {[...Array(5)].map((_, i) => <div key={i} className="h-2 bg-[#F1F5F9] rounded-full animate-pulse" style={{ width: `${70 + i * 5}%` }} />)}
                     </div>
                 )}
                 {state === "ready" && (
-                    <div className="flex flex-col gap-1 mt-0.5">
-                        {constraints.map((c) => (
-                            <StatusDot key={c.label} status={c.pass} label={c.label} />
+                    <div className="flex flex-col gap-1.5 mt-1 overflow-y-auto max-h-[90px] pr-2 custom-scrollbar">
+                        {constraints.map((c, i) => (
+                            <div key={i} className="flex items-center justify-between text-[11px]">
+                                <span className="text-[#475569] font-medium">{c.label}</span>
+                                <StatusDot status={c.pass ? "success" : "danger"} />
+                            </div>
                         ))}
                     </div>
                 )}

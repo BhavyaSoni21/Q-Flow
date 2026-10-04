@@ -1,116 +1,74 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { api } from "@/lib/api";
-import { Panel } from "@/components/shared/Panel";
-import { Badge } from "@/components/shared/StatusDot";
 import {
-    User,
-    Building2,
-    Ship,
-    History,
-    MessageSquare,
     Play,
-    Compass,
-    Sparkles,
-    CheckCircle2,
-    Clock,
-    FileText,
-    Star,
-    Send,
+    RefreshCw,
     HelpCircle,
     ChevronRight,
-    ArrowUpRight,
-    SlidersHorizontal,
-    BarChart3,
-    TrendingUp,
-    Leaf,
-    Database,
+    Settings,
+    CheckCircle2,
     X,
-    RefreshCw,
-    Trash2,
-    Check,
+    TrendingDown,
+    LineChart as LineChartIcon,
+    AlertCircle,
+    MoreVertical,
+    Send
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip as RechartsTooltip,
+} from "recharts";
 
 export default function Dashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    // User & Company profile state
-    const [isCompanyOwner, setIsCompanyOwner] = useState(true);
-    const [companyInfo, setCompanyInfo] = useState({
-        company_name: "Oceanic Green Logistics India Pvt Ltd",
-        imo_number: "IMO-9842103",
-        fleet_size: "18 Active Vessels (Panamax, Aframax, Capesize)",
-        home_port: "Jawaharlal Nehru Port (JNPA / INNSA)",
-        sustainability_target: "IMO 2030 Decarbonization Trajectory (Net-Zero by 2050)",
-        contact_person: user?.full_name || "Capt. Ashutosh Amale",
-        email: user?.email || "fleet@qflow.app",
-        phone: "+91 98200 12345",
-    });
-
-    // Dynamic metrics and history from database
+    // Data State
     const [metrics, setMetrics] = useState({
-        total_simulations: 4,
-        formatted_total_savings: "₹ 8,83,000",
-        avg_wtw_reduction_pct: 17.1,
+        total_simulations: 0,
+        formatted_total_savings: "₹0",
+        avg_wtw_reduction_pct: 0,
         feasible_rate_pct: 100.0,
         active_vessels: 18,
-        avg_ci_score: "B (Satisfied)",
+    });
+    const [companyInfo, setCompanyInfo] = useState({
+        fleet_size: "18 Active Vessels",
+        home_port: "JNPA (INNSA)",
     });
     const [history, setHistory] = useState([]);
     const [loadingData, setLoadingData] = useState(true);
 
-    // Guide Tour Modal state
+    // Modal States
     const [showGuideModal, setShowGuideModal] = useState(false);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-    // Model Accuracy Feedback state
+    // Feedback State
     const [feedback, setFeedback] = useState({
-        voyageId: "SCN-2026-084",
-        vesselName: "Panamax - Sea Pioneer",
-        predictedFuel: "24.1",
-        actualFuel: "",
-        durationHours: "48",
-        seaCondition: "Moderate (Beaufort 4-5)",
-        rating: 5,
-        comments: "",
+        voyageId: "", vesselName: "", predictedFuel: "", actualFuel: "", durationHours: "", seaCondition: "Calm (Beaufort 0-3)", comments: ""
     });
     const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-    const [feedbackList, setFeedbackList] = useState([
-        {
-            id: 1,
-            voyageId: "SCN-2026-079",
-            actualFuel: "28.1 t",
-            predicted: "27.8 t",
-            accuracy: "98.9%",
-            rating: 5,
-            date: "2026-10-02",
-            notes: "High correlation with QPSO speed advisory under heavy swells.",
-        },
-    ]);
+    
+    // Derived latest run
+    const latestRun = history.length > 0 ? history[0] : null;
 
-    // Load dynamic data on mount
     const fetchDashboardData = async () => {
         setLoadingData(true);
         try {
             const summary = await api.getDashboardSummary();
             if (summary) {
-                if (summary.profile && Object.keys(summary.profile).length > 0) {
-                    setCompanyInfo((prev) => ({
-                        ...prev,
-                        ...summary.profile,
-                    }));
-                }
-                if (summary.metrics) {
-                    setMetrics(summary.metrics);
-                }
-                if (summary.history && summary.history.length > 0) {
-                    setHistory(summary.history);
-                }
+                if (summary.profile && Object.keys(summary.profile).length > 0) setCompanyInfo(prev => ({...prev, ...summary.profile}));
+                if (summary.metrics) setMetrics(summary.metrics);
+                if (summary.history && summary.history.length > 0) setHistory(summary.history);
             }
         } catch (e) {
-            console.warn("Failed to load dashboard data from SQLite/API:", e);
+            console.warn("Failed to load dashboard data:", e);
         } finally {
             setLoadingData(false);
         }
@@ -123,559 +81,288 @@ export default function Dashboard() {
     const handleFeedbackSubmit = async (e) => {
         e.preventDefault();
         if (!feedback.actualFuel) return;
-
-        const pred = parseFloat(feedback.predictedFuel) || 24.1;
-        const act = parseFloat(feedback.actualFuel);
-        const accuracyPct = Math.max(0, 100 - Math.abs((act - pred) / pred) * 100).toFixed(1);
-
         try {
             await api.submitDashboardFeedback({
-                voyage_id: feedback.voyageId,
-                vessel_name: feedback.vesselName,
-                predicted_fuel: pred,
-                actual_fuel: act,
-                notes: feedback.comments || "Voyage telemetry submitted for ML model retraining.",
+                voyage_id: feedback.voyageId || "Manual",
+                vessel_name: feedback.vesselName || "Unknown",
+                predicted_fuel: parseFloat(feedback.predictedFuel) || 0,
+                actual_fuel: parseFloat(feedback.actualFuel),
+                notes: feedback.comments,
             });
+            setFeedbackSubmitted(true);
+            setTimeout(() => { setFeedbackSubmitted(false); setShowFeedbackModal(false); }, 2000);
         } catch (err) {
-            console.warn("Could not post feedback to backend:", err);
-        }
-
-        setFeedbackList((prev) => [
-            {
-                id: Date.now(),
-                voyageId: feedback.voyageId,
-                actualFuel: `${feedback.actualFuel} t`,
-                predicted: `${feedback.predictedFuel} t`,
-                accuracy: `${accuracyPct}%`,
-                rating: feedback.rating,
-                date: new Date().toISOString().split("T")[0],
-                notes: feedback.comments || "Voyage telemetry submitted for ML model retraining.",
-            },
-            ...prev,
-        ]);
-
-        setFeedbackSubmitted(true);
-        setTimeout(() => setFeedbackSubmitted(false), 5000);
-        setFeedback({
-            voyageId: "SCN-2026-084",
-            vesselName: "Panamax - Sea Pioneer",
-            predictedFuel: "24.1",
-            actualFuel: "",
-            durationHours: "48",
-            seaCondition: "Moderate (Beaufort 4-5)",
-            rating: 5,
-            comments: "",
-        });
-    };
-
-    const handleDeleteScenario = async (id, e) => {
-        e.stopPropagation();
-        try {
-            await api.deleteScenario(id);
-            setHistory((prev) => prev.filter((item) => item.id !== id));
-            setMetrics((prev) => ({
-                ...prev,
-                total_simulations: Math.max(0, prev.total_simulations - 1),
-            }));
-        } catch (err) {
-            console.warn("Could not delete scenario:", err);
+            console.warn("Feedback failed:", err);
         }
     };
+
+    // Chart data mapping
+    const chartData = [...history].reverse().map((run, i) => {
+        const val = parseFloat(run.wtwReduction?.replace(/[^0-9.-]/g, '')) || 0;
+        return { name: `Run ${i+1}`, reduction: Math.abs(val) };
+    });
 
     return (
-        <div className="p-4 flex flex-col gap-5 max-w-[1400px] mx-auto">
-            {/* Top Welcome Strip */}
-            <div className="bg-gradient-to-r from-[#004f7c] to-[#0076a8] text-white p-6 rounded-lg shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="max-w-[1440px] mx-auto px-6 py-8 font-['Open_Sans',sans-serif] bg-[#F8FAFC] min-h-screen">
+            
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <div>
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="bg-white/20 text-white text-[11px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                            Active Session
-                        </span>
-                        <span className="text-sky-200 text-xs">
-                            Maritime Intelligence & Optimization Portal (SQLite Backed)
-                        </span>
-                    </div>
-                    <h1 className="text-2xl font-extrabold tracking-tight">
-                        Welcome, {user?.full_name || "Capt. Ashutosh Amale"}
-                    </h1>
-                    <p className="text-sm text-sky-100 mt-1 max-w-2xl leading-relaxed">
-                        Manage your fleet profile, review historical voyage optimizations from persistent storage, configure new maritime scenarios, and calibrate AI models with real-world feedback.
-                    </p>
+                    <h1 className="text-[26px] font-extrabold tracking-tight text-[#0F172A]">Fleet Dashboard</h1>
+                    <p className="text-[14px] text-[#475569] mt-1">Optimize fleet performance across fuel, cost, emissions and operational constraints.</p>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-3 shrink-0">
-                    <button
-                        onClick={() => fetchDashboardData()}
-                        title="Refresh live data"
-                        className="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-3 py-2.5 rounded-md border border-white/20 transition-all shadow-xs"
-                    >
-                        <RefreshCw size={13} className={loadingData ? "animate-spin" : ""} />
-                        <span>Refresh</span>
+                <div className="flex items-center gap-3">
+                    <button onClick={() => setShowGuideModal(true)} className="text-[13px] font-semibold text-[#64748B] hover:text-[#0F172A] px-3 py-2 rounded-md hover:bg-[#E2E8F0] transition-colors flex items-center gap-2">
+                        <HelpCircle size={16} /> Guide
                     </button>
-                    <button
-                        onClick={() => setShowGuideModal(true)}
-                        className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2.5 rounded-md border border-white/20 transition-all shadow-xs"
-                    >
-                        <HelpCircle size={15} />
-                        Guide Tour
+                    <button onClick={fetchDashboardData} className="text-[13px] font-semibold text-[#64748B] hover:text-[#0F172A] px-3 py-2 rounded-md hover:bg-[#E2E8F0] transition-colors flex items-center gap-2">
+                        <RefreshCw size={16} className={loadingData ? "animate-spin" : ""} /> Refresh
                     </button>
-                    <Link
-                        to="/profile"
-                        className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2.5 rounded-md border border-white/20 transition-all shadow-xs"
-                    >
-                        <User size={15} />
-                        Edit Profile
+                    <Link to="/profile" className="text-[13px] font-semibold text-[#64748B] hover:text-[#0F172A] px-3 py-2 rounded-md hover:bg-[#E2E8F0] transition-colors flex items-center gap-2">
+                        <Settings size={16} /> Profile
                     </Link>
-                    <button
-                        onClick={() => navigate("/scenario")}
-                        className="inline-flex items-center gap-2 bg-[#E86A00] hover:bg-[#d45f00] text-white text-xs font-bold px-5 py-2.5 rounded-md transition-all shadow-md transform hover:-translate-y-0.5"
-                    >
-                        <Play size={14} className="fill-white" />
-                        Create New Scenario
+                    <button onClick={() => navigate("/scenario")} className="bg-[#0076a8] hover:bg-[#005e86] text-white text-[13px] font-bold px-5 py-2.5 rounded-md shadow-sm transition-colors flex items-center gap-2 ml-2">
+                        + Create Scenario
                     </button>
                 </div>
             </div>
 
-            {/* Quick KPI Counters (Dynamic Data) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="border bg-card p-4 rounded-sm">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Active Fleet Size</p>
-                    <p className="text-2xl font-bold mt-1 text-foreground num">{metrics.active_vessels || 18} <span className="text-xs font-normal text-muted-foreground">Vessels</span></p>
-                    <p className="text-[11px] text-green-600 font-medium mt-1">100% Dual-Fuel Ready</p>
-                </div>
-                <div className="border bg-card p-4 rounded-sm">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Stored Simulations</p>
-                    <p className="text-2xl font-bold mt-1 text-foreground num">{metrics.total_simulations || history.length} <span className="text-xs font-normal text-muted-foreground">Runs</span></p>
-                    <p className="text-[11px] text-[#0076a8] font-medium mt-1">Live Database Records</p>
-                </div>
-                <div className="border bg-card p-4 rounded-sm">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Avg GHG Abatement</p>
-                    <p className="text-2xl font-bold mt-1 text-foreground num">-{metrics.avg_wtw_reduction_pct || 16.8}%</p>
-                    <p className="text-[11px] text-green-600 font-medium mt-1">Cumulative Provenance</p>
-                </div>
-                <div className="border bg-card p-4 rounded-sm">
-                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Total Cost Savings</p>
-                    <p className="text-2xl font-bold mt-1 text-foreground num">{metrics.formatted_total_savings || "₹ 8,83,000"}</p>
-                    <p className="text-[11px] text-muted-foreground mt-1">Calculated Fleet Value</p>
-                </div>
-            </div>
-
-            {/* Section 1: User & Company Profile Information */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                {/* Officer Profile Card */}
-                <div className="col-span-12 lg:col-span-5">
-                    <Panel
-                        title="Officer & Account Information"
-                        actions={
-                            <Link to="/profile" className="text-xs text-[#0076a8] font-bold hover:underline">
-                                Edit Settings →
-                            </Link>
-                        }
-                    >
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-3 pb-3 border-b">
-                                <div className="h-12 w-12 rounded-full bg-[#0076a8]/10 text-[#0076a8] flex items-center justify-center font-bold text-lg border border-[#0076a8]/20 shrink-0">
-                                    <User size={22} />
-                                </div>
-                                <div>
-                                    <h3 className="font-bold text-sm text-foreground">{user?.full_name || companyInfo.contact_person || "Capt. Ashutosh Amale"}</h3>
-                                    <p className="text-xs text-muted-foreground">{user?.email || companyInfo.email || "fleet@qflow.app"}</p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                        <Badge tone="accent">
-                                            {isCompanyOwner ? "Company Owner & Fleet Director" : "Chief Navigating Officer"}
-                                        </Badge>
-                                        <span className="text-[10px] text-muted-foreground">ID: FLT-IND-2026</span>
-                                    </div>
-                                </div>
+            {/* Current Fleet Performance KPIs */}
+            <div className="mb-8">
+                <h2 className="text-[12px] font-bold text-[#64748B] uppercase tracking-wider mb-3 ml-1">Current Fleet Performance</h2>
+                {latestRun ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-white border border-[#E2E8F0] rounded-lg p-5 shadow-sm">
+                            <p className="text-[12px] font-semibold text-[#475569]">Fuel Consumption</p>
+                            <div className="mt-2 flex items-baseline gap-2">
+                                <span className="text-[28px] font-bold text-[#0F172A] leading-none tracking-tight">{latestRun.optimizedFuel}</span>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-3 text-xs">
-                                <div>
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Department</span>
-                                    <span className="font-medium text-foreground">Fleet Operations & Decarbonization</span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Assigned Region</span>
-                                    <span className="font-medium text-foreground">Indian Ocean & Global Trade Corridors</span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Security Clearance</span>
-                                    <span className="font-medium text-foreground">Level 3 (Simulation & Dispatch)</span>
-                                </div>
-                                <div>
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Contact Phone</span>
-                                    <span className="font-medium text-foreground">{companyInfo.phone || "+91 98200 12345"}</span>
-                                </div>
-                            </div>
+                            <p className="text-[12px] text-[#059669] mt-2 font-medium flex items-center gap-1"><TrendingDown size={14}/> Optimized vs baseline</p>
                         </div>
-                    </Panel>
-                </div>
-
-                {/* Company Details (When User is Owner/Director) */}
-                <div className="col-span-12 lg:col-span-7">
-                    <Panel
-                        title="Maritime Enterprise & Fleet Specifications"
-                        actions={<Badge tone="neutral">{companyInfo.imo_number || "IMO-9842103"}</Badge>}
-                    >
-                        <div className="flex flex-col gap-3">
-                            <div className="flex items-start gap-3 pb-3 border-b">
-                                <div className="h-10 w-10 rounded bg-[#E86A00]/10 text-[#E86A00] flex items-center justify-center shrink-0 mt-0.5">
-                                    <Building2 size={20} />
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-sm text-foreground">{companyInfo.company_name || companyInfo.name || "Oceanic Green Logistics India Pvt Ltd"}</h3>
-                                    <p className="text-xs text-muted-foreground">Registered Maritime Enterprise · DG Shipping India & IMO Approved</p>
-                                </div>
+                        <div className="bg-white border border-[#E2E8F0] rounded-lg p-5 shadow-sm">
+                            <p className="text-[12px] font-semibold text-[#475569]">Operating Cost</p>
+                            <div className="mt-2 flex items-baseline gap-2">
+                                <span className="text-[28px] font-bold text-[#0F172A] leading-none tracking-tight">{latestRun.costSaved?.replace(' saved','')}</span>
                             </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                                <div className="p-2.5 border rounded-sm bg-muted/20">
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Fleet Configuration</span>
-                                    <span className="font-semibold text-foreground text-xs mt-0.5 block">{companyInfo.fleet_size || companyInfo.fleetSize || "18 Active Vessels"}</span>
-                                </div>
-                                <div className="p-2.5 border rounded-sm bg-muted/20">
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Home Port / Terminal Hub</span>
-                                    <span className="font-semibold text-foreground text-xs mt-0.5 block">{companyInfo.home_port || companyInfo.homePort || "JNPA (INNSA)"}</span>
-                                </div>
-                                <div className="p-2.5 border rounded-sm bg-muted/20">
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Environmental Target</span>
-                                    <span className="font-semibold text-foreground text-xs mt-0.5 block">{companyInfo.sustainability_target || companyInfo.sustainabilityTarget || "Net-Zero Trajectory"}</span>
-                                </div>
-                                <div className="p-2.5 border rounded-sm bg-muted/20">
-                                    <span className="text-muted-foreground block text-[10px] uppercase font-semibold">Official Contact</span>
-                                    <span className="font-semibold text-foreground text-xs mt-0.5 block">{companyInfo.contact_person || companyInfo.contactPerson || "Capt. Ashutosh Amale"} ({companyInfo.email || companyInfo.officialEmail || "fleet@qflow.app"})</span>
-                                </div>
-                            </div>
+                            <p className="text-[12px] text-[#059669] mt-2 font-medium flex items-center gap-1"><TrendingDown size={14}/> Saved vs baseline</p>
                         </div>
-                    </Panel>
-                </div>
-            </div>
-
-            {/* Section 2: Past History Summary (Dynamic SQLite Data) */}
-            <Panel
-                title="Historical Optimization & Scenario Summary"
-                actions={
-                    <div className="flex items-center gap-3">
-                        <span className="text-[11px] text-muted-foreground">
-                            {history.length} Saved Scenarios in Database
-                        </span>
-                        <button
-                            onClick={() => navigate("/scenario")}
-                            className="inline-flex items-center gap-1.5 text-xs text-[#0076a8] font-bold hover:underline"
-                        >
-                            <span>New Scenario</span>
-                            <ChevronRight size={13} />
+                        <div className="bg-white border border-[#E2E8F0] rounded-lg p-5 shadow-sm">
+                            <p className="text-[12px] font-semibold text-[#475569]">GHG Abatement</p>
+                            <div className="mt-2 flex items-baseline gap-2">
+                                <span className="text-[28px] font-bold text-[#0F172A] leading-none tracking-tight">{latestRun.wtwReduction}</span>
+                            </div>
+                            <p className="text-[12px] text-[#059669] mt-2 font-medium flex items-center gap-1">Reduction achieved</p>
+                        </div>
+                        <div className="bg-white border border-[#E2E8F0] rounded-lg p-5 shadow-sm">
+                            <p className="text-[12px] font-semibold text-[#475569]">Constraint Status</p>
+                            <div className="mt-2 flex items-baseline gap-2">
+                                <span className="text-[24px] font-bold text-[#0F172A] leading-none tracking-tight flex items-center gap-2">
+                                    {latestRun.status === "Feasible" ? <CheckCircle2 className="text-[#10B981]" size={24}/> : <AlertCircle className="text-[#F59E0B]" size={24}/>}
+                                    {latestRun.status}
+                                </span>
+                            </div>
+                            <p className="text-[12px] text-[#64748B] mt-3 font-medium">All parameters satisfied</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="bg-white border border-[#E2E8F0] rounded-lg p-10 text-center shadow-sm">
+                        <p className="text-[15px] font-semibold text-[#0F172A] mb-2">No optimization results yet.</p>
+                        <p className="text-[13px] text-[#64748B] mb-6">Create a scenario to calculate fuel, cost and emissions.</p>
+                        <button onClick={() => navigate("/scenario")} className="bg-[#0076a8] hover:bg-[#005e86] text-white text-[13px] font-bold px-5 py-2.5 rounded-md shadow-sm inline-flex">
+                            + Create Scenario
                         </button>
                     </div>
-                }
-            >
-                <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
-                        <thead>
-                            <tr className="border-b bg-[hsl(var(--panel-header))] text-[10px] uppercase text-muted-foreground">
-                                <th className="text-left px-3 py-2 font-semibold">Scenario ID</th>
-                                <th className="text-left px-3 py-2 font-semibold">Date & Time</th>
-                                <th className="text-left px-3 py-2 font-semibold">Voyage Route</th>
-                                <th className="text-left px-3 py-2 font-semibold">Vessel Type</th>
-                                <th className="text-left px-3 py-2 font-semibold">Fuel Config</th>
-                                <th className="text-right px-3 py-2 font-semibold">Optimized Fuel</th>
-                                <th className="text-right px-3 py-2 font-semibold">Estimated Cost Savings</th>
-                                <th className="text-right px-3 py-2 font-semibold">WtW GHG Abatement</th>
-                                <th className="text-center px-3 py-2 font-semibold">Status</th>
-                                <th className="text-center px-3 py-2 font-semibold">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {history.length === 0 ? (
+                )}
+            </div>
+
+            {/* Recent Optimization Runs Table */}
+            <div className="mb-8">
+                <div className="flex justify-between items-end mb-3 ml-1">
+                    <h2 className="text-[15px] font-bold text-[#0F172A]">Recent Optimization Runs</h2>
+                    {history.length > 0 && <button className="text-[13px] font-semibold text-[#0076a8] hover:underline flex items-center">View all <ChevronRight size={14}/></button>}
+                </div>
+                <div className="bg-white border border-[#E2E8F0] rounded-lg shadow-sm overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-[13px] text-left">
+                            <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#64748B] text-[11px] uppercase tracking-wider font-semibold">
                                 <tr>
-                                    <td colSpan={10} className="text-center py-6 text-muted-foreground">
-                                        No scenarios saved in database yet. Create one from the Scenario Setup tab!
-                                    </td>
+                                    <th className="px-5 py-3">Scenario</th>
+                                    <th className="px-5 py-3">Route</th>
+                                    <th className="px-5 py-3">Vessel</th>
+                                    <th className="px-5 py-3 text-right">Optimized Fuel</th>
+                                    <th className="px-5 py-3 text-right">Cost Savings</th>
+                                    <th className="px-5 py-3 text-right">GHG Abatement</th>
+                                    <th className="px-5 py-3">Status</th>
+                                    <th className="px-5 py-3 text-right">Action</th>
                                 </tr>
-                            ) : (
-                                history.map((row) => (
-                                    <tr key={row.id} className="border-b last:border-b-0 hover:bg-muted/30 transition-colors">
-                                        <td className="px-3 py-2.5 font-semibold text-[#0076a8] num">{row.id}</td>
-                                        <td className="px-3 py-2.5 text-muted-foreground whitespace-nowrap">{row.date}</td>
-                                        <td className="px-3 py-2.5 font-medium">{row.route}</td>
-                                        <td className="px-3 py-2.5 text-muted-foreground">{row.vessel}</td>
-                                        <td className="px-3 py-2.5">{row.fuel}</td>
-                                        <td className="px-3 py-2.5 text-right font-medium num text-foreground">{row.optimizedFuel}</td>
-                                        <td className="px-3 py-2.5 text-right font-semibold num text-green-600">{row.costSaved}</td>
-                                        <td className="px-3 py-2.5 text-right font-semibold num text-accent">{row.wtwReduction}</td>
-                                        <td className="px-3 py-2.5 text-center">
-                                            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">
-                                                <CheckCircle2 size={11} />
-                                                {row.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-3 py-2.5 text-center">
-                                            <div className="flex items-center justify-center gap-2">
-                                                <button
-                                                    onClick={() => navigate("/scenario")}
-                                                    className="text-[11px] font-semibold text-[#0076a8] hover:underline"
-                                                >
-                                                    Re-run
-                                                </button>
-                                                <button
-                                                    onClick={(e) => handleDeleteScenario(row.id, e)}
-                                                    className="text-muted-foreground hover:text-red-600 transition-colors p-1"
-                                                    title="Delete Scenario Record"
-                                                >
-                                                    <Trash2 size={12} />
-                                                </button>
-                                            </div>
-                                        </td>
+                            </thead>
+                            <tbody className="divide-y divide-[#E2E8F0]">
+                                {history.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="px-5 py-8 text-center text-[#64748B] text-[13px]">No recent runs found.</td>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </Panel>
-
-            {/* Section 3: Model Accuracy & Real Voyage Feedback */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                {/* Submission Form */}
-                <div className="col-span-12 lg:col-span-6">
-                    <Panel title="Submit Voyage Feedback to Calibrate Model Accuracy">
-                        <form onSubmit={handleFeedbackSubmit} className="flex flex-col gap-3">
-                            <p className="text-xs text-muted-foreground leading-relaxed">
-                                Enter actual fuel consumed and voyage performance data from your vessel's noon reports. Our QPSO-XGBoost surrogate model will incorporate this feedback into the live database to continuously refine prediction accuracy.
-                            </p>
-
-                            {feedbackSubmitted && (
-                                <div className="p-3 bg-green-50 border border-green-200 text-green-800 text-xs rounded-sm flex items-center gap-2">
-                                    <CheckCircle2 size={16} className="text-green-600 shrink-0" />
-                                    <span><strong>Feedback Recorded Successfully!</strong> Data stored in SQLite and queued for model calibration.</span>
-                                </div>
-                            )}
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                        Voyage / Scenario Ref
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={feedback.voyageId}
-                                        onChange={(e) => setFeedback({ ...feedback, voyageId: e.target.value })}
-                                        className="w-full text-xs border rounded-sm px-2.5 h-8 bg-background focus:ring-1 focus:ring-primary"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                        Vessel Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={feedback.vesselName}
-                                        onChange={(e) => setFeedback({ ...feedback, vesselName: e.target.value })}
-                                        className="w-full text-xs border rounded-sm px-2.5 h-8 bg-background focus:ring-1 focus:ring-primary"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                <div>
-                                    <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                        Predicted Fuel (t)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        value={feedback.predictedFuel}
-                                        onChange={(e) => setFeedback({ ...feedback, predictedFuel: e.target.value })}
-                                        className="w-full text-xs border rounded-sm px-2.5 h-8 bg-muted/40 font-mono"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                        Actual Consumed Fuel (t) *
-                                    </label>
-                                    <input
-                                        type="number"
-                                        step="0.1"
-                                        placeholder="e.g. 24.3"
-                                        value={feedback.actualFuel}
-                                        onChange={(e) => setFeedback({ ...feedback, actualFuel: e.target.value })}
-                                        className="w-full text-xs border rounded-sm px-2.5 h-8 bg-background font-mono border-primary/40 focus:ring-1 focus:ring-primary"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                        Voyage Duration (hrs)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={feedback.durationHours}
-                                        onChange={(e) => setFeedback({ ...feedback, durationHours: e.target.value })}
-                                        className="w-full text-xs border rounded-sm px-2.5 h-8 bg-background font-mono"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                    Encountered Sea State & Weather
-                                </label>
-                                <select
-                                    value={feedback.seaCondition}
-                                    onChange={(e) => setFeedback({ ...feedback, seaCondition: e.target.value })}
-                                    className="w-full text-xs border rounded-sm px-2.5 h-8 bg-background"
-                                >
-                                    <option value="Calm (Beaufort 0-3)">Calm (Beaufort 0-3, Significant Wave &lt; 1.0m)</option>
-                                    <option value="Moderate (Beaufort 4-5)">Moderate (Beaufort 4-5, Significant Wave 1.0-2.5m)</option>
-                                    <option value="Severe / Heavy (Beaufort 6-8)">Severe / Heavy (Beaufort 6-8, Significant Wave &gt; 3.0m)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label className="text-[10px] uppercase font-semibold text-muted-foreground block mb-1">
-                                    Operational Comments / Deviations
-                                </label>
-                                <textarea
-                                    rows={2}
-                                    value={feedback.comments}
-                                    onChange={(e) => setFeedback({ ...feedback, comments: e.target.value })}
-                                    placeholder="Note any engine rpm adjustments, hull biofouling, or detour taken..."
-                                    className="w-full text-xs border rounded-sm p-2 bg-background"
-                                />
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="inline-flex items-center justify-center gap-2 bg-[#0076a8] hover:bg-[#005e86] text-white text-xs font-bold py-2.5 px-4 rounded-sm transition-colors shadow-xs mt-1 cursor-pointer"
-                            >
-                                <Send size={13} />
-                                Submit Real-World Calibration Feedback
-                            </button>
-                        </form>
-                    </Panel>
-                </div>
-
-                {/* Calibration Feedback Logs */}
-                <div className="col-span-12 lg:col-span-6">
-                    <Panel title="Model Calibration History & Depicted Accuracy">
-                        <div className="flex flex-col gap-3">
-                            <div className="p-3 bg-muted/40 border rounded-sm flex items-center justify-between text-xs">
-                                <div>
-                                    <span className="font-semibold text-foreground block">Continuous Learning Active</span>
-                                    <span className="text-[11px] text-muted-foreground">Feedback items saved to database for cross-validation benchmarks</span>
-                                </div>
-                                <span className="text-lg font-bold text-[#0076a8] num">98.2% <span className="text-xs font-normal text-muted-foreground">Mean Acc</span></span>
-                            </div>
-
-                            <div className="flex flex-col gap-2 max-h-[340px] overflow-y-auto pr-1">
-                                {feedbackList.map((item) => (
-                                    <div key={item.id} className="border p-3 rounded-sm bg-card hover:border-primary/30 transition-colors flex flex-col gap-1.5">
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="font-bold text-[#0076a8] num">{item.voyageId}</span>
-                                            <span className="text-[11px] text-green-600 font-semibold bg-green-50 px-2 py-0.5 rounded-full border border-green-200">
-                                                Accuracy: {item.accuracy}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-4 text-xs num text-muted-foreground">
-                                            <span>Pred: <strong className="text-foreground">{item.predicted}</strong></span>
-                                            <span>Actual: <strong className="text-foreground">{item.actualFuel}</strong></span>
-                                            <span className="ml-auto text-[10px] text-muted-foreground">{item.date}</span>
-                                        </div>
-                                        <p className="text-[11px] text-muted-foreground italic mt-0.5 border-t pt-1">
-                                            "{item.notes}"
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </Panel>
+                                ) : (
+                                    history.slice(0, 5).map((row) => (
+                                        <tr key={row.id} className="hover:bg-[#F8FAFC] transition-colors group">
+                                            <td className="px-5 py-4">
+                                                <div className="font-semibold text-[#0F172A]">{row.id}</div>
+                                                <div className="text-[11px] text-[#64748B] mt-0.5">{row.date}</div>
+                                            </td>
+                                            <td className="px-5 py-4 font-medium text-[#334155]">{row.route}</td>
+                                            <td className="px-5 py-4 text-[#475569]">{row.vessel}</td>
+                                            <td className="px-5 py-4 text-right font-bold text-[#0F172A] font-mono">{row.optimizedFuel}</td>
+                                            <td className="px-5 py-4 text-right font-bold text-[#059669] font-mono">{row.costSaved}</td>
+                                            <td className="px-5 py-4 text-right font-bold text-[#0F172A] font-mono">{row.wtwReduction}</td>
+                                            <td className="px-5 py-4">
+                                                <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#059669]">
+                                                    <CheckCircle2 size={14} /> {row.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-5 py-4 text-right">
+                                                <button onClick={() => navigate("/scenario")} className="text-[12px] font-semibold text-[#0076a8] hover:underline mr-4">Re-run</button>
+                                                <button className="text-[#94A3B8] hover:text-[#0F172A] opacity-0 group-hover:opacity-100 transition-opacity"><MoreVertical size={16}/></button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
+
+            {/* Visualizations & Model Performance Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+                
+                {/* Fleet Performance Trend */}
+                <div className="col-span-12 lg:col-span-7 bg-white border border-[#E2E8F0] rounded-lg shadow-sm p-6 flex flex-col">
+                    <h3 className="text-[15px] font-bold text-[#0F172A] mb-1">Fleet Performance Trend</h3>
+                    <p className="text-[12px] text-[#64748B] mb-6">GHG Reduction trajectory across recent optimizations</p>
+                    
+                    <div className="flex-1 w-full" style={{ minHeight: '220px' }}>
+                        {chartData.length > 1 ? (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                                    <XAxis dataKey="name" tick={{fontSize: 11, fill: '#64748B'}} tickLine={false} axisLine={{stroke: '#E2E8F0'}} />
+                                    <YAxis tick={{fontSize: 11, fill: '#64748B'}} tickLine={false} axisLine={false} tickFormatter={(val) => `${val}%`} />
+                                    <RechartsTooltip contentStyle={{ borderRadius: '6px', fontSize: '12px', border: '1px solid #E2E8F0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} cursor={{ stroke: '#CBD5E1', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                                    <Line type="monotone" dataKey="reduction" name="GHG Reduction" stroke="#0076a8" strokeWidth={2.5} dot={{ r: 4, fill: '#0076a8', strokeWidth: 0 }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-[13px] text-[#64748B]">
+                                Performance trends will appear after additional optimization runs.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Model Performance */}
+                <div className="col-span-12 lg:col-span-5 bg-white border border-[#E2E8F0] rounded-lg shadow-sm p-6 flex flex-col justify-between">
+                    <div>
+                        <h3 className="text-[15px] font-bold text-[#0F172A] mb-1">Model Performance</h3>
+                        <p className="text-[12px] text-[#64748B] mb-6">Surrogate XGBoost prediction accuracy vs real-world telemetry</p>
+                        
+                        <div className="flex items-end gap-3 mb-2">
+                            <span className="text-[40px] font-extrabold text-[#0F172A] leading-none tracking-tight">98.2%</span>
+                            <span className="text-[13px] font-semibold text-[#0076a8] mb-1">Prediction Performance</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-4 text-[13px] text-[#475569]">
+                            <span className="w-2 h-2 rounded-full bg-[#10B981]"></span> Continuous learning active
+                        </div>
+                        <div className="text-[12px] text-[#94A3B8] mt-2">Last validated: 02 Oct 2026</div>
+                    </div>
+                    
+                    <div className="mt-8 pt-6 border-t border-[#E2E8F0]">
+                        <button onClick={() => setShowFeedbackModal(true)} className="w-full justify-center bg-white border border-[#E2E8F0] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] text-[#0F172A] text-[13px] font-bold px-4 py-2.5 rounded-md transition-colors flex items-center gap-2">
+                            <Send size={15} /> Submit Voyage Feedback
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Compact Fleet Summary */}
+            <div className="bg-white border border-[#E2E8F0] rounded-lg shadow-sm p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h4 className="text-[14px] font-bold text-[#0F172A]">Fleet</h4>
+                    <p className="text-[13px] text-[#475569] mt-0.5">{companyInfo.fleet_size || "18 active vessels"} · Panamax · Aframax · Capesize</p>
+                </div>
+                <Link to="/profile" className="text-[13px] font-semibold text-[#0076a8] hover:underline flex items-center gap-1 shrink-0">
+                    View Fleet Configuration <ChevronRight size={14} />
+                </Link>
+            </div>
+
+            {/* Feedback Modal */}
+            {showFeedbackModal && (
+                <div className="fixed inset-0 z-[150] bg-[#0F172A]/40 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full p-6 relative">
+                        <button onClick={() => setShowFeedbackModal(false)} className="absolute top-4 right-4 text-[#94A3B8] hover:text-[#0F172A] transition-colors"><X size={18}/></button>
+                        <h2 className="text-[18px] font-bold text-[#0F172A] mb-1">Model Calibration</h2>
+                        <p className="text-[13px] text-[#64748B] mb-6">Submit real-world voyage feedback to improve prediction performance.</p>
+                        
+                        {feedbackSubmitted ? (
+                            <div className="p-4 bg-[#ECFDF5] border border-[#A7F3D0] rounded-md flex items-center gap-3 text-[#065F46] text-[13px] font-semibold">
+                                <CheckCircle2 size={18} /> Feedback recorded successfully.
+                            </div>
+                        ) : (
+                            <form onSubmit={handleFeedbackSubmit} className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="text-[11px] font-bold text-[#475569] uppercase mb-1.5 block">Voyage Ref</label>
+                                        <input type="text" value={feedback.voyageId} onChange={e => setFeedback({...feedback, voyageId: e.target.value})} className="w-full text-[13px] border border-[#E2E8F0] rounded-md px-3 py-2" placeholder="e.g. SCN-084" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[11px] font-bold text-[#475569] uppercase mb-1.5 block">Actual Fuel (t)</label>
+                                        <input type="number" step="0.1" value={feedback.actualFuel} onChange={e => setFeedback({...feedback, actualFuel: e.target.value})} className="w-full text-[13px] border border-[#E2E8F0] rounded-md px-3 py-2 font-mono focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8] outline-none" placeholder="e.g. 24.3" required />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-bold text-[#475569] uppercase mb-1.5 block">Sea Condition</label>
+                                    <select value={feedback.seaCondition} onChange={e => setFeedback({...feedback, seaCondition: e.target.value})} className="w-full text-[13px] border border-[#E2E8F0] rounded-md px-3 py-2 bg-white">
+                                        <option>Calm (Beaufort 0-3)</option>
+                                        <option>Moderate (Beaufort 4-5)</option>
+                                        <option>Severe (Beaufort 6-8)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="text-[11px] font-bold text-[#475569] uppercase mb-1.5 block">Comments</label>
+                                    <textarea rows={2} value={feedback.comments} onChange={e => setFeedback({...feedback, comments: e.target.value})} className="w-full text-[13px] border border-[#E2E8F0] rounded-md px-3 py-2" placeholder="Optional notes..."></textarea>
+                                </div>
+                                <div className="pt-2 flex justify-end gap-3">
+                                    <button type="button" onClick={() => setShowFeedbackModal(false)} className="px-4 py-2 text-[13px] font-semibold text-[#64748B] hover:bg-[#F1F5F9] rounded-md">Cancel</button>
+                                    <button type="submit" className="bg-[#0076a8] hover:bg-[#005e86] text-white text-[13px] font-bold px-5 py-2 rounded-md shadow-sm">Submit</button>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Guide Tour Modal */}
             {showGuideModal && (
-                <div className="fixed inset-0 z-[150] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
-                    <div className="bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-xl shadow-2xl max-w-2xl w-full p-6 relative">
-                        <button
-                            onClick={() => setShowGuideModal(false)}
-                            className="absolute top-4 right-4 p-1 rounded-full text-muted-foreground hover:bg-muted transition-colors cursor-pointer"
-                        >
-                            <X size={18} />
-                        </button>
-
-                        <div className="flex items-center gap-2 mb-2">
-                            <Compass className="text-[#0076a8]" size={22} />
-                            <h2 className="text-lg font-bold text-foreground">Welcome to Q-Flow Guide Tour</h2>
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-5">
-                            Follow this 4-step workflow to simulate voyages, optimize fleet emissions, and inspect algorithmic benchmarks.
-                        </p>
-
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-3 p-3 rounded-lg border bg-[#f8fafc] dark:bg-[#0f172a]">
-                                <span className="h-6 w-6 rounded-full bg-[#0076a8] text-white flex items-center justify-center text-xs font-bold shrink-0">1</span>
-                                <div>
-                                    <h4 className="text-xs font-bold text-foreground">Fleet Dashboard & Profile</h4>
-                                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                                        Review account information, verify company fleet details, and submit real voyage data to calibrate our surrogate models.
-                                    </p>
+                <div className="fixed inset-0 z-[150] bg-[#0F172A]/40 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-6 relative">
+                        <button onClick={() => setShowGuideModal(false)} className="absolute top-4 right-4 text-[#94A3B8] hover:text-[#0F172A]"><X size={18}/></button>
+                        <h2 className="text-[18px] font-bold text-[#0F172A] mb-1">Fleet Guide</h2>
+                        <p className="text-[13px] text-[#64748B] mb-6">Workflow overview for fleet optimization.</p>
+                        
+                        <div className="space-y-3">
+                            {[
+                                { title: "1. Scenario Builder", desc: "Select vessel, weather, and fuel pathways to simulate." },
+                                { title: "2. Full-Screen Optimization", desc: "View Pareto tradeoffs, TOPSIS weighting, and constraints." },
+                                { title: "3. Deep Insights", desc: "Access Benchmarking, SHAP, and Emissions via navigation." }
+                            ].map((s, i) => (
+                                <div key={i} className="p-4 border border-[#E2E8F0] rounded-lg bg-[#F8FAFC]">
+                                    <h4 className="text-[13px] font-bold text-[#0F172A]">{s.title}</h4>
+                                    <p className="text-[12px] text-[#475569] mt-1">{s.desc}</p>
                                 </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3 rounded-lg border bg-[#f8fafc] dark:bg-[#0f172a]">
-                                <span className="h-6 w-6 rounded-full bg-[#0076a8] text-white flex items-center justify-center text-xs font-bold shrink-0">2</span>
-                                <div>
-                                    <h4 className="text-xs font-bold text-foreground">Scenario Builder & Simulation</h4>
-                                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                                        Select vessel types, weather conditions, fuel pathways, and click <strong>"Run Simulation"</strong>.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3 rounded-lg border bg-[#f8fafc] dark:bg-[#0f172a]">
-                                <span className="h-6 w-6 rounded-full bg-[#0076a8] text-white flex items-center justify-center text-xs font-bold shrink-0">3</span>
-                                <div>
-                                    <h4 className="text-xs font-bold text-foreground">Dedicated Full-Screen Fleet Optimization</h4>
-                                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                                        Upon completing simulation, a spacious full-screen overlay opens above the Scenario with 3D/2D Pareto tradeoffs, TOPSIS weighting, and constraint checks.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-3 p-3 rounded-lg border bg-[#f8fafc] dark:bg-[#0f172a]">
-                                <span className="h-6 w-6 rounded-full bg-[#0076a8] text-white flex items-center justify-center text-xs font-bold shrink-0">4</span>
-                                <div>
-                                    <h4 className="text-xs font-bold text-foreground">Deep Insights Dropdown</h4>
-                                    <p className="text-[11px] text-muted-foreground mt-0.5">
-                                        Access Benchmarking, Fuel Prediction & SHAP, Well-to-Wake Emissions, and Data Provenance anytime from the top navigation dropdown.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 flex justify-end gap-3">
-                            <button
-                                onClick={() => setShowGuideModal(false)}
-                                className="px-4 py-2 border rounded-md text-xs font-semibold hover:bg-muted cursor-pointer"
-                            >
-                                Got it
-                            </button>
-                            <button
-                                onClick={() => {
-                                    setShowGuideModal(false);
-                                    navigate("/scenario");
-                                }}
-                                className="px-5 py-2 bg-[#0076a8] text-white rounded-md text-xs font-bold hover:bg-[#005e86] cursor-pointer"
-                            >
-                                Start Scenario Now
-                            </button>
+                            ))}
                         </div>
                     </div>
                 </div>
             )}
+
         </div>
     );
 }

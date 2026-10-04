@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import LandingUtilityBar from "@/components/landing/LandingUtilityBar";
 import LandingHeader from "@/components/landing/LandingHeader";
@@ -19,7 +19,8 @@ import {
     SlidersHorizontal,
     Database,
     Sparkles,
-    Check
+    Check,
+    ChevronRight
 } from "lucide-react";
 
 const FEATURE_CATEGORIES = [
@@ -85,7 +86,7 @@ const FEATURES_DATA = [
         category: "emissions",
         badge: "Cold-Ironing",
         title: "OPS Shore-Power & Berth Emissions Calculator",
-        description: "Models auxiliary engine turn-off at port berths with onshore power supply (OPS) cost modeling in INR and regional grid emission factors (e.g. CEA India 710 gCO₂/kWh).",
+        description: "Models auxiliary engine turn-off at port berths with onshore power supply (OPS) cost modeling in INR and regional grid emission factors (e.g. CEA India 710 gCO₂e/kWh).",
         metrics: ["Zero Port Emissions", "Grid Factor Provenance", "Berth Stay Costing"],
         icon: Zap,
         link: "/emissions",
@@ -95,7 +96,7 @@ const FEATURES_DATA = [
         category: "provenance",
         badge: "Fair Evaluation",
         title: "Independent Multi-Seed Benchmark Suite",
-        description: "Rigorously benchmarks MO-QPSO against NSGA-II and standard MOPSO across 10/25/50 unit fleets with hypervolume (HV), generational distance, and runtime metrics across 10 random seeds.",
+        description: "Rigorously benchmarks MO-QPSO against NSGA-II and standard MOPSO across fleets with hypervolume (HV), generational distance, and runtime metrics across 10 random seeds.",
         metrics: ["Hypervolume (HV) Metrics", "Convergence Histories", "10-Seed Boxplots"],
         icon: BarChart3,
         link: "/benchmarking",
@@ -118,42 +119,43 @@ export default function Features() {
 
     const filteredFeatures = selectedCategory === "all"
         ? FEATURES_DATA
-        : FEATURES_DATA.filter((f) => f.category === selectedCategory);
+        : FEATURES_DATA.filter(f => f.category === selectedCategory);
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#F4F8FD] dark:bg-[#0b1320] text-[#1E3A5A] dark:text-[#cbd5e1] font-['Inter',sans-serif]">
+        <div className="flex flex-col min-h-screen bg-[#F8FAFC] font-['Open_Sans',sans-serif]">
             <LandingUtilityBar />
             <LandingHeader />
 
-            <main id="main-content" className="flex-1 flex flex-col">
-                {/* Hero Header */}
-                <section className="relative bg-gradient-to-r from-[#071D35] via-[#0D3B66] to-[#1264AB] text-white py-16 px-6 border-b border-[#0D3460] overflow-hidden">
-                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
-                    <div className="max-w-[1280px] mx-auto relative z-10 text-center max-w-3xl">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[11px] font-mono font-semibold tracking-wide uppercase text-[#8AC4E0] mb-4">
-                            <Layers size={13} className="text-[#E86A00]" />
+            <main className="flex-1 flex flex-col pt-16">
+                
+                {/* Hero Section */}
+                <section className="relative bg-gradient-to-r from-[#0F172A] via-[#0D3B66] to-[#0076a8] text-white py-20 px-6 overflow-hidden">
+                    <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none" />
+                    <div className="max-w-[1440px] mx-auto relative z-10 text-center max-w-4xl">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 border border-white/20 rounded-full text-[11px] font-mono font-bold tracking-widest uppercase text-[#38BDF8] mb-6 shadow-sm">
+                            <Layers size={14} className="text-[#38BDF8]" />
                             Comprehensive Maritime Suite
                         </div>
-                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
-                            Platform Features &amp; Capabilities
+                        <h1 className="text-[36px] md:text-[46px] font-extrabold text-white tracking-tight leading-tight mb-6">
+                            Enterprise Maritime <span className="text-[#38BDF8]">Intelligence</span>
                         </h1>
-                        <p className="text-base sm:text-lg text-[#C8DFF0] leading-relaxed">
-                            Discover the cutting-edge modules powering Q-Flow's decision engine—from quantum-inspired multi-objective Pareto optimization to Well-to-Wake lifecycle carbon accounting.
+                        <p className="text-[16px] text-[#CBD5E1] leading-relaxed max-w-2xl mx-auto font-medium">
+                            Explore the computational engines powering QFlow. From quantum-behaved swarm optimizers to lifecycle GHG accounting, built for real-world fleet deployments.
                         </p>
                     </div>
                 </section>
 
                 {/* Filter Categories Bar */}
-                <section className="bg-white dark:bg-[#111c2e] border-b border-[#D0E3F5] dark:border-[#1e2d42] sticky top-0 z-30 shadow-xs">
-                    <div className="max-w-[1280px] mx-auto px-6 py-3 flex items-center justify-center gap-2 overflow-x-auto no-scrollbar">
+                <section className="sticky top-[73px] z-30 bg-white/80 backdrop-blur-md border-y border-[#E2E8F0] shadow-sm mb-12">
+                    <div className="max-w-[1440px] mx-auto px-6 py-3 flex items-center justify-center gap-3 overflow-x-auto no-scrollbar">
                         {FEATURE_CATEGORIES.map((cat) => (
                             <button
                                 key={cat.id}
                                 onClick={() => setSelectedCategory(cat.id)}
-                                className={`px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-md whitespace-nowrap transition-all duration-150 cursor-pointer ${
+                                className={`px-5 py-2 text-[12px] font-bold uppercase tracking-wider rounded-full whitespace-nowrap transition-all duration-200 cursor-pointer ${
                                     selectedCategory === cat.id
-                                        ? "bg-[#1264AB] text-white shadow-xs"
-                                        : "text-[#4A6A85] dark:text-[#94a3b8] hover:bg-[#F4F8FD] dark:hover:bg-[#16273d]"
+                                        ? "bg-[#0F172A] text-white shadow-md scale-105"
+                                        : "bg-white border border-[#CBD5E1] text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A]"
                                 }`}
                             >
                                 {cat.label}
@@ -163,98 +165,101 @@ export default function Features() {
                 </section>
 
                 {/* Features Grid */}
-                <section className="py-12 px-6 max-w-[1280px] mx-auto w-full flex-1">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <section className="px-6 max-w-[1440px] mx-auto w-full flex-1 mb-24">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredFeatures.map((item, idx) => {
                             const Icon = item.icon;
                             return (
-                                <div
+                                <Link
                                     key={idx}
-                                    className="bg-white dark:bg-[#111c2e] border border-[#D0E3F5] dark:border-[#1e2d42] rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
+                                    to={item.link}
+                                    className="group bg-white border border-[#E2E8F0] rounded-2xl p-7 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-[#CBD5E1] transition-all duration-300 flex flex-col justify-between"
                                 >
                                     <div>
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="w-10 h-10 rounded-lg bg-[#EBF3FB] dark:bg-[#16273d] flex items-center justify-center text-[#1264AB] dark:text-[#38bdf8]">
-                                                <Icon size={20} />
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="w-12 h-12 rounded-xl bg-[#F0F9FF] border border-[#B9E6FE] flex items-center justify-center text-[#0076a8] group-hover:bg-[#0076a8] group-hover:text-white transition-colors duration-300">
+                                                <Icon size={24} strokeWidth={2} />
                                             </div>
-                                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#1264AB] dark:text-[#38bdf8] bg-[#EBF3FB] dark:bg-[#16273d] px-2.5 py-1 rounded border border-[#B8D4EE] dark:border-[#223955]">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#475569] bg-[#F1F5F9] border border-[#CBD5E1] px-2.5 py-1 rounded-md">
                                                 {item.badge}
                                             </span>
                                         </div>
 
-                                        <h3 className="text-base font-bold text-[#0A2340] dark:text-white mb-2 leading-snug">
+                                        <h3 className="text-[16px] font-extrabold text-[#0F172A] mb-3 leading-snug group-hover:text-[#0076a8] transition-colors">
                                             {item.title}
                                         </h3>
-                                        <p className="text-xs text-[#4A6A85] dark:text-[#94a3b8] leading-relaxed mb-5">
+                                        <p className="text-[13px] text-[#64748B] leading-relaxed mb-6 font-medium">
                                             {item.description}
                                         </p>
                                     </div>
 
                                     <div>
-                                        <div className="space-y-1.5 pt-4 border-t border-[#F0F6FC] dark:border-[#1a283e] mb-5">
+                                        <div className="space-y-2 pt-5 border-t border-[#F1F5F9] mb-6">
                                             {item.metrics.map((m, mIdx) => (
-                                                <div key={mIdx} className="flex items-center gap-2 text-[11px] text-[#5B8CB0] dark:text-[#829bb5]">
-                                                    <Check size={13} className="text-[#22c55e] shrink-0" />
+                                                <div key={mIdx} className="flex items-start gap-2.5 text-[12px] font-semibold text-[#475569]">
+                                                    <Check size={14} className="text-[#059669] shrink-0 mt-0.5" strokeWidth={3} />
                                                     <span>{m}</span>
                                                 </div>
                                             ))}
                                         </div>
 
-                                        <Link
-                                            to={item.link}
-                                            className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 bg-[#F4F8FD] dark:bg-[#16273d] hover:bg-[#1264AB] hover:text-white text-[#1264AB] dark:text-[#38bdf8] border border-[#C8DDEF] dark:border-[#223955] rounded text-xs font-bold uppercase tracking-wider transition-colors"
-                                        >
-                                            {item.linkText} <ArrowRight size={13} />
-                                        </Link>
+                                        <div className="flex items-center gap-2 text-[12px] font-bold uppercase tracking-widest text-[#0076a8] group-hover:text-[#005e86]">
+                                            {item.linkText} 
+                                            <ChevronRight size={16} className="transition-transform duration-300 group-hover:translate-x-1" />
+                                        </div>
                                     </div>
-                                </div>
+                                </Link>
                             );
                         })}
                     </div>
                 </section>
 
                 {/* Architecture Pipeline Strip */}
-                <section className="bg-white dark:bg-[#0e1726] border-t border-[#D0E3F5] dark:border-[#1e2d42] py-12 px-6">
-                    <div className="max-w-[1280px] mx-auto">
-                        <div className="text-center max-w-2xl mx-auto mb-8">
-                            <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#1264AB] dark:text-[#38bdf8] block mb-2">
+                <section className="bg-[#0F172A] border-t border-[#1E293B] py-20 px-6 relative overflow-hidden">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-[#0076a8]/10 blur-[100px] rounded-full pointer-events-none" />
+                    
+                    <div className="max-w-[1440px] mx-auto relative z-10">
+                        <div className="text-center max-w-2xl mx-auto mb-14">
+                            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#38BDF8] block mb-3">
                                 Seamless Execution Flow
                             </span>
-                            <h2 className="text-2xl font-bold text-[#0A2340] dark:text-white tracking-tight">
+                            <h2 className="text-[32px] font-extrabold text-white tracking-tight">
                                 How Q-Flow Evaluates Every Plan
                             </h2>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-center">
-                            <div className="p-4 bg-[#F4F8FD] dark:bg-[#132032] border border-[#D0E3F5] dark:border-[#1f3047] rounded-lg">
-                                <span className="text-xs font-mono font-bold text-[#1264AB] block mb-1">01. Inputs</span>
-                                <h4 className="text-sm font-bold text-[#0A2340] dark:text-white mb-1">Scenario Setup</h4>
-                                <p className="text-[11px] text-[#5B8CB0]">Port corridor, cargo demand, and deadline limits.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 text-left">
+                            
+                            <div className="p-6 bg-[#1E293B] border border-[#334155] rounded-xl hover:border-[#0076a8]/50 transition-colors">
+                                <span className="w-8 h-8 rounded bg-[#0076a8]/20 text-[#38BDF8] flex items-center justify-center font-mono font-bold text-[13px] mb-4">01</span>
+                                <h4 className="text-[15px] font-bold text-white mb-2">Scenario Setup</h4>
+                                <p className="text-[13px] text-[#94A3B8] leading-relaxed">Port corridor, cargo demand, and strict ETA deadline limits defined by user.</p>
                             </div>
 
-                            <div className="p-4 bg-[#F4F8FD] dark:bg-[#132032] border border-[#D0E3F5] dark:border-[#1f3047] rounded-lg">
-                                <span className="text-xs font-mono font-bold text-[#1264AB] block mb-1">02. Prediction</span>
-                                <h4 className="text-sm font-bold text-[#0A2340] dark:text-white mb-1">Fuel Surrogate</h4>
-                                <p className="text-[11px] text-[#5B8CB0]">XGBoost &amp; physics calculate exact fuel burn.</p>
+                            <div className="p-6 bg-[#1E293B] border border-[#334155] rounded-xl hover:border-[#0076a8]/50 transition-colors">
+                                <span className="w-8 h-8 rounded bg-[#0076a8]/20 text-[#38BDF8] flex items-center justify-center font-mono font-bold text-[13px] mb-4">02</span>
+                                <h4 className="text-[15px] font-bold text-white mb-2">Fuel Surrogate</h4>
+                                <p className="text-[13px] text-[#94A3B8] leading-relaxed">XGBoost &amp; physics logic calculate exact fuel burn for any genotype.</p>
                             </div>
 
-                            <div className="p-4 bg-[#F4F8FD] dark:bg-[#132032] border border-[#D0E3F5] dark:border-[#1f3047] rounded-lg">
-                                <span className="text-xs font-mono font-bold text-[#1264AB] block mb-1">03. Pricing</span>
-                                <h4 className="text-sm font-bold text-[#0A2340] dark:text-white mb-1">Emissions &amp; Cost</h4>
-                                <p className="text-[11px] text-[#5B8CB0]">Prices INR expenditure &amp; WtW CO₂e footprints.</p>
+                            <div className="p-6 bg-[#1E293B] border border-[#334155] rounded-xl hover:border-[#0076a8]/50 transition-colors">
+                                <span className="w-8 h-8 rounded bg-[#0076a8]/20 text-[#38BDF8] flex items-center justify-center font-mono font-bold text-[13px] mb-4">03</span>
+                                <h4 className="text-[15px] font-bold text-white mb-2">Emissions &amp; Cost</h4>
+                                <p className="text-[13px] text-[#94A3B8] leading-relaxed">Prices INR expenditure &amp; WtW CO₂e footprints across alternative fuels.</p>
                             </div>
 
-                            <div className="p-4 bg-[#F4F8FD] dark:bg-[#132032] border border-[#D0E3F5] dark:border-[#1f3047] rounded-lg">
-                                <span className="text-xs font-mono font-bold text-[#1264AB] block mb-1">04. Search</span>
-                                <h4 className="text-sm font-bold text-[#0A2340] dark:text-white mb-1">MO-QPSO Solver</h4>
-                                <p className="text-[11px] text-[#5B8CB0]">Explores quantum delta-well particle updates.</p>
+                            <div className="p-6 bg-[#1E293B] border border-[#334155] rounded-xl hover:border-[#0076a8]/50 transition-colors">
+                                <span className="w-8 h-8 rounded bg-[#0076a8]/20 text-[#38BDF8] flex items-center justify-center font-mono font-bold text-[13px] mb-4">04</span>
+                                <h4 className="text-[15px] font-bold text-white mb-2">MO-QPSO Search</h4>
+                                <p className="text-[13px] text-[#94A3B8] leading-relaxed">Swarm explores quantum delta-well particle updates to find global optima.</p>
                             </div>
 
-                            <div className="p-4 bg-[#F4F8FD] dark:bg-[#132032] border border-[#D0E3F5] dark:border-[#1f3047] rounded-lg">
-                                <span className="text-xs font-mono font-bold text-[#1264AB] block mb-1">05. Output</span>
-                                <h4 className="text-sm font-bold text-[#0A2340] dark:text-white mb-1">Pareto Decision</h4>
-                                <p className="text-[11px] text-[#5B8CB0]">Presents TOPSIS-ranked balanced deployment.</p>
+                            <div className="p-6 bg-[#1E293B] border border-[#334155] rounded-xl hover:border-[#0076a8]/50 transition-colors">
+                                <span className="w-8 h-8 rounded bg-[#0076a8]/20 text-[#38BDF8] flex items-center justify-center font-mono font-bold text-[13px] mb-4">05</span>
+                                <h4 className="text-[15px] font-bold text-white mb-2">Pareto Extraction</h4>
+                                <p className="text-[13px] text-[#94A3B8] leading-relaxed">Decodes constraints and serves the optimal fleet Pareto frontier.</p>
                             </div>
+
                         </div>
                     </div>
                 </section>
@@ -264,3 +269,4 @@ export default function Features() {
         </div>
     );
 }
+

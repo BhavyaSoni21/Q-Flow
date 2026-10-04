@@ -1,33 +1,25 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { api } from "@/lib/api";
+﻿import React, { useState, useEffect } from "react";
 import { useStore } from "@/lib/store";
-import { Panel } from "@/components/shared/Panel";
-import { DataTable } from "@/components/shared/DataTable";
-import { ExportCsv } from "@/components/shared/ExportButtons";
-import { HvCurveChart, ScalabilityChart, BoxPlotChart } from "@/components/charts/BenchmarkCharts";
-import { RefreshCw } from "lucide-react";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import DataStatus, { DataModeBadge } from "@/components/shared/DataStatus";
-import {
-    getPredictionBenchmarks,
-    getOptimizationBenchmarks,
-    getHypervolumeCurves,
-    getScalabilityData,
-    getBoxPlotData,
-} from "@/data/mock";
+import { RefreshCw, Download, Beaker, Cpu, Activity, Info } from "lucide-react";
+import { HvCurveChart, BoxPlotChart, ScalabilityChart } from "@/components/charts/BenchmarkCharts";
+import { getPredictionBenchmarks, getOptimizationBenchmarks, getHypervolumeCurves, getScalabilityData, getBoxPlotData } from "@/data/mock";
 
 export default function Benchmarking() {
     const { config } = useStore();
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    
+    // Data states
     const [predRows, setPredRows] = useState(null);
     const [optRows, setOptRows] = useState(null);
     const [hvCurves, setHvCurves] = useState(null);
-    const [scalability, setScalability] = useState(null);
     const [boxplot, setBoxplot] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+    const [scalability, setScalability] = useState(null);
     const [source, setSource] = useState(null);
 
-    const load = useCallback((force) => {
+    const load = React.useCallback(async (force = false) => {
         setLoading(true);
         return Promise.all([
             api.getBenchmarks.prediction(force).catch(() => getPredictionBenchmarks()),
@@ -39,41 +31,24 @@ export default function Benchmarking() {
                 source: "mock",
             })),
         ])
-            .then(([p, o]) => {
-                const predData = o?.prediction?.length ? o.prediction : (Array.isArray(p) && p.length ? p : getPredictionBenchmarks());
-                const optData = o?.table?.length ? o.table : getOptimizationBenchmarks();
-                const hvData = o?.hvCurves?.length ? o.hvCurves : getHypervolumeCurves();
-                const scalData = o?.scalability?.length ? o.scalability : getScalabilityData();
-                const boxData = o?.boxplot?.length ? o.boxplot : getBoxPlotData();
-
-                setPredRows(predData);
-                setOptRows(optData);
-                setHvCurves(hvData);
-                setScalability(scalData);
-                setBoxplot(boxData);
-                setSource(o?.source || "file");
-                setLoading(false);
+            .then(([predRes, optRes]) => {
+                setPredRows(Array.isArray(predRes) ? predRes : predRes.data);
+                setOptRows(optRes.table);
+                setHvCurves(optRes.hvCurves);
+                setBoxplot(optRes.boxplot);
+                setScalability(optRes.scalability);
+                setSource(optRes.source);
             })
-            .catch((e) => {
-                console.warn("Benchmarking load error:", e);
-                setPredRows(getPredictionBenchmarks());
-                setOptRows(getOptimizationBenchmarks());
-                setHvCurves(getHypervolumeCurves());
-                setScalability(getScalabilityData());
-                setBoxplot(getBoxPlotData());
-                setSource("mock");
+            .catch(console.error)
+            .finally(() => {
                 setLoading(false);
             });
     }, []);
 
     useEffect(() => {
         let alive = true;
-        load(false).then(() => {
-            if (!alive) setLoading(false);
-        });
-        return () => {
-            alive = false;
-        };
+        load(false).then(() => { if (!alive) setLoading(false); });
+        return () => { alive = false; };
     }, [load]);
 
     const onRefresh = () => {
@@ -81,7 +56,7 @@ export default function Benchmarking() {
         load(true).finally(() => setRefreshing(false));
     };
 
-    // Best per column for prediction (lower is better for mae/rmse/smape/train/infer; higher for r2)
+    // Calculate Bests
     const predBest = React.useMemo(() => {
         if (!predRows || !predRows.length) return {};
         const keys = ["mae", "rmse", "smape", "trainTime", "inferTime", "r2"];
@@ -105,86 +80,159 @@ export default function Benchmarking() {
     }, [optRows]);
 
     return (
-        <div className="p-4 flex flex-col gap-3">
-            <DataStatus />
-            <div className="flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground">
-                    {source && source !== "mock"
-                        ? <>Computed live by the engine{source.startsWith("file") ? " (served from saved results)" : ""}. Click Recompute to re-run.</>
-                        : "Representative benchmark data — values are illustrative, not from a live experiment."}
-                </p>
-                <button
-                    type="button"
-                    onClick={onRefresh}
-                    disabled={refreshing || loading}
-                    className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 border rounded hover:bg-muted disabled:opacity-50 cursor-pointer"
-                    title="Re-run the benchmark on the backend"
-                >
-                    <RefreshCw size={12} strokeWidth={1.5} className={cn(refreshing && "animate-spin")} />
-                    {refreshing ? "Recomputing…" : "Recompute"}
-                </button>
-            </div>
-            <Panel title="Table 1 — Prediction benchmark" loading={loading} actions={<><DataModeBadge /><ExportCsv rows={predRows || []} filename="prediction_bench.csv" /></>}>
-                <DataTable
-                    columns={[
-                        { key: "model", header: "Model" },
-                        { key: "mae", header: "MAE", numeric: true, render: (r) => <span className={cn(predBest.mae === r.mae && "font-bold")}>{r.mae.toFixed(2)}</span> },
-                        { key: "rmse", header: "RMSE", numeric: true, render: (r) => <span className={cn(predBest.rmse === r.rmse && "font-bold")}>{r.rmse.toFixed(2)}</span> },
-                        { key: "r2", header: "R²", numeric: true, render: (r) => <span className={cn(predBest.r2 === r.r2 && "font-bold")}>{r.r2.toFixed(3)}</span> },
-                        { key: "smape", header: "sMAPE %", numeric: true, render: (r) => <span className={cn(predBest.smape === r.smape && "font-bold")}>{r.smape.toFixed(1)}</span> },
-                        { key: "trainTime", header: "Train (s)", numeric: true, render: (r) => <span className={cn(predBest.trainTime === r.trainTime && "font-bold")}>{r.trainTime != null ? r.trainTime.toFixed(1) : "—"}</span> },
-                        { key: "inferTime", header: "Infer (ms)", numeric: true, render: (r) => <span className={cn(predBest.inferTime === r.inferTime && "font-bold")}>{r.inferTime != null ? r.inferTime.toFixed(1) : "—"}</span> },
-                        { key: "protocol", header: "Validation" },
-                    ]}
-                    rows={predRows || []}
-                    emptyMessage="No benchmark data"
-                />
-                <p className="text-[10px] text-muted-foreground mt-2">Bold = best per column. Lower is better for MAE/RMSE/sMAPE/time; higher for R².</p>
-            </Panel>
-
-            <Panel title="Table 2 — Optimization benchmark" loading={loading} actions={<ExportCsv rows={optRows || []} filename="optimization_bench.csv" />}>
-                <DataTable
-                    columns={[
-                        { key: "algorithm", header: "Algorithm" },
-                        { key: "hypervolumeMean", header: "HV (mean ± std)", numeric: true, render: (r) => <span className={cn(optBest.hypervolumeMean === r.hypervolumeMean && "font-bold")}>{r.hypervolumeMean.toFixed(3)} ± {r.hypervolumeStd.toFixed(3)}</span> },
-                        { key: "median", header: "Median", numeric: true, render: (r) => <span className={cn(optBest.median === r.median && "font-bold")}>{r.median.toFixed(3)}</span> },
-                        { key: "best", header: "Best", numeric: true, render: (r) => <span className={cn(optBest.best === r.best && "font-bold")}>{r.best.toFixed(3)}</span> },
-                        { key: "worst", header: "Worst", numeric: true, render: (r) => r.worst.toFixed(3) },
-                        { key: "feasibleRate", header: "Feasible %", numeric: true, render: (r) => <span className={cn(optBest.feasibleRate === r.feasibleRate && "font-bold")}>{r.feasibleRate.toFixed(1)}</span> },
-                        { key: "itersTo95", header: "Iters→95% HV", numeric: true, render: (r) => <span className={cn(optBest.itersTo95 === r.itersTo95 && "font-bold")}>{r.itersTo95}</span> },
-                        { key: "runtime", header: "Runtime (s)", numeric: true, render: (r) => <span className={cn(optBest.runtime === r.runtime && "font-bold")}>{r.runtime.toFixed(2)}</span> },
-                    ]}
-                    rows={optRows || []}
-                    emptyMessage="No benchmark data"
-                />
-                <p className="text-[10px] text-muted-foreground mt-2">Mean ± std over {config.runs} seeds. Bold = best per column. No fixed winner — wins and losses both shown.</p>
-            </Panel>
-
-            <div className="grid grid-cols-12 gap-4">
-                <div className="col-span-12 lg:col-span-7">
-                    <Panel title="Chart 1 — Mean hypervolume vs iteration" loading={loading}>
-                        {hvCurves && <HvCurveChart data={hvCurves} />}
-                    </Panel>
-                </div>
-                <div className="col-span-12 lg:col-span-5">
-                    <Panel title="Box plot — Final hypervolume across seeds" loading={loading}>
-                        {boxplot && <BoxPlotChart data={boxplot} />}
-                    </Panel>
+        <div className="min-h-screen bg-[#F8FAFC] pb-24 font-['Open_Sans',sans-serif]">
+            
+            {/* Page Header */}
+            <div className="bg-white border-b border-[#E2E8F0] mb-8">
+                <div className="max-w-[1440px] mx-auto px-6 py-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                            <h1 className="text-[26px] font-extrabold tracking-tight text-[#0F172A]">Benchmarking Lab</h1>
+                            <span className="px-2.5 py-0.5 bg-[#E0F2FE] text-[#0369A1] text-[11px] font-bold uppercase tracking-wider rounded-md border border-[#BAE6FD]">
+                                Synthetic Mock Data
+                            </span>
+                        </div>
+                        <p className="text-[14px] text-[#475569]">
+                            Evaluate ML surrogate prediction accuracy and MO-QPSO evolutionary optimization performance.
+                        </p>
+                    </div>
+                    
+                    <button
+                        onClick={onRefresh}
+                        disabled={refreshing || loading}
+                        className="bg-white hover:bg-[#F8FAFC] text-[#0F172A] text-[13px] font-bold px-4 py-2 border border-[#CBD5E1] rounded-md transition-colors flex items-center gap-2 shadow-sm disabled:opacity-50"
+                    >
+                        <RefreshCw size={14} className={refreshing ? "animate-spin" : ""} />
+                        {refreshing ? "Computing..." : "Recompute Benchmark"}
+                    </button>
                 </div>
             </div>
 
-            <Panel title="Chart 2 — Scalability vs problem size" loading={loading}>
-                {scalability && <ScalabilityChart data={scalability} />}
-            </Panel>
+            <div className="max-w-[1440px] mx-auto px-6 flex flex-col gap-12">
+                
+                {/* 1. SURROGATE MODEL ACCURACY */}
+                <section>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-[#0076a8]/10 text-[#0076a8] flex items-center justify-center shrink-0">
+                            <Activity size={18} />
+                        </div>
+                        <div>
+                            <h2 className="text-[16px] font-bold text-[#0F172A] uppercase tracking-wide">Surrogate Model Prediction Accuracy</h2>
+                            <p className="text-[13px] text-[#64748B] mt-0.5">Evaluating baseline machine learning models against QPSO-tuned XGBoost.</p>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[13px] text-left">
+                                <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#64748B] text-[11px] uppercase tracking-wider font-semibold">
+                                    <tr>
+                                        <th className="px-6 py-4">Model Architecture</th>
+                                        <th className="px-6 py-4 text-right">MAE</th>
+                                        <th className="px-6 py-4 text-right">RMSE</th>
+                                        <th className="px-6 py-4 text-right">R²</th>
+                                        <th className="px-6 py-4 text-right">sMAPE %</th>
+                                        <th className="px-6 py-4 text-right">Train (s)</th>
+                                        <th className="px-6 py-4 text-right">Infer (ms)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#E2E8F0]">
+                                    {(predRows || []).map((r, i) => (
+                                        <tr key={i} className="hover:bg-[#F8FAFC] transition-colors">
+                                            <td className="px-6 py-4 font-medium text-[#0F172A]">{r.model}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", predBest.mae === r.mae ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.mae.toFixed(2)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", predBest.rmse === r.rmse ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.rmse.toFixed(2)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", predBest.r2 === r.r2 ? "font-bold text-[#0076a8]" : "text-[#475569]")}>{r.r2.toFixed(3)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", predBest.smape === r.smape ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.smape.toFixed(1)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", predBest.trainTime === r.trainTime ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.trainTime?.toFixed(1) || "-"}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", predBest.inferTime === r.inferTime ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.inferTime?.toFixed(1) || "-"}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
-            <div className="border bg-card p-3 text-[11px] text-muted-foreground">
-                <p className="label-eyebrow mb-1">Protocol</p>
-                <p>
-                    Seeds: {config.runs} · Scenario ID: SIH26138 · Dataset version: <strong>mock-v1 (representative)</strong> · Seed base: {config.seed}.
-                    Results reported as measured; wins and losses are both shown. Optimizer labelled &quot;Quantum-inspired (QPSO), classical hardware&quot;.
-                    <span className="ml-2 italic">These figures are illustrative and have not been independently verified against real voyage data.</span>
-                </p>
+                {/* 2. OPTIMIZATION ALGORITHM PERFORMANCE */}
+                <section>
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 rounded-lg bg-[#E86A00]/10 text-[#E86A00] flex items-center justify-center shrink-0">
+                            <Cpu size={18} />
+                        </div>
+                        <div>
+                            <h2 className="text-[16px] font-bold text-[#0F172A] uppercase tracking-wide">Optimization Engine Benchmarks</h2>
+                            <p className="text-[13px] text-[#64748B] mt-0.5">Pareto-front generation (Hypervolume) and computational scalability.</p>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden mb-6">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[13px] text-left">
+                                <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#64748B] text-[11px] uppercase tracking-wider font-semibold">
+                                    <tr>
+                                        <th className="px-6 py-4">Algorithm</th>
+                                        <th className="px-6 py-4 text-right">HV (Mean ± Std)</th>
+                                        <th className="px-6 py-4 text-right">Median HV</th>
+                                        <th className="px-6 py-4 text-right">Best HV</th>
+                                        <th className="px-6 py-4 text-right">Worst HV</th>
+                                        <th className="px-6 py-4 text-right">Feasible %</th>
+                                        <th className="px-6 py-4 text-right">Iters to 95% HV</th>
+                                        <th className="px-6 py-4 text-right">Runtime (s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#E2E8F0]">
+                                    {(optRows || []).map((r, i) => (
+                                        <tr key={i} className="hover:bg-[#F8FAFC] transition-colors">
+                                            <td className="px-6 py-4 font-medium text-[#0F172A] flex items-center gap-2">
+                                                <div className="w-2.5 h-2.5 rounded-full" style={{backgroundColor: r.algorithm.includes('QPSO') ? '#E86A00' : r.algorithm.includes('NSGA') ? '#0284C7' : '#64748B'}} />
+                                                {r.algorithm}
+                                            </td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", optBest.hypervolumeMean === r.hypervolumeMean ? "font-bold text-[#E86A00]" : "text-[#475569]")}>{r.hypervolumeMean.toFixed(3)} ± {r.hypervolumeStd.toFixed(3)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", optBest.median === r.median ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.median.toFixed(3)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", optBest.best === r.best ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.best.toFixed(3)}</td>
+                                            <td className="px-6 py-4 text-right font-mono text-[#475569]">{r.worst.toFixed(3)}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", optBest.feasibleRate === r.feasibleRate ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.feasibleRate.toFixed(1)}%</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", optBest.itersTo95 === r.itersTo95 ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.itersTo95}</td>
+                                            <td className={cn("px-6 py-4 text-right font-mono", optBest.runtime === r.runtime ? "font-bold text-[#0F172A]" : "text-[#475569]")}>{r.runtime.toFixed(2)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+                        <div className="col-span-12 lg:col-span-7 bg-white border border-[#E2E8F0] rounded-xl shadow-sm p-6">
+                            <h3 className="text-[13px] font-bold text-[#0F172A] uppercase tracking-wider mb-4">Mean Hypervolume vs Iteration</h3>
+                            <div className="h-[280px]">
+                                {hvCurves && <HvCurveChart data={hvCurves} />}
+                            </div>
+                        </div>
+                        <div className="col-span-12 lg:col-span-5 bg-white border border-[#E2E8F0] rounded-xl shadow-sm p-6">
+                            <h3 className="text-[13px] font-bold text-[#0F172A] uppercase tracking-wider mb-4">Final Hypervolume Across Seeds</h3>
+                            <div className="h-[280px]">
+                                {boxplot && <BoxPlotChart data={boxplot} />}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm p-6">
+                        <h3 className="text-[13px] font-bold text-[#0F172A] uppercase tracking-wider mb-4">Scalability vs Problem Size</h3>
+                        <div className="h-[300px]">
+                            {scalability && <ScalabilityChart data={scalability} />}
+                        </div>
+                    </div>
+                </section>
+
+                <div className="flex items-start gap-3 p-4 bg-[#F1F5F9] border border-[#E2E8F0] rounded-lg text-[12px] text-[#64748B]">
+                    <Info size={16} className="shrink-0 text-[#0076a8] mt-0.5" />
+                    <p className="leading-relaxed">
+                        <strong className="text-[#0F172A]">Protocol Information:</strong> Aggregated over {config.runs} seeds using scenario ID SIH26138 on dataset version <span className="font-semibold text-[#0F172A]">mock-v1</span> (base seed: {config.seed}). QPSO utilizes quantum-inspired trajectory operators running on classical hardware. All figures are representative estimates for platform demonstration and have not been independently verified against real-time telemetry.
+                    </p>
+                </div>
             </div>
         </div>
     );
 }
+

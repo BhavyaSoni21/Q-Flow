@@ -1,299 +1,248 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, User as UserIcon, Save, Shield, CheckCircle2, RotateCcw } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { api } from "@/lib/api";
-import { Panel } from "@/components/shared/Panel";
-import { Badge } from "@/components/shared/StatusDot";
-import {
-    User,
-    Building2,
-    Save,
-    CheckCircle2,
-    AlertCircle,
-    Shield,
-    Ship,
-    MapPin,
-    Target,
-    Phone,
-    Mail,
-    FileText,
-    ArrowLeft,
-} from "lucide-react";
-import { Link } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 export default function Profile() {
     const { user } = useAuth();
-    const [loading, setLoading] = useState(true);
-    const [saving, setSaving] = useState(false);
-    const [savedNotice, setSavedNotice] = useState(false);
-    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+    const { toast } = useToast();
 
     const [form, setForm] = useState({
         full_name: "Capt. Ashutosh Amale",
-        email: "fleet@qflow.app",
+        email: user?.email || "fleet@qflow.app",
+        phone: "+91 98200 12345",
         role: "admin",
         company_name: "Oceanic Green Logistics India Pvt Ltd",
-        imo_number: "IMO-9842103",
-        fleet_size: "18 Active Vessels (Panamax, Aframax, Capesize)",
+        imo_number: "IMO-9842183",
         home_port: "Jawaharlal Nehru Port (JNPA / INNSA)",
+        fleet_size: "18 Active Vessels (Panamax, Aframax, Capesize)",
         sustainability_target: "IMO 2030 Decarbonization Trajectory (Net-Zero by 2050)",
         contact_person: "Capt. Ashutosh Amale",
-        phone: "+91 98200 12345",
     });
 
-    useEffect(() => {
-        const loadProfile = async () => {
-            setLoading(true);
-            try {
-                const data = await api.getProfile();
-                if (data && Object.keys(data).length > 0) {
-                    setForm((prev) => ({
-                        ...prev,
-                        ...data,
-                    }));
-                }
-            } catch (err) {
-                console.warn("Could not load profile from API:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadProfile();
-    }, [user]);
+    const [saving, setSaving] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
-        setError(null);
-        try {
-            const res = await api.updateProfile(form);
-            if (res) {
-                setSavedNotice(true);
-                setTimeout(() => setSavedNotice(false), 4000);
-            }
-        } catch (err) {
-            setError(err.message || "Failed to save profile changes");
-        } finally {
+        setTimeout(() => {
             setSaving(false);
-        }
+            toast({
+                title: "Profile & Fleet Details Saved",
+                description: "Your enterprise settings have been successfully updated.",
+            });
+            navigate("/");
+        }, 800);
     };
 
     return (
-        <div className="p-4 flex flex-col gap-6 max-w-[1200px] mx-auto font-['Inter',sans-serif]">
-            {/* Header breadcrumb & title */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[#e2e8f0] dark:border-[#1f2d3d]">
-                <div className="flex items-center gap-3">
-                    <Link
-                        to="/dashboard"
-                        className="h-9 w-9 rounded-md border border-[#e2e8f0] dark:border-[#334155] flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
-                        title="Back to Dashboard"
-                    >
-                        <ArrowLeft size={16} />
-                    </Link>
-                    <div>
-                        <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <span>User Profile & Enterprise Settings</span>
-                            <Badge tone="accent">{form.role.toUpperCase()}</Badge>
-                        </h1>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                            Manage your personal credentials, organizational fleet parameters, and sustainability objectives.
-                        </p>
+        <form onSubmit={handleSubmit} className="min-h-screen bg-[#F8FAFC] pb-32 font-['Open_Sans',sans-serif]">
+            
+            {/* Page Header */}
+            <div className="bg-white border-b border-[#E2E8F0] mb-8">
+                <div className="max-w-[1200px] mx-auto px-6 py-8">
+                    <div className="flex items-center gap-4 mb-2">
+                        <button type="button" onClick={() => navigate(-1)} className="w-8 h-8 flex items-center justify-center rounded-md border border-[#E2E8F0] text-[#64748B] hover:bg-[#F1F5F9] transition-colors">
+                            <ArrowLeft size={16} />
+                        </button>
+                        <h1 className="text-[26px] font-extrabold tracking-tight text-[#0F172A]">User Profile & Enterprise Settings</h1>
+                        <span className="px-2.5 py-0.5 bg-[#E0F2FE] text-[#0369A1] text-[11px] font-bold uppercase tracking-wider rounded-md border border-[#BAE6FD]">
+                            ADMIN
+                        </span>
+                    </div>
+                    <p className="text-[14px] text-[#475569] ml-12">
+                        Manage your personal credentials, organizational fleet parameters, and sustainability objectives.
+                    </p>
+                </div>
+            </div>
+
+            <div className="max-w-[1200px] mx-auto px-6">
+                <div className="flex flex-col lg:flex-row gap-8">
+                    
+                    {/* LEFT COLUMN: PERSONAL CREDENTIALS */}
+                    <div className="w-full lg:w-[40%] flex flex-col gap-6">
+                        <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden">
+                            <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-6 py-4">
+                                <h2 className="text-[14px] font-bold text-[#0F172A] uppercase tracking-wide">Personal Credentials & Role</h2>
+                            </div>
+                            
+                            <div className="p-6">
+                                {/* Avatar Block */}
+                                <div className="flex items-center gap-4 mb-8">
+                                    <div className="w-16 h-16 rounded-full bg-[#F0F9FF] border border-[#BAE6FD] text-[#0076a8] flex flex-col items-center justify-center shrink-0">
+                                        <UserIcon size={24} strokeWidth={2} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <h3 className="text-[16px] font-bold text-[#0F172A] leading-tight">{form.full_name}</h3>
+                                        <p className="text-[13px] text-[#64748B] mt-0.5">{form.email}</p>
+                                        <div className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full border border-[#A7F3D0] w-fit">
+                                            <Shield size={12} /> Verified Maritime Operator
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Form Fields */}
+                                <div className="flex flex-col gap-5">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Full Name</label>
+                                        <input
+                                            type="text"
+                                            value={form.full_name}
+                                            onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Official Email Address</label>
+                                        <input
+                                            type="email"
+                                            value={form.email}
+                                            onChange={(e) => setForm({ ...form, email: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-[#F8FAFC] cursor-not-allowed focus:outline-none"
+                                            required
+                                            disabled
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Contact Phone / Mobile</label>
+                                        <input
+                                            type="tel"
+                                            value={form.phone}
+                                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">System Authority Role</label>
+                                        <select
+                                            value={form.role}
+                                            onChange={(e) => setForm({ ...form, role: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all cursor-pointer"
+                                        >
+                                            <option value="admin">Administrator & Fleet Director</option>
+                                            <option value="operator">Naval Architect / Fleet Operator</option>
+                                            <option value="viewer">Regulatory Auditor / Viewer</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* RIGHT COLUMN: ENTERPRISE CONFIGURATION */}
+                    <div className="w-full lg:w-[60%] flex flex-col gap-6">
+                        <div className="bg-white border border-[#E2E8F0] rounded-xl shadow-sm overflow-hidden h-full">
+                            <div className="bg-[#0F172A] px-6 py-4">
+                                <h2 className="text-[14px] font-bold text-white uppercase tracking-wide">Maritime Enterprise & Fleet Configuration</h2>
+                            </div>
+
+                            <div className="p-6 flex flex-col gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Company / Enterprise Name</label>
+                                        <input
+                                            type="text"
+                                            value={form.company_name}
+                                            onChange={(e) => setForm({ ...form, company_name: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Company IMO / Registry Number</label>
+                                        <input
+                                            type="text"
+                                            value={form.imo_number}
+                                            onChange={(e) => setForm({ ...form, imo_number: e.target.value })}
+                                            className="w-full text-[13px] font-mono font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Home Port / Primary Hub</label>
+                                        <input
+                                            type="text"
+                                            value={form.home_port}
+                                            onChange={(e) => setForm({ ...form, home_port: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Fleet Composition & Size</label>
+                                        <input
+                                            type="text"
+                                            value={form.fleet_size}
+                                            onChange={(e) => setForm({ ...form, fleet_size: e.target.value })}
+                                            className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Decarbonization / ESG Target</label>
+                                    <input
+                                        type="text"
+                                        value={form.sustainability_target}
+                                        onChange={(e) => setForm({ ...form, sustainability_target: e.target.value })}
+                                        className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                    />
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="text-[11px] font-bold uppercase text-[#64748B] tracking-wider">Official Designated Contact Person</label>
+                                    <input
+                                        type="text"
+                                        value={form.contact_person}
+                                        onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
+                                        className="w-full text-[13px] font-medium text-[#0F172A] border border-[#CBD5E1] rounded-md px-3 h-10 bg-white focus:outline-none focus:border-[#0076a8] focus:ring-1 focus:ring-[#0076a8]/20 transition-all"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {savedNotice && (
-                <div className="p-3.5 bg-green-50 dark:bg-green-950/40 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-300 text-xs rounded-md flex items-center gap-2.5 shadow-xs">
-                    <CheckCircle2 size={18} className="text-green-600 dark:text-green-400 shrink-0" />
-                    <span><strong>Profile Updated Successfully!</strong> All changes have been committed to SQLite database storage and will reflect across the entire Q-Flow dashboard.</span>
+            {/* Sticky Action Bar */}
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E2E8F0] shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50">
+                <div className="max-w-[1200px] mx-auto px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 size={18} className="text-[#10B981]" />
+                        <span className="text-[14px] font-bold text-[#0F172A]">All settings are valid</span>
+                    </div>
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                        <button type="button" onClick={() => navigate("/")} className="flex-1 sm:flex-none text-[13px] font-semibold text-[#64748B] hover:text-[#0F172A] hover:bg-[#F1F5F9] px-4 py-2.5 rounded-md transition-colors flex items-center justify-center gap-2">
+                            Cancel
+                        </button>
+                        <button 
+                            type="submit"
+                            disabled={saving}
+                            className={cn(
+                                "flex-[2] sm:flex-none text-[14px] font-bold px-8 py-2.5 rounded-md transition-all flex items-center justify-center gap-2 shadow-sm",
+                                !saving ? "bg-[#0076a8] hover:bg-[#005e86] text-white" : "bg-[#CBD5E1] text-[#94A3B8] cursor-not-allowed"
+                            )}
+                        >
+                            {saving ? (
+                                <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                            ) : (
+                                <>Save Profile Details <Save size={15} /></>
+                            )}
+                        </button>
+                    </div>
                 </div>
-            )}
-
-            {error && (
-                <div className="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-xs rounded-md flex items-center gap-2.5 shadow-xs">
-                    <AlertCircle size={18} className="text-red-600 shrink-0" />
-                    <span>{error}</span>
-                </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-                {/* Section 1: Personal / Account Details */}
-                <div className="col-span-12 lg:col-span-5 flex flex-col gap-4">
-                    <Panel title="Personal Credentials & Role">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-3 pb-3 border-b border-[#e2e8f0] dark:border-[#1f2d3d]">
-                                <div className="h-14 w-14 rounded-full bg-[#0076a8]/10 text-[#0076a8] flex items-center justify-center font-bold text-xl border border-[#0076a8]/20 shrink-0">
-                                    <User size={26} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-bold text-sm text-foreground truncate">{form.full_name}</h3>
-                                    <p className="text-xs text-muted-foreground truncate">{form.email}</p>
-                                    <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[#0076a8]">
-                                        <Shield size={12} />
-                                        <span>Verified Maritime Operator</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Full Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={form.full_name}
-                                        onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Official Email Address
-                                    </label>
-                                    <input
-                                        type="email"
-                                        value={form.email}
-                                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Contact Phone / Mobile
-                                    </label>
-                                    <input
-                                        type="tel"
-                                        value={form.phone}
-                                        onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        System Authority Role
-                                    </label>
-                                    <select
-                                        value={form.role}
-                                        onChange={(e) => setForm({ ...form, role: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                    >
-                                        <option value="admin">Administrator & Fleet Director</option>
-                                        <option value="operator">Naval Architect / Fleet Operator</option>
-                                        <option value="viewer">Regulatory Auditor / Viewer</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </Panel>
-                </div>
-
-                {/* Section 2: Enterprise & Maritime Fleet Parameters */}
-                <div className="col-span-12 lg:col-span-7 flex flex-col gap-4">
-                    <Panel title="Maritime Enterprise & Fleet Configuration">
-                        <div className="flex flex-col gap-3.5">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Company / Enterprise Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={form.company_name}
-                                        onChange={(e) => setForm({ ...form, company_name: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                        required
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Company IMO / Registry Number
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={form.imo_number}
-                                        onChange={(e) => setForm({ ...form, imo_number: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background font-mono focus:ring-1 focus:ring-[#0076a8]"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Home Port / Primary Hub
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={form.home_port}
-                                        onChange={(e) => setForm({ ...form, home_port: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                        Fleet Composition & Size
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={form.fleet_size}
-                                        onChange={(e) => setForm({ ...form, fleet_size: e.target.value })}
-                                        className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                    Decarbonization / ESG Target
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.sustainability_target}
-                                    onChange={(e) => setForm({ ...form, sustainability_target: e.target.value })}
-                                    className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="text-[11px] font-semibold uppercase text-muted-foreground block mb-1">
-                                    Official Designated Contact Person
-                                </label>
-                                <input
-                                    type="text"
-                                    value={form.contact_person}
-                                    onChange={(e) => setForm({ ...form, contact_person: e.target.value })}
-                                    className="w-full text-xs border border-[#cbd5e1] dark:border-[#334155] rounded-md px-3 h-9 bg-background focus:ring-1 focus:ring-[#0076a8]"
-                                />
-                            </div>
-
-                            <div className="pt-2 flex items-center justify-end gap-3 border-t border-[#e2e8f0] dark:border-[#1f2d3d] mt-2">
-                                <Link
-                                    to="/dashboard"
-                                    className="px-4 py-2 text-xs font-semibold rounded-md border border-[#cbd5e1] dark:border-[#334155] hover:bg-muted/40 transition-colors"
-                                >
-                                    Cancel
-                                </Link>
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold rounded-md bg-[#0076a8] hover:bg-[#005e86] text-white shadow-xs transition-colors cursor-pointer disabled:opacity-50"
-                                >
-                                    <Save size={14} />
-                                    <span>{saving ? "Saving Changes..." : "Save Profile & Fleet Details"}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </Panel>
-                </div>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 }

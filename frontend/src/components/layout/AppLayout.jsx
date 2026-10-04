@@ -49,7 +49,7 @@ export default function AppLayout() {
             <main id="main-content" className="flex-1 min-w-0 flex flex-col">
                 <SectionBand title={current.section} />
                 <div className="max-w-[1440px] mx-auto w-full pb-12">
-                    <KpiStrip />
+                    {pathname === "/optimization" && <KpiStrip />}
                     <div className="px-0">
                         <Outlet />
                     </div>
@@ -60,3 +60,4 @@ export default function AppLayout() {
         </div>
     );
 }
+
