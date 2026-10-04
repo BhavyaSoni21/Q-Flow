@@ -11,7 +11,7 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 | `optimization/` | `fleet_engine.py` (ship), `road_fleet.py` (road), `mo_qpso`, `nsga2_baseline`, `selection` |
 | `prediction/` | `physics_baseline.py`, XGBoost models, power/road models, `tune_qpso.py`, SHAP explainability, registry |
 | `emissions/` | `factors.py` (sourced, versioned), `lifecycle.py`, `cost.py` |
-| `data/` | MRV/ERA5/GFW loaders, `provenance.py`, `splits.py`, `governance.py`, `ingest/` |
+| `data/` | MRV/ERA5/GFW loaders, `provenance.py`, `splits.py`, `governance.py`, `user_db.py` (SQLite), `ingest/` |
 | `experiments/` | benchmark scripts + `benchmark_service.py` (live, cached recompute) |
 | `schemas/` | pydantic request/response models |
 | `tests/` | 62 tests |
@@ -52,6 +52,9 @@ FastAPI app in `backend/`. Entry point: `app.py` (installs CORS from
 | `GET /api/routes` | Route presets with reference distances (nm) mirroring `types.js` |
 | `GET /api/provenance` · `/experiments` | Provenance ledger & run log (each run now includes `originPort`/`destinationPort`) |
 | `POST /api/scenarios` · `GET /api/scenarios` · `GET /api/scenarios/{id}` · `POST /api/scenarios/compare` | Persist, list, load, and compare versioned scenarios |
+| `GET /api/users/profile` · `POST /api/users/profile` | View and update user profile info in the SQLite database |
+| `GET /api/users/dashboard` | Fetch summarized metrics (carbon saved, scenarios run) from SQLite |
+| `POST /api/users/feedback` | Record predicted vs actual fuel feedback |
 
 ## The engine contract `DESIGN`
 
@@ -72,6 +75,12 @@ used for labeling and corridor context only.
 predictor (`physics-mrv-cal-v1`), synthetic fleet status, representative factor
 status, and persistent-file scenario storage. Clients should retain these labels
 with results; they describe the evidence level of the recommendation.
+
+## User & Scenario Storage
+
+User profiles, scenario histories, and dashboard metrics are now stored in a SQLite database via `user_db.py`.
+- **Database Location:** Configurable via the `QFLOW_DB_DIR` environment variable (defaults to `results/store`).
+- **Backward Compatibility:** `POST /api/scenarios` double-writes to both the legacy JSON `scenario_store.py` and the new SQLite `user_db.py`.
 
 ## Benchmark service `IMPLEMENTED`
 

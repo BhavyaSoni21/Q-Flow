@@ -7,13 +7,14 @@ charts, a single data layer that toggles between mock and the live backend.
 
 | Page | What it does |
 |------|--------------|
-| `Dashboard.jsx` | Post-login home — simulation history table, quick-start cards, company profile, and Q-Flow assistant panel |
+| `Dashboard.jsx` | Post-login home — fetches and displays dynamic simulation history, carbon metrics, company profile, and quick-start cards from the SQLite backend |
+| `Profile.jsx` | Manage user profile settings and view account information, syncing with the SQLite backend |
 | `Scenario.jsx` | Build a scenario; Ship/Road mode toggle; **From/To port-pair selectors** (auto-fill distance from route presets); fleet, fuels, distance, deadline, carbon price, and Monte Carlo weather/risk tests; full-screen optimization overlay after a run |
 | `Optimization.jsx` | Run the optimizer; `DataStatus` banner + `DataModeBadge` on Pareto panel; connected cost-vs-WtW Pareto frontier, deployment plan, balanced slider selection, constraint repair note, and KPIs (INR) |
 | `Prediction.jsx` | Single-prediction tool with physics sanity check, current-input explanation, SHAP graphs, and holdout validation graphs |
 | `Benchmarking.jsx` | Live, recomputable optimizer + prediction benchmarks (Recompute button) |
 | `Provenance.jsx` | Data-provenance ledger, experiment log (incl. `originPort`/`destinationPort` per run), and MRV/ERA5/AIS/GFW availability |
-| API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, and EACF contracts are exposed through `src/lib/api.js` |
+| API data layer | Model registry, digital-twin, fuel-sensitivity, annual KPI, EACF, profile, dashboard, and feedback contracts are exposed through `src/lib/api.js` |
 | Authentication bridge | `AuthContext` synchronizes `/api/auth/session`; live API calls use same-origin cookies with `credentials: include`; no bearer secret is stored in browser build variables |
 | `Emissions.jsx` | Lifecycle factors plus indicative CII-style KPI check |
 | `Landing.jsx`, auth pages | Marketing landing + read-only Sandbox/Demo access for independent auditing |
@@ -27,12 +28,12 @@ charts, a single data layer that toggles between mock and the live backend.
   dispatches to the ship or road endpoint based on mode. `DEFAULT_CONFIG` now uses
   `originPort`/`destinationPort` instead of `routeId`. Completed runs are **persisted
   to `sessionStorage`** (key `qflow_store_v1`) so navigation between pages and hard
-  refreshes do not lose a finished optimization result.
+  refreshes do not lose a finished optimization result. The backend SQLite database permanently stores historical data.
 - **`types.js`** — exports `PORTS` (list of known port names), `ROUTES` (presets with
   `{origin, destination, refDistance}`), and `getRouteDistance(origin, destination)` to
   look up reference distances. The old `routeId`-based `ROUTES` array is replaced.
 - **`mock.js`** — representative, seeded data; `USE_MOCK = VITE_USE_MOCK !== "false"`.
-- **`nav.js`** — updated navigation entries including the new `/dashboard` route.
+- **`nav.js`** — updated navigation entries including the new `/dashboard` and `/profile` routes.
 
 `Scenario`, `Prediction`, and `Provenance` render the shared `DataStatus`
 component. In live mode it displays the active model version and fleet-data

@@ -1,10 +1,10 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useStore } from "@/lib/store";
 import { api } from "@/lib/api";
 import { Panel } from "@/components/shared/Panel";
 import { LabeledInput, LabeledSelect, Checkbox, SquareButton } from "@/components/shared/Field";
 import { StatusDot, Badge } from "@/components/shared/StatusDot";
-import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES } from "@/lib/types";
+import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES, PORTS, getRouteDistance } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
     AlertTriangle, Play, RotateCcw, ChevronRight, CheckCircle2,
@@ -160,10 +160,12 @@ export default function Scenario() {
 
     const fuelList = fuels || [];
     const vesselList = vessels || [];
-    const route = ROUTES.find((r) => r.id === config.routeId);
-    const routeLabel = route?.label || "Route A: Port 1 ΓåÆ Port 2";
-    const distWarn = route?.refDistance && Math.abs(config.distance - route.refDistance) / route.refDistance > 0.10
-        ? `Reference distance ${route.refDistance} nm ΓÇö entered value differs by >10%`
+    const origin = config.originPort;
+    const dest = config.destinationPort;
+    const routeLabel = `Route: ${origin} \u2192 ${dest}`;
+    const refDistance = getRouteDistance(origin, dest);
+    const distWarn = refDistance && Math.abs(config.distance - refDistance) / refDistance > 0.10
+        ? `Reference distance ${refDistance} nm \u2014 entered value differs by >10%`
         : null;
 
     const toggleVessel = (id) => {
@@ -251,14 +253,26 @@ export default function Scenario() {
                     <Panel title="Route & Schedule">
                         <div className="grid grid-cols-2 gap-3">
                             {mode === "ship" && (
-                                <div className="col-span-2">
+                                <>
                                     <LabeledSelect
-                                        label="Route"
-                                        value={config.routeId}
-                                        onChange={(v) => updateConfig({ routeId: v })}
-                                        options={ROUTES.map((r) => ({ value: r.id, label: r.label }))}
+                                        label="From"
+                                        value={config.originPort}
+                                        onChange={(v) => {
+                                            const d = getRouteDistance(v, config.destinationPort);
+                                            updateConfig({ originPort: v, distance: d || config.distance });
+                                        }}
+                                        options={PORTS.map(p => ({ value: p, label: p }))}
                                     />
-                                </div>
+                                    <LabeledSelect
+                                        label="To"
+                                        value={config.destinationPort}
+                                        onChange={(v) => {
+                                            const d = getRouteDistance(config.originPort, v);
+                                            updateConfig({ destinationPort: v, distance: d || config.distance });
+                                        }}
+                                        options={PORTS.map(p => ({ value: p, label: p }))}
+                                    />
+                                </>
                             )}
                             <LabeledInput
                                 label="Distance"

@@ -120,7 +120,7 @@ Three cooperating components turn a scenario into an explainable recommendation:
 - **5.6 Multi-modal** — the same optimizer core runs **ship** and **road** fleets, selectable from the UI. `IMPLEMENTED`
 - **5.7 SEO & Accessibility** — frontend configured with `robots.txt`, `sitemap.xml`, and web manifest to support search indexing and modern web standards. `IMPLEMENTED`
 - **5.8 Independent Audit & Sandbox Mode** — includes a transparent [SIH26138 Audit Report](docs/qflow-sih26138-audit.md) and provides a read-only **Sandbox / Demo Mode** for reviewers to verify outputs using deterministic, representative scenarios without requiring admin credentials. `IMPLEMENTED`
-- **5.9 Dashboard & session persistence** — post-login Dashboard with simulation history and quick-start cards; completed optimization runs are persisted to `sessionStorage` so results survive page navigation. `IMPLEMENTED`
+- **5.9 Dashboard & user persistence** — post-login Dashboard with simulation history and quick-start cards; completed optimization runs and user profiles are persisted to a SQLite database (`user_db.sqlite`) so results survive page navigation and restarts. `IMPLEMENTED`
 - **5.10 Port-pair route selection** — Scenario builder uses **From/To port selectors** that auto-fill route distance from presets; `originPort`/`destinationPort` are forwarded to the backend and recorded per run for provenance. `IMPLEMENTED`
 
 ## 6. Innovation & uniqueness
@@ -235,7 +235,7 @@ Q-Flow/
 │   ├── optimization/          # fleet_engine.py, road_fleet.py, mo_qpso, nsga2
 │   ├── prediction/            # physics baseline, XGBoost, power/road models, SHAP
 │   ├── emissions/             # sourced factors, lifecycle, cost
-│   ├── data/                  # MRV/ERA5/GFW loaders, provenance, splits, governance
+│   ├── data/                  # MRV/ERA5/GFW loaders, provenance, splits, governance, user_db (SQLite)
 │   ├── experiments/           # benchmarks + benchmark_service (live, cached)
 │   ├── schemas/               # pydantic request/response (OptimizeRequest incl. origin_port/destination_port)
 │   └── tests/                 # 53 tests
@@ -264,6 +264,7 @@ No `make`? See §16 for the direct commands.
 | Scope | Variable | Default | Purpose |
 |-------|----------|---------|---------|
 | Backend | `CORS_ORIGINS` | `*` (dev) | Comma-separated allow-list of frontend origins |
+| Backend | `QFLOW_DB_DIR` | `results/store` | Directory for SQLite databases (user_db.sqlite) |
 | Backend (ingest, optional) | `AISSTREAM_API_KEY`, `GFW_API_TOKEN` | — | Only for re-collecting raw AIS/GFW data |
 | Frontend | `VITE_USE_MOCK` | `true` | `false` → call the live backend |
 | Frontend | `VITE_API_BASE` | `/api` | Absolute URL (incl. `/api`) for a cross-host backend |
