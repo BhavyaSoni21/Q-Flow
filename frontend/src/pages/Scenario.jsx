@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { Panel } from "@/components/shared/Panel";
 import { LabeledInput, LabeledSelect, Checkbox, SquareButton } from "@/components/shared/Field";
 import { StatusDot, Badge } from "@/components/shared/StatusDot";
-import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES, PORTS, getRouteDistance } from "@/lib/types";
+import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES, PORTS, getRouteDistance, calculateFeasibleDeadline } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
     AlertTriangle, Play, RotateCcw, ChevronRight, CheckCircle2,
@@ -193,6 +193,17 @@ export default function Scenario() {
         vesselList.forEach((vs) => {
             if (vs && vs.minSpeed >= vs.maxSpeed) v[`speed_${vs.id}`] = "Min must be < max";
         });
+
+        // Feasibility check: speed needed vs max speed
+        if (mode === "ship" && vesselList.length > 0) {
+            const maxSpeed = Math.max(...vesselList.map((vs) => vs.maxSpeed || 20), 1);
+            const sailWindow = config.deadline - (config.portTime || 0) - (config.bufferTime || 0);
+            if (sailWindow <= 0 || config.distance / sailWindow > maxSpeed) {
+                const minFeasibleDeadline = Math.ceil(config.distance / maxSpeed + (config.portTime || 0) + (config.bufferTime || 0));
+                v.deadline = `Deadline too tight (min ~${minFeasibleDeadline}h for ${config.distance}nm)`;
+            }
+        }
+
         setValidation(v);
         return Object.keys(v).length === 0;
     };
@@ -261,7 +272,8 @@ export default function Scenario() {
                                         value={config.originPort}
                                         onChange={(v) => {
                                             const d = getRouteDistance(v, config.destinationPort);
-                                            updateConfig({ originPort: v, distance: d || config.distance });
+                                            const dl = calculateFeasibleDeadline(d, config.portTime, config.bufferTime);
+                                            updateConfig({ originPort: v, distance: d, deadline: dl });
                                         }}
                                         options={PORTS.map(p => ({ value: p, label: p }))}
                                     />
@@ -270,7 +282,8 @@ export default function Scenario() {
                                         value={config.destinationPort}
                                         onChange={(v) => {
                                             const d = getRouteDistance(config.originPort, v);
-                                            updateConfig({ destinationPort: v, distance: d || config.distance });
+                                            const dl = calculateFeasibleDeadline(d, config.portTime, config.bufferTime);
+                                            updateConfig({ destinationPort: v, distance: d, deadline: dl });
                                         }}
                                         options={PORTS.map(p => ({ value: p, label: p }))}
                                     />
@@ -281,7 +294,18 @@ export default function Scenario() {
                                 unit={mode === "road" ? "km" : "nm"}
                                 type="number"
                                 value={config.distance}
-                                onChange={(v) => updateConfig({ distance: v })}
+                                onChange={(v) => {
+                                    const numDist = Number(v);
+                                    const updates = { distance: numDist };
+                                    if (mode === "ship" && numDist > 0) {
+                                        const maxSpeed = Math.max(...vesselList.map(vs => vs.maxSpeed || 20), 20);
+                                        const minFeasible = Math.ceil(numDist / maxSpeed + (config.portTime || 0) + (config.bufferTime || 0));
+                                        if (config.deadline < minFeasible) {
+                                            updates.deadline = calculateFeasibleDeadline(numDist, config.portTime, config.bufferTime);
+                                        }
+                                    }
+                                    updateConfig(updates);
+                                }}
                                 error={validation.distance}
                                 min={1}
                             />

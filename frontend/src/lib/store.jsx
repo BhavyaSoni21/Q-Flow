@@ -12,7 +12,7 @@ const DEFAULT_CONFIG = {
     bufferTime: 6,
     weather: "Normal",
     cargoDemand: 50000,
-    selectedVessels: ["V001", "V002", "V003"],
+    selectedVessels: ["V005", "V006", "V007"],
     selectedFuels: ["HFO", "VLSFO", "LNG", "METHANOL"],
     fuelPrices: {},
     fuelPathways: { METHANOL: "Bio", HYDROGEN: "Renewable electrolysis", AMMONIA: "Blue" },
@@ -29,7 +29,7 @@ const DEFAULT_CONFIG = {
 
 // Versioned session key — bump the version when the stored schema changes to
 // avoid stale data causing runtime errors.
-const SESSION_KEY = "qflow_store_v2";
+const SESSION_KEY = "qflow_store_v3";
 
 function loadSession() {
     try {
