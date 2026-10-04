@@ -4,7 +4,7 @@ import { api } from "@/lib/api";
 import { Panel } from "@/components/shared/Panel";
 import { LabeledInput, LabeledSelect, Checkbox, SquareButton } from "@/components/shared/Field";
 import { StatusDot, Badge } from "@/components/shared/StatusDot";
-import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES } from "@/lib/types";
+import { WEATHER_SCENARIOS, ALGORITHMS, ROUTES, PORTS, getRouteDistance } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { AlertTriangle, Play, RotateCcw } from "lucide-react";
 import DataStatus from "@/components/shared/DataStatus";
@@ -32,10 +32,18 @@ export default function Scenario() {
 
     const fuelList = fuels || [];
     const vesselList = vessels || [];
-    const route = ROUTES.find((r) => r.id === config.routeId);
-    const routeLabel = route?.label || "Route A: Port 1 → Port 2";
-    const distWarn = route?.refDistance && Math.abs(config.distance - route.refDistance) / route.refDistance > 0.10
-        ? `Reference distance ${route.refDistance} nm — entered value differs by >10%`
+    
+    React.useEffect(() => {
+        const refDistance = getRouteDistance(config.originPort, config.destinationPort);
+        if (refDistance) {
+            updateConfig({ distance: refDistance });
+        }
+    }, [config.originPort, config.destinationPort, updateConfig]);
+
+    const routeLabel = `${config.originPort} → ${config.destinationPort}`;
+    const refDistance = getRouteDistance(config.originPort, config.destinationPort);
+    const distWarn = refDistance && Math.abs(config.distance - refDistance) / refDistance > 0.10
+        ? `Reference distance ${refDistance} nm — entered value differs by >10%`
         : null;
 
     const toggleVessel = (id) => {
@@ -102,9 +110,14 @@ export default function Scenario() {
                     <Panel title="Route">
                         <div className="grid grid-cols-2 gap-3">
                             {mode === "ship" && (
-                                <div className="col-span-2">
-                                    <LabeledSelect label="Route" value={config.routeId} onChange={(v) => updateConfig({ routeId: v })} options={ROUTES.map((r) => ({ value: r.id, label: r.label }))} />
-                                </div>
+                                <>
+                                    <div className="col-span-1">
+                                        <LabeledSelect label="From" value={config.originPort} onChange={(v) => updateConfig({ originPort: v })} options={PORTS} />
+                                    </div>
+                                    <div className="col-span-1">
+                                        <LabeledSelect label="To" value={config.destinationPort} onChange={(v) => updateConfig({ destinationPort: v })} options={PORTS} />
+                                    </div>
+                                </>
                             )}
                             <LabeledInput label="Distance" unit={mode === "road" ? "km" : "nm"} type="number" value={config.distance} onChange={(v) => updateConfig({ distance: v })} error={validation.distance} min={1} />
                             {distWarn && (
@@ -315,6 +328,10 @@ export default function Scenario() {
                     </Panel>
 
                     <Panel title="Validation — constraints to be enforced">
+                        <p className="text-[10px] text-muted-foreground mb-2 pb-2 border-b">
+                            Pre-run feasibility checks against current inputs. Hard constraints (vessel, fuel selection) block the run.
+                            Soft constraints (cargo, deadline) may be repaired or relaxed by the optimizer — any repair is explained in the Optimization results.
+                        </p>
                         <div className="flex flex-col gap-2">
                             {[
                                 { label: "Cargo demand satisfied by ≥1 vessel", pass: vesselList.some((v) => v.capacity >= config.cargoDemand) },

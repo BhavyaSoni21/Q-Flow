@@ -8,6 +8,7 @@ import { ExportCsv } from "@/components/shared/ExportButtons";
 import ParetoChart from "@/components/charts/ParetoChart";
 import { cn } from "@/lib/utils";
 import { AlertTriangle } from "lucide-react";
+import DataStatus, { DataModeBadge } from "@/components/shared/DataStatus";
 
 const CASE_STUDIES = [
     { id: "A", label: "Baseline fleet" },
@@ -99,6 +100,7 @@ export default function Optimization() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            <DataStatus />
             {engineMetadata && (
                 <div className="border bg-card px-3 py-2 text-[11px] text-muted-foreground">
                     <span className="label-eyebrow mr-2">Calculation context</span>
@@ -130,7 +132,7 @@ export default function Optimization() {
                 <div className="col-span-12 lg:col-span-7">
                     <Panel
                         title="Pareto front — 3 objectives"
-                        actions={null}
+                        actions={<DataModeBadge />}
                     >
                         <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
                         <p className="text-[10px] text-muted-foreground mt-2">X = operating cost, Y = WtW GHG, color = fuel pathway; hover any point for fuel quantity, cost, GHG, and feasibility. Hollow square = baseline; ringed = selected.</p>
@@ -181,6 +183,11 @@ export default function Optimization() {
                                 </div>
                             ))}
                         </div>
+                        <p className="text-[10px] text-muted-foreground mt-2 pt-2 border-t">
+                            Post-run constraint status. If a constraint was Fail pre-run but Pass here, the optimizer
+                            repaired or relaxed it (e.g., allocated multiple vessels to meet cargo, or used a vessel within buffer time).
+                            Hard constraints (fuel compatibility, vessel availability) are never bypassed.
+                        </p>
                     </Panel>
                 </div>
             </div>

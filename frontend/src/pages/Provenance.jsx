@@ -48,13 +48,25 @@ export default function Provenance() {
                         { key: "type", header: "Type", render: (r) => <Badge tone={TYPE_TONE[r.type] || "neutral"}>{r.type}</Badge> },
                         { key: "source", header: "Source" },
                         { key: "unit", header: "Unit", numeric: true },
-                        { key: "status", header: "Status", render: (r) => <Badge tone={r.status === "Synthetic" ? "amber" : "neutral"}>{r.status}</Badge> },
+                        { key: "status", header: "Status", render: (r) => {
+                            const tone = r.status === "Synthetic" || r.version?.startsWith("mock")
+                                ? "bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300"
+                                : r.status === "Derived"
+                                    ? "bg-amber-100 text-amber-800 border-amber-300"
+                                    : "bg-slate-100 text-slate-700 border-slate-300";
+                            return <span className={`inline-flex px-1.5 py-0.5 text-[10px] font-semibold border rounded ${tone}`}>{r.status}{r.version?.startsWith("mock") ? " · mock" : ""}</span>;
+                        }},
                         { key: "version", header: "Version / date", numeric: true },
                     ]}
                     rows={ledger || []}
                     emptyMessage="No provenance data"
                 />
-                <p className="text-[10px] text-muted-foreground mt-2">Synthetic fields tagged in amber. Sources: EU THETIS-MRV, NOAA AIS, Copernicus ERA5, IMO MEPC.391(81).</p>
+                <div className="flex flex-wrap items-center gap-3 mt-2 text-[10px]">
+                    <span className="label-eyebrow">Legend:</span>
+                    <span className="px-1.5 py-0.5 border rounded bg-red-100 text-red-800 border-red-300">Synthetic — illustrative / mock</span>
+                    <span className="px-1.5 py-0.5 border rounded bg-amber-100 text-amber-800 border-amber-300">Derived — computed from inputs</span>
+                    <span className="px-1.5 py-0.5 border rounded bg-slate-100 text-slate-700 border-slate-300">Measured / Reported — sourced data</span>
+                </div>
             </Panel>
 
             <Panel title="Experiment log" loading={!experiments} actions={<ExportCsv rows={experiments || []} filename="experiments.csv" />}>

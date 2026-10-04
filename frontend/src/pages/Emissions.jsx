@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { CHART, FlatTooltip, axisProps } from "@/components/shared/ChartKit";
 import { useStore } from "@/lib/store";
+import DataStatus, { DataModeBadge } from "@/components/shared/DataStatus";
 
 const DATASETS = [
     { value: "IMO MEPC.391(81)", label: "IMO MEPC.391(81) (2024)" },
@@ -73,9 +74,10 @@ export default function Emissions() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            <DataStatus />
             <Panel
                 title="Well-to-Wake emissions per fuel pathway"
-                actions={<LabeledSelect value={dataset} onChange={setDataset} options={DATASETS} />}
+                actions={<><DataModeBadge /><LabeledSelect value={dataset} onChange={setDataset} options={DATASETS} /></>}
             >
                 <div style={{ height: 320 }}>
                     <ResponsiveContainer width="100%" height="100%">

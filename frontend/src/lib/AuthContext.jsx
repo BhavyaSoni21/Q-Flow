@@ -6,9 +6,9 @@ const AuthContext = createContext();
 // ─── Default User ─────────────────────────────────────────────────────────
 export const DEMO_USER = {
     id: 'user-1',
-    email: 'fleet@qflow.app',
-    full_name: 'Fleet Officer',
-    role: 'admin',
+    email: 'guest@sandbox.qflow',
+    full_name: 'Guest Viewer',
+    role: 'viewer',
 };
 
 const DEMO_TOKEN_KEY = 'demo_auth_token';
@@ -54,7 +54,7 @@ export const AuthProvider = ({ children }) => {
             id: 'user-' + Date.now(),
             email: customDetails.email,
             full_name: customDetails.full_name || customDetails.email.split('@')[0],
-            role: 'admin',
+            role: 'viewer',  // sandbox sessions are always read-only viewer
         } : DEMO_USER;
 
         try {

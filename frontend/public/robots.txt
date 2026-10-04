@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://q-flow-silk.vercel.app/sitemap.xml
+

@@ -3,14 +3,14 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2, Zap, CheckCircle2, ShieldCheck } from "lucide-react";
+import { LogIn, Mail, Lock, Loader2, Zap, ShieldCheck } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import { useAuth } from "@/lib/AuthContext";
 import { safeReturnTo } from "@/lib/authReturnTo";
 
 export default function Login() {
-    const [email, setEmail] = useState("fleet@qflow.app");
-    const [password, setPassword] = useState("qflow1234");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const { loginDemo } = useAuth();
@@ -22,20 +22,20 @@ export default function Login() {
         setError("");
         setLoading(true);
         try {
-            // Log in with provided email or fallback default
-            const userEmail = email.trim() || "fleet@qflow.app";
+            const userEmail = email.trim();
+            if (!userEmail) { setError("Please enter your email."); setLoading(false); return; }
             loginDemo({ email: userEmail, full_name: userEmail.split('@')[0] });
             const target = returnTo && returnTo !== "/" ? returnTo : "/scenario";
             navigate(target, { replace: true });
         } catch (err) {
-            setError(err.message || "Login failed. Please click 'Instant Access'.");
+            setError(err.message || "Login failed. Please try the sandbox access button.");
         } finally {
             setLoading(false);
         }
     };
 
     const handleDemoLogin = () => {
-        loginDemo({ email: "fleet@qflow.app", full_name: "Fleet Officer" });
+        loginDemo({ email: "guest@sandbox.qflow", full_name: "Guest Viewer" });
         const target = returnTo && returnTo !== "/" ? returnTo : "/scenario";
         navigate(target, { replace: true });
     };
@@ -69,25 +69,25 @@ export default function Login() {
                 </div>
             }
         >
-            {/* ─── Instant Access ─────────────────────────── */}
-            <div className="mb-6 p-4 rounded-lg border-2 border-emerald-500/40 bg-emerald-500/10 dark:bg-emerald-950/20">
+            {/* ─── Sandbox Access ─────────────────────────── */}
+            <div className="mb-6 p-4 rounded-lg border-2 border-slate-400/40 bg-slate-100/60 dark:bg-slate-800/30">
                 <div className="flex items-center gap-2 mb-2">
-                    <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <span className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 uppercase tracking-wide">
-                        Account Ready
+                    <ShieldCheck className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                    <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
+                        Sandbox / Demo Mode
                     </span>
                 </div>
                 <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
-                    Credentials have been preconfigured with full admin access to all optimization, benchmarking, and prediction modules.
+                    Opens a read-only sandbox session using representative data. All outputs are illustrative — not operational or regulatory values.
                 </p>
                 <Button
                     id="instant-login-btn"
                     type="button"
-                    className="w-full h-11 font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center justify-center gap-2"
+                    className="w-full h-11 font-semibold bg-slate-700 hover:bg-slate-800 text-white shadow-sm flex items-center justify-center gap-2"
                     onClick={handleDemoLogin}
                 >
                     <Zap className="w-4 h-4" />
-                    Instant Access (All Modules)
+                    Continue as Guest (Sandbox)
                 </Button>
             </div>
 
@@ -164,11 +164,8 @@ export default function Login() {
                 </Button>
             </form>
 
-            <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Account active
-                </span>
-                <span>Role: Fleet Admin</span>
+            <div className="mt-4 pt-3 border-t border-border flex items-center justify-center text-[11px] text-muted-foreground">
+                <span>Sandbox mode · results are representative, not operational</span>
             </div>
         </AuthLayout>
     );

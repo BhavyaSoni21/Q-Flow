@@ -7,6 +7,7 @@ import { ExportCsv } from "@/components/shared/ExportButtons";
 import { HvCurveChart, ScalabilityChart, BoxPlotChart } from "@/components/charts/BenchmarkCharts";
 import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DataStatus, { DataModeBadge } from "@/components/shared/DataStatus";
 
 export default function Benchmarking() {
     const { config } = useStore();
@@ -71,11 +72,12 @@ export default function Benchmarking() {
 
     return (
         <div className="p-4 flex flex-col gap-3">
+            <DataStatus />
             <div className="flex items-center justify-between">
                 <p className="text-[11px] text-muted-foreground">
                     {source && source !== "mock"
                         ? <>Computed live by the engine{source.startsWith("file") ? " (served from saved results)" : ""}. Click Recompute to re-run.</>
-                        : "Representative benchmark data."}
+                        : "Representative benchmark data — values are illustrative, not from a live experiment."}
                 </p>
                 <button
                     type="button"
@@ -88,7 +90,7 @@ export default function Benchmarking() {
                     {refreshing ? "Recomputing…" : "Recompute"}
                 </button>
             </div>
-            <Panel title="Table 1 — Prediction benchmark" loading={loading} actions={<ExportCsv rows={predRows || []} filename="prediction_bench.csv" />}>
+            <Panel title="Table 1 — Prediction benchmark" loading={loading} actions={<><DataModeBadge /><ExportCsv rows={predRows || []} filename="prediction_bench.csv" /></>}>
                 <DataTable
                     columns={[
                         { key: "model", header: "Model" },
@@ -144,8 +146,9 @@ export default function Benchmarking() {
             <div className="border bg-card p-3 text-[11px] text-muted-foreground">
                 <p className="label-eyebrow mb-1">Protocol</p>
                 <p>
-                    Seeds: {config.runs} · Scenario ID: SIH26138 · Dataset version: mock-v1 · Seed base: {config.seed}.
-                    Results reported as measured; wins and losses are both shown. Optimizer labelled "Quantum-inspired (QPSO), classical hardware".
+                    Seeds: {config.runs} · Scenario ID: SIH26138 · Dataset version: <strong>mock-v1 (representative)</strong> · Seed base: {config.seed}.
+                    Results reported as measured; wins and losses are both shown. Optimizer labelled &quot;Quantum-inspired (QPSO), classical hardware&quot;.
+                    <span className="ml-2 italic">These figures are illustrative and have not been independently verified against real voyage data.</span>
                 </p>
             </div>
         </div>

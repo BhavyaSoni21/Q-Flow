@@ -56,13 +56,26 @@
 export const WEATHER_SCENARIOS = ["Normal", "Adverse", "Severe"];
 export const ALGORITHMS = ["QPSO", "NSGA-II", "Classical PSO"];
 
+export const PORTS = [
+    "Port 1", "Port 2",
+    "Rotterdam", "New York", "Singapore",
+    "Shanghai", "Los Angeles", "Dubai",
+    "Mumbai", "Hong Kong", "Hamburg"
+];
+
 // Route presets. refDistance is a stored reference in nm (null = generic, no check).
 // Label and distance are derived from the same preset so they can never disagree.
 export const ROUTES = [
-    { id: "routeA", label: "Route A: Port 1 → Port 2", refDistance: null },
-    { id: "rtm_nyc", label: "Rotterdam → New York", refDistance: 3300 },
-    { id: "sin_rtm", label: "Singapore → Rotterdam", refDistance: 8400 },
-    { id: "sha_lax", label: "Shanghai → Los Angeles", refDistance: 5800 },
-    { id: "dxb_mum", label: "Dubai → Mumbai", refDistance: 1100 },
-    { id: "hkg_sdh", label: "Hong Kong → Hamburg", refDistance: 9500 },
+    { origin: "Port 1", destination: "Port 2", refDistance: null },
+    { origin: "Rotterdam", destination: "New York", refDistance: 3300 },
+    { origin: "Singapore", destination: "Rotterdam", refDistance: 8400 },
+    { origin: "Shanghai", destination: "Los Angeles", refDistance: 5800 },
+    { origin: "Dubai", destination: "Mumbai", refDistance: 1100 },
+    { origin: "Hong Kong", destination: "Hamburg", refDistance: 9500 },
 ];
+
+export function getRouteDistance(origin, destination) {
+    const route = ROUTES.find(r => r.origin === origin && r.destination === destination) || 
+                  ROUTES.find(r => r.origin === destination && r.destination === origin);
+    return route ? route.refDistance : null;
+}
