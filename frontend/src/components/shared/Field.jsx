@@ -1,7 +1,10 @@
-﻿import React from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
-export function LabeledInput({ label, value, onChange, type = "text", unit, error, min, max, step, disabled }) {
+/**
+ * @param {{ label?: any, value?: any, onChange?: any, type?: string, unit?: any, error?: any, min?: any, max?: any, step?: any, disabled?: boolean }} [props]
+ */
+export function LabeledInput({ label = "", value = "", onChange = () => {}, type = "text", unit = null, error = null, min = undefined, max = undefined, step = undefined, disabled = false } = {}) {
     return (
         <div className="flex flex-col gap-1">
             <label className="label-eyebrow">
@@ -33,7 +36,10 @@ export function LabeledInput({ label, value, onChange, type = "text", unit, erro
     );
 }
 
-export function LabeledSelect({ label, value, onChange, options, disabled }) {
+/**
+ * @param {{ label?: any, value?: any, onChange?: any, options?: any[], disabled?: boolean }} [props]
+ */
+export function LabeledSelect({ label = "", value = "", onChange = () => {}, options = [], disabled = false } = {}) {
     return (
         <div className="flex flex-col gap-1">
             {label && <label className="label-eyebrow">{label}</label>}
@@ -57,7 +63,10 @@ export function LabeledSelect({ label, value, onChange, options, disabled }) {
     );
 }
 
-export function Checkbox({ checked, onChange, label, disabled }) {
+/**
+ * @param {{ checked?: boolean, onChange?: any, label?: any, disabled?: boolean }} [props]
+ */
+export function Checkbox({ checked = false, onChange = () => {}, label = "", disabled = false } = {}) {
     return (
         <label className={cn("inline-flex items-center gap-2 cursor-pointer select-none group", disabled && "opacity-50 cursor-not-allowed")}>
             <input
@@ -74,7 +83,10 @@ export function Checkbox({ checked, onChange, label, disabled }) {
     );
 }
 
-export function SquareButton({ children, onClick, variant = "primary", disabled, className, type = "button" }) {
+/**
+ * @param {{ children?: any, onClick?: any, variant?: string, disabled?: boolean, className?: string, type?: "button" | "submit" | "reset" }} [props]
+ */
+export function SquareButton({ children = null, onClick = () => {}, variant = "primary", disabled = false, className = "", type = "button" } = {}) {
     const variants = {
         primary: "bg-[#0076a8] text-white hover:bg-[#005e86] border-[#0076a8] hover:border-[#005e86] shadow-sm",
         secondary: "bg-background text-foreground border-input hover:bg-muted hover:border-[#0076a8]/30",
@@ -89,7 +101,7 @@ export function SquareButton({ children, onClick, variant = "primary", disabled,
             className={cn(
                 "h-8 px-3 text-xs font-semibold border rounded-sm transition-all duration-150",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
-                variants[variant],
+                variants[variant] || variants.primary,
                 className
             )}
         >

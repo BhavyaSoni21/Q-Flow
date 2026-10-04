@@ -17,11 +17,13 @@ import TopUtilityBar from "@/components/layout/TopUtilityBar";
 import SiteHeader from "@/components/layout/SiteHeader";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Optimization Toast
-// ─────────────────────────────────────────────────────────────────────────────
+/**
+ * @param {{ onDismiss: () => void, onNavigate?: () => void, type?: string, message?: string }} props
+ */
 function OptimizationToast({ onDismiss, onNavigate, type = "success", message }) {
     const [progress, setProgress] = useState(100);
     const DURATION = 6000;
+    /** @type {React.MutableRefObject<any>} */
     const intervalRef = useRef(null);
 
     useEffect(() => {
@@ -121,17 +123,24 @@ export default function Scenario() {
     } = useStore();
 
     const navigate = useNavigate();
+    /** @type {[any[] | null, React.Dispatch<React.SetStateAction<any[] | null>>]} */
     const [fuels, setFuels] = useState(null);
+    /** @type {[any[] | null, React.Dispatch<React.SetStateAction<any[] | null>>]} */
     const [vessels, setVessels] = useState(null);
+    /** @type {[Record<string, string>, React.Dispatch<React.SetStateAction<Record<string, string>>>]} */
     const [validation, setValidation] = useState({});
+    /** @type {[any, React.Dispatch<React.SetStateAction<any>>]} */
     const [dataStatus, setDataStatus] = useState(null);
+    /** @type {[any, React.Dispatch<React.SetStateAction<any>>]} */
     const [robustness, setRobustness] = useState(null);
     const [robustnessRunning, setRobustnessRunning] = useState(false);
 
     // Toast & Overlay state
-    const [toast, setToast] = useState(null); // { type: "success" | "error", message?: string }
+    /** @type {[{ type: string, message?: string } | null, React.Dispatch<React.SetStateAction<{ type: string, message?: string } | null>>]} */
+    const [toast, setToast] = useState(null);
     const [showOptimizationOverlay, setShowOptimizationOverlay] = useState(false);
     const prevRunning = useRef(false);
+    /** @type {React.MutableRefObject<any>} */
     const prevError = useRef(null);
 
     // Detect optimization completion / failure
@@ -147,6 +156,14 @@ export default function Scenario() {
         prevRunning.current = running;
         prevError.current = error;
     }, [running, results, error]);
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape") setShowOptimizationOverlay(false);
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
     React.useEffect(() => { api.getStatus().then(setDataStatus); }, []);
 
@@ -763,8 +780,8 @@ export default function Scenario() {
                     </div>
 
                     {/* Main scrollable Optimization container */}
-                    <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 flex justify-center">
-                        <div className="w-full max-w-[1440px] bg-background border border-border shadow-2xl rounded-lg flex flex-col overflow-hidden mb-6">
+                    <div className="flex-1 overflow-y-auto p-3 sm:p-5 md:p-6 flex justify-center pb-20">
+                        <div className="w-full max-w-[1440px] bg-background border border-border shadow-2xl rounded-lg flex flex-col mb-12">
                             <OptimizationView isOverlay={true} onClose={() => setShowOptimizationOverlay(false)} />
                         </div>
                     </div>

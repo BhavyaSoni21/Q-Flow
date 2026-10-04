@@ -23,8 +23,10 @@ const MODE_STYLES = {
  *
  * Usage:  <DataModeBadge />   — auto-detects from api.isMock
  *         <DataModeBadge mode="LIVE" />  — explicit override
+ *
+ * @param {{ mode?: string }} [props]
  */
-export function DataModeBadge({ mode }) {
+export function DataModeBadge({ mode = undefined } = {}) {
     const label = resolveDataMode(mode);
     const cls = MODE_STYLES[label] || MODE_STYLES["REPRESENTATIVE"];
     return (
@@ -41,11 +43,9 @@ export function DataModeBadge({ mode }) {
  * Page-level banner shown at the top of every module page.
  * Displays overall data mode, model version (when live), and fallback note.
  *
- * Props:
- *   status   — result of api.getStatus() (null when unavailable)
- *   mode     — explicit override for data mode label
+ * @param {{ status?: any, mode?: string }} [props]
  */
-export default function DataStatus({ status = null, mode }) {
+export default function DataStatus({ status = null, mode = undefined } = {}) {
     const label = resolveDataMode(mode);
     const cls = MODE_STYLES[label] || MODE_STYLES["REPRESENTATIVE"];
 

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { api } from "@/lib/api";
 
+/** @type {React.Context<any>} */
 const StoreContext = createContext(null);
 
 const DEFAULT_CONFIG = {
@@ -169,6 +170,9 @@ export function StoreProvider({ children }) {
     return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }
 
+/**
+ * @returns {any}
+ */
 export function useStore() {
     const ctx = useContext(StoreContext);
     if (!ctx) throw new Error("useStore must be used within StoreProvider");

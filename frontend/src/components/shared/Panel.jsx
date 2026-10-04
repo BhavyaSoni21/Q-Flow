@@ -1,7 +1,10 @@
-﻿import React from "react";
+import React from "react";
 import { cn } from "@/lib/utils";
 
-export function Panel({ title, actions, className, bodyClassName, children, loading }) {
+/**
+ * @param {{ title?: any, actions?: any, className?: string, bodyClassName?: string, children?: any, loading?: boolean }} [props]
+ */
+export function Panel({ title = "", actions = null, className = "", bodyClassName = "", children = null, loading = false } = {}) {
     return (
         <section className={cn("border border-border/80 bg-card rounded-sm card-elevated fade-in", className)}>
             <div className="panel-header-bar rounded-t-sm">
@@ -29,7 +32,7 @@ export function SkeletonRows({ rows = 5, cols = 4 }) {
     );
 }
 
-export function EmptyState({ message, icon }) {
+export function EmptyState({ message = "", icon = null } = {}) {
     return (
         <div className="flex flex-col items-center justify-center py-10 text-muted-foreground text-center gap-2">
             {icon && <div className="opacity-30 mb-1">{icon}</div>}
@@ -38,7 +41,7 @@ export function EmptyState({ message, icon }) {
     );
 }
 
-export function ErrorState({ message }) {
+export function ErrorState({ message = "" } = {}) {
     return (
         <div className="flex items-center justify-center py-8 text-status-red text-center border border-status-red/30 bg-status-red/5 rounded-sm gap-2 px-4">
             <p className="text-xs">{message || "Error loading data"}</p>
