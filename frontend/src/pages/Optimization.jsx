@@ -194,7 +194,9 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                         <span>{cs.label}</span>
                     </button>
                 ))}
-                    <div className="grid grid-cols-12 gap-4">
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
                 {/* Left 60% Pareto */}
                 <div className="col-span-12 lg:col-span-7">
                     <Panel
