@@ -19,6 +19,7 @@ export default function SiteFooter() {
                             <Link to="/" className="hover:text-white transition-colors hover:underline underline-offset-2">Home</Link>
                             <Link to="/features" className="hover:text-white transition-colors hover:underline underline-offset-2">Features</Link>
                             <Link to="/about" className="hover:text-white transition-colors hover:underline underline-offset-2">About</Link>
+                            <a href="https://youtu.be/OxfIHP9-YHs" target="_blank" rel="noreferrer" className="hover:text-white transition-colors hover:underline underline-offset-2">YouTube</a>
                             <Link to="/scenario" className="hover:text-white transition-colors hover:underline underline-offset-2">Scenario</Link>
                             <Link to="/optimization" className="hover:text-white transition-colors hover:underline underline-offset-2">Optimization</Link>
                             <Link to="/benchmarking" className="hover:text-white transition-colors hover:underline underline-offset-2">Benchmarks</Link>

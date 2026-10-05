@@ -32,6 +32,7 @@ export default function LandingFooter() {
                         <h4 className="text-[13px] font-bold text-white uppercase tracking-wider mb-2">Platform</h4>
                         <Link to="/features" className="text-[13px] hover:text-[#38BDF8] transition-colors">Features</Link>
                         <Link to="/about" className="text-[13px] hover:text-[#38BDF8] transition-colors">About Us</Link>
+                        <a href="https://youtu.be/OxfIHP9-YHs" target="_blank" rel="noreferrer" className="text-[13px] hover:text-[#38BDF8] transition-colors">YouTube</a>
                         <Link to="/scenario" className="text-[13px] hover:text-[#38BDF8] transition-colors">Scenario Builder</Link>
                         <Link to="/optimization" className="text-[13px] hover:text-[#38BDF8] transition-colors">Fleet Optimizer</Link>
                     </div>
