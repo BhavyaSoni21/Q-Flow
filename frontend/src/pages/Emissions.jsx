@@ -244,19 +244,19 @@ export default function Emissions() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-1">
                                     <label className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Total GHG (tCO₂e)</label>
-                                    <input type="number" value={ciiInput.ghg_tonnes} onChange={(e) => setCiiInput({ ...ciiInput, ghg_tonnes: Number(e.target.value) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
+                                    <input type="number" min="0" value={ciiInput.ghg_tonnes} onChange={(e) => setCiiInput({ ...ciiInput, ghg_tonnes: Math.max(0, Number(e.target.value)) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Capacity (dwt)</label>
-                                    <input type="number" value={ciiInput.capacity_tonnes} onChange={(e) => setCiiInput({ ...ciiInput, capacity_tonnes: Number(e.target.value) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
+                                    <input type="number" min="0" value={ciiInput.capacity_tonnes} onChange={(e) => setCiiInput({ ...ciiInput, capacity_tonnes: Math.max(0, Number(e.target.value)) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Distance (nm)</label>
-                                    <input type="number" value={ciiInput.distance_nm} onChange={(e) => setCiiInput({ ...ciiInput, distance_nm: Number(e.target.value) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
+                                    <input type="number" min="0" value={ciiInput.distance_nm} onChange={(e) => setCiiInput({ ...ciiInput, distance_nm: Math.max(0, Number(e.target.value)) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[11px] font-bold text-[#64748B] uppercase tracking-wider">Required CII Limit</label>
-                                    <input type="number" value={ciiInput.cii_limit} onChange={(e) => setCiiInput({ ...ciiInput, cii_limit: Number(e.target.value) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
+                                    <input type="number" min="0" step="0.1" value={ciiInput.cii_limit} onChange={(e) => setCiiInput({ ...ciiInput, cii_limit: Math.max(0, Number(e.target.value)) })} className="w-full h-10 px-3 bg-[#1E293B] border border-[#334155] rounded-md text-white font-mono focus:border-[#38BDF8] focus:ring-1 focus:ring-[#38BDF8] outline-none transition-all" />
                                 </div>
                             </div>
                         </div>

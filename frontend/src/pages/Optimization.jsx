@@ -128,8 +128,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                             <strong>Violated Constraint:</strong> <span className="num font-medium text-status-red">{results.violated}</span>
                         </p>
                         <div className="mt-3 text-xs text-muted-foreground space-y-1">
-                            <p>â€¢ Ensure your <strong>Deadline</strong> is sufficient for the sailing distance (e.g. for {config.distance} nm, minimum feasible deadline at max fleet speed is ~{Math.ceil(config.distance / 20 + config.portTime + config.bufferTime)} h).</p>
-                            <p>â€¢ Select vessels whose combined cargo capacity satisfies the <strong>Cargo Demand</strong> ({config.cargoDemand.toLocaleString()} t).</p>
+                            <p>• Ensure your <strong>Deadline</strong> is sufficient for the sailing distance (e.g. for {config.distance} nm, minimum feasible deadline at max fleet speed is ~{Math.ceil(config.distance / 20 + config.portTime + config.bufferTime)} h).</p>
+                            <p>• Select vessels whose combined cargo capacity satisfies the <strong>Cargo Demand</strong> ({config.cargoDemand.toLocaleString()} t).</p>
                         </div>
                         <div className="mt-4">
                             <button
@@ -178,7 +178,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
         {
             label: "Schedule deadline compliance",
             pass: maxSailTime <= (config.deadline + config.bufferTime),
-            margin: `${maxSailTime} h â‰¤ ${config.deadline + config.bufferTime} h (${scheduleSlack} h slack)`
+            margin: `${maxSailTime} h ≤ ${config.deadline + config.bufferTime} h (${scheduleSlack} h slack)`
         },
         {
             label: "Fleet availability & readiness",
@@ -230,7 +230,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                 </span>
                             </div>
                             <p className="text-[12px] font-medium text-[#64748B]">
-                                Evaluated across Fuel Consumption (t), Operating Cost (INR), and Well-to-Wake Lifecycle GHG (tCOâ‚‚e)
+                                Evaluated across Fuel Consumption (t), Operating Cost (INR), and Well-to-Wake Lifecycle GHG (tCO₂e)
                             </p>
                         </div>
                     </div>
@@ -320,7 +320,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[9px] font-bold text-[#64748B] uppercase tracking-widest">Cost</span>
-                                            <span className="font-mono text-[12px] font-bold text-[#0F172A]">â‚¹{(st.point?.cost / 1000).toFixed(0)}<span className="text-[#94A3B8] font-semibold text-[10px]">k</span></span>
+                                            <span className="font-mono text-[12px] font-bold text-[#0F172A]">₹{(st.point?.cost / 1000).toFixed(0)}<span className="text-[#94A3B8] font-semibold text-[10px]">k</span></span>
                                         </div>
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[9px] font-bold text-[#64748B] uppercase tracking-widest">WtW</span>
@@ -338,7 +338,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                     {/* Left 60% Pareto Chart */}
                     <div className="xl:col-span-6 flex flex-col gap-6">
                         <div className="bg-white border border-[#E2E8F0] rounded-2xl p-6 shadow-sm">
-                            <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide mb-6">Pareto Front â€” 3 Objectives Frontier</h3>
+                            <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide mb-6">Pareto Front — 3 Objectives Frontier</h3>
                             <div className="h-[300px]">
                                 <ParetoChart pareto={pareto} baseline={baseline} selected={selectedPoint} onSelect={setSelectedPoint} />
                             </div>
@@ -379,7 +379,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B] flex items-center gap-1.5 mb-2">
                                         <DollarSign size={14} className="text-[#0076a8]" /> Unit Cost
                                     </span>
-                                    <div className="text-[18px] font-mono font-bold text-[#0F172A] mb-1">â‚¹{costPerTonne} <span className="text-[12px] font-semibold text-[#94A3B8]">/t</span></div>
+                                    <div className="text-[18px] font-mono font-bold text-[#0F172A] mb-1">₹{costPerTonne} <span className="text-[12px] font-semibold text-[#94A3B8]">/t</span></div>
                                     <span className="text-[10px] font-medium text-[#64748B]">Cargo delivery index</span>
                                 </div>
                             </div>
@@ -390,7 +390,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                     <div className="xl:col-span-6 flex flex-col gap-6">
                         <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden flex flex-col">
                             <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] p-5 flex items-center justify-between">
-                                <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">Selected Solution â€” Fleet Deployment Plan</h3>
+                                <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">Selected Solution — Fleet Deployment Plan</h3>
                                 {allVesselsFeasible ? (
                                     <span className="bg-[#ECFDF5] text-[#059669] border border-[#A7F3D0] text-[10px] font-bold px-3 py-1 rounded-full flex items-center gap-1.5 uppercase tracking-wider shadow-sm">
                                         <Check size={14} strokeWidth={3} /> Feasible Deployment
@@ -437,10 +437,10 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                                 <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">{d.cargo.toLocaleString()}</td>
                                                 <td className="px-5 py-3 text-right">
                                                     <div className="font-mono font-bold text-[#0F172A]">{d.sailingTime}</div>
-                                                    <div className="text-[10px] text-[#059669] font-semibold">Â±{d.bufferUsed || 0}</div>
+                                                    <div className="text-[10px] text-[#059669] font-semibold">±{d.bufferUsed || 0}</div>
                                                 </td>
                                                 <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">{d.fuel.toFixed(1)}</td>
-                                                <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">â‚¹{d.cost.toLocaleString()}</td>
+                                                <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">₹{d.cost.toLocaleString()}</td>
                                                 <td className="px-5 py-3 text-right font-mono font-bold text-[#0F172A]">{d.wtw.toFixed(4)}</td>
                                                 <td className="px-5 py-3 text-center">
                                                     <StatusDot status={d.feasible ? "success" : "danger"} label={d.feasible ? "Pass" : "Fail"} />
@@ -452,12 +452,12 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                                 Total Fleet ({deployment.length} Ships)
                                             </td>
                                             <td className="px-5 py-4 text-right font-mono font-bold text-[#0F172A]">{avgSpeed} <span className="text-[10px] text-[#64748B]">kn</span></td>
-                                            <td className="px-5 py-4 text-center text-[#94A3B8]">â€”</td>
-                                            <td className="px-5 py-4 text-center text-[#94A3B8]">â€”</td>
+                                            <td className="px-5 py-4 text-center text-[#94A3B8]">—</td>
+                                            <td className="px-5 py-4 text-center text-[#94A3B8]">—</td>
                                             <td className="px-5 py-4 text-right font-mono font-bold text-[#0076a8]">{totalCargoPlanned.toLocaleString()} t</td>
                                             <td className="px-5 py-4 text-right font-mono font-bold text-[#0F172A]">{maxSailTime} h</td>
                                             <td className="px-5 py-4 text-right font-mono font-extrabold text-[#0076a8]">{totalFuelBurn} t</td>
-                                            <td className="px-5 py-4 text-right font-mono font-extrabold text-[#059669]">â‚¹{totalOperatingCost.toLocaleString()}</td>
+                                            <td className="px-5 py-4 text-right font-mono font-extrabold text-[#059669]">₹{totalOperatingCost.toLocaleString()}</td>
                                             <td className="px-5 py-4 text-right font-mono font-extrabold text-[#0076a8]">{totalWtwGhg} t</td>
                                             <td className="px-5 py-4 text-center">
                                                 <StatusDot status={allVesselsFeasible ? "success" : "danger"} />
@@ -509,8 +509,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                             </div>
                             <input type="range" min="0" max="1" step="0.05" value={weights.cost} onChange={(e) => setWeights({ ...weights, cost: +e.target.value })} className="w-full accent-[#0076a8]" />
                             <div className="flex justify-between text-[10px] font-mono text-[#64748B] mt-1">
-                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>â‚¹{(baseline?.cost / 1000).toFixed(0)}k</span></div>
-                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">â‚¹{(weightedPoint?.cost / 1000).toFixed(0)}k</span></div>
+                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>₹{(baseline?.cost / 1000).toFixed(0)}k</span></div>
+                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">₹{(weightedPoint?.cost / 1000).toFixed(0)}k</span></div>
                             </div>
                         </div>
                         {/* GHG */}
@@ -521,8 +521,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                             </div>
                             <input type="range" min="0" max="1" step="0.05" value={weights.wtw} onChange={(e) => setWeights({ ...weights, wtw: +e.target.value })} className="w-full accent-[#0076a8]" />
                             <div className="flex justify-between text-[10px] font-mono text-[#64748B] mt-1">
-                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>{baseline?.wtw.toFixed(2)} tCOâ‚‚e</span></div>
-                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">{weightedPoint?.wtw.toFixed(2)} tCOâ‚‚e</span></div>
+                                <div className="flex flex-col"><span className="uppercase font-semibold mb-0.5">Baseline</span><span>{baseline?.wtw.toFixed(2)} tCO₂e</span></div>
+                                <div className="flex flex-col text-right"><span className="uppercase font-semibold text-[#0076a8] mb-0.5">Optimized</span><span className="text-[#0076a8] font-bold">{weightedPoint?.wtw.toFixed(2)} tCO₂e</span></div>
                             </div>
                         </div>
                     </div>
@@ -533,8 +533,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                         <div className="flex items-center gap-6">
                             <div className="flex gap-4 font-mono text-[12px] font-bold text-[#0F172A]">
                                 <span>Fuel: <span className="text-[#0076a8]">{weightedPoint?.fuel.toFixed(1)} t</span></span>
-                                <span>Cost: <span className="text-[#059669]">â‚¹{weightedPoint?.cost.toLocaleString()}</span></span>
-                                <span>WtW: <span className="text-[#0076a8]">{weightedPoint?.wtw.toFixed(2)} tCOâ‚‚e</span></span>
+                                <span>Cost: <span className="text-[#059669]">₹{weightedPoint?.cost.toLocaleString()}</span></span>
+                                <span>WtW: <span className="text-[#0076a8]">{weightedPoint?.wtw.toFixed(2)} tCO₂e</span></span>
                             </div>
                             <button
                                 type="button"
@@ -550,7 +550,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                 {/* Benchmark Variance */}
                 <div className="bg-white border border-[#E2E8F0] rounded-2xl shadow-sm overflow-hidden mt-2">
                     <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] p-5">
-                        <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">Benchmark Variance â€” Baseline vs Selected Fleet Plan</h3>
+                        <h3 className="text-[13px] font-extrabold text-[#0F172A] uppercase tracking-wide">Benchmark Variance — Baseline vs Selected Fleet Plan</h3>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs whitespace-nowrap">
@@ -559,7 +559,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                     <th className="px-6 py-4">Key Performance Indicator</th>
                                     <th className="px-6 py-4 text-right">Baseline Fleet</th>
                                     <th className="px-6 py-4 text-right">Optimized Plan</th>
-                                    <th title="Optimized minus baseline; negative represents savings" className="px-6 py-4 text-right">Î” Variance</th>
+                                    <th title="Optimized minus baseline; negative represents savings" className="px-6 py-4 text-right">Δ Variance</th>
                                     <th className="px-6 py-4 text-right">Reduction %</th>
                                 </tr>
                             </thead>
@@ -571,8 +571,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                     return (
                                         <tr key={r.metric} className="hover:bg-[#F8FAFC] transition-colors">
                                             <td className="px-6 py-4 font-bold text-[#0F172A]">{r.metric}</td>
-                                            <td className="px-6 py-4 text-right font-mono font-medium text-[#64748B]">{r.baseline != null ? r.baseline.toLocaleString() : "â€”"}</td>
-                                            <td className="px-6 py-4 text-right font-mono font-extrabold text-[#0F172A]">{r.selected != null ? r.selected.toLocaleString() : "â€”"}</td>
+                                            <td className="px-6 py-4 text-right font-mono font-medium text-[#64748B]">{r.baseline != null ? r.baseline.toLocaleString() : "—"}</td>
+                                            <td className="px-6 py-4 text-right font-mono font-extrabold text-[#0F172A]">{r.selected != null ? r.selected.toLocaleString() : "—"}</td>
                                             <td className={cn("px-6 py-4 text-right font-mono font-bold", better ? "text-[#059669]" : "text-[#E11D48]")}>
                                                 {delta <= 0 ? "" : "+"}{delta.toLocaleString(undefined, {maximumFractionDigits: 1})}
                                             </td>
@@ -587,7 +587,7 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                     </div>
                     <div className="bg-[#F8FAFC] border-t border-[#E2E8F0] p-4">
                         <p className="text-[11px] font-medium text-[#64748B]">
-                            Negative Î” Variance confirms energy conservation and emission reduction against baseline operational benchmarks.
+                            Negative Δ Variance confirms energy conservation and emission reduction against baseline operational benchmarks.
                         </p>
                     </div>
                 </div>
@@ -661,8 +661,8 @@ export function OptimizationView({ isOverlay = false, onClose }) {
                                     ),
                                 },
                                 { key: "fuel", header: "Fuel (t)", numeric: true, render: (r) => <span className="font-mono font-bold text-[#0F172A]">{r.fuel.toFixed(1)}</span> },
-                                { key: "cost", header: "Cost (INR)", numeric: true, render: (r) => <span className="font-mono font-extrabold text-[#059669]">â‚¹{r.cost.toLocaleString()}</span> },
-                                { key: "wtw", header: "WtW GHG (tCOâ‚‚e)", numeric: true, render: (r) => <span className="font-mono font-bold text-[#0076a8]">{r.wtw.toFixed(2)}</span> },
+                                { key: "cost", header: "Cost (INR)", numeric: true, render: (r) => <span className="font-mono font-extrabold text-[#059669]">₹{r.cost.toLocaleString()}</span> },
+                                { key: "wtw", header: "WtW GHG (tCO₂e)", numeric: true, render: (r) => <span className="font-mono font-bold text-[#0076a8]">{r.wtw.toFixed(2)}</span> },
                                 {
                                     key: "fuelId",
                                     header: "Primary Fuel",

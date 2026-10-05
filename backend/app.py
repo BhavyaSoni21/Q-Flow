@@ -1,4 +1,4 @@
-"""Q-Flow backend API (FastAPI) — master doc §10 endpoints.
+﻿"""Q-Flow backend API (FastAPI) â€” master doc Â§10 endpoints.
 
 Routes: /api/predict/fuel, /api/optimize/fleet (+ runs), /api/benchmarks/*,
 /api/vessels, /api/fuels, /api/provenance, /api/scenarios.
@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from security.middleware import OperationalMiddleware
 
 from api import engine_state as es
-from api import benchmark_routes, metadata_routes, optimization_routes, prediction_routes, roadmap_routes
+from api import benchmark_routes, metadata_routes, optimization_routes, prediction_routes, roadmap_routes, live_data_routes
 
 app = FastAPI(title="Q-Flow API", version="0.6.0")
 logging.basicConfig(level=os.environ.get("QFLOW_LOG_LEVEL", "INFO"), format="%(asctime)s %(levelname)s %(name)s %(message)s")
@@ -53,3 +53,5 @@ app.include_router(optimization_routes.router)
 app.include_router(benchmark_routes.router)
 app.include_router(metadata_routes.router)
 app.include_router(roadmap_routes.router)
+app.include_router(live_data_routes.router)
+

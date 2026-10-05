@@ -1,8 +1,8 @@
-﻿import React, { useState, useEffect, useRef } from "react";
+﻿import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useStore } from "@/lib/store";
 import { api } from "@/lib/api";
 import { LabeledInput, LabeledSelect, Checkbox } from "@/components/shared/Field";
-import { WEATHER_SCENARIOS, ALGORITHMS, PORTS, getRouteDistance, calculateFeasibleDeadline } from "@/lib/types";
+import { WEATHER_SCENARIOS, ALGORITHMS, PORTS, calculateFeasibleDeadline } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import {
     AlertTriangle, Play, RotateCcw, CheckCircle2,
@@ -72,6 +72,32 @@ export default function Scenario() {
     
     const [toast, setToast] = useState(null);
     const prevRunning = useRef(false);
+    const [liveRoute, setLiveRoute] = useState(null);  // live maritime route info
+    const [routeLoading, setRouteLoading] = useState(false);
+
+    // Fetch real maritime distance from backend when ports change
+    const fetchLiveDistance = useCallback(async (origin, destination) => {
+        if (!origin || !destination || origin === destination) return;
+        setRouteLoading(true);
+        try {
+            const resp = await fetch(
+                `http://localhost:8000/api/live/routes/distance?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`
+            );
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data.distance_nm) {
+                    setLiveRoute(data);
+                    const dl = calculateFeasibleDeadline(data.distance_nm, config.portTime, config.bufferTime);
+                    updateConfig({ distance: data.distance_nm, deadline: dl });
+                }
+            }
+        } catch (e) {
+            // Backend unreachable — keep existing distance
+        } finally {
+            setRouteLoading(false);
+        }
+    }, [config.portTime, config.bufferTime, updateConfig]);
+
 
     useEffect(() => {
         if (prevRunning.current === true && !running) {
@@ -94,24 +120,31 @@ export default function Scenario() {
     const fuelList = fuels || [];
     const vesselList = vessels || [];
     
-    // Live validation
+    // Live validation — depend on primitives only to prevent infinite re-render loops
+    const selectedVesselsKey = (config.selectedVessels || []).join(",");
+    const selectedFuelsKey = (config.selectedFuels || []).join(",");
     useEffect(() => {
         const v = {};
         if (config.distance <= 0) v.distance = "Must be positive";
         if (config.deadline <= 0) v.deadline = "Must be positive";
         if (config.cargoDemand <= 0) v.cargoDemand = "Must be positive";
-        if (config.selectedVessels.length === 0) v.vessels = "Select at least one vessel";
-        if (config.selectedFuels.length === 0) v.fuels = "Select at least one fuel pathway";
-        
-        if (mode === "ship" && vesselList.length > 0) {
-            const maxSpeed = Math.max(...vesselList.filter(vs => config.selectedVessels.includes(vs.id)).map(vs => vs.maxSpeed || 20), 1);
-            const sailWindow = config.deadline - (config.portTime || 0) - (config.bufferTime || 0);
-            if (sailWindow <= 0 || config.distance / sailWindow > maxSpeed) {
-                v.deadline = `Deadline too tight for selected vessels`;
+        if (!config.selectedVessels || config.selectedVessels.length === 0) v.vessels = "Select at least one vessel";
+        if (!config.selectedFuels || config.selectedFuels.length === 0) v.fuels = "Select at least one fuel pathway";
+
+        if (mode === "ship" && vesselList.length > 0 && config.selectedVessels?.length > 0) {
+            const selected = vesselList.filter(vs => config.selectedVessels.includes(vs.id));
+            if (selected.length > 0) {
+                const maxSpeed = Math.max(...selected.map(vs => vs.maxSpeed || 20), 1);
+                const sailWindow = config.deadline - (config.portTime || 0) - (config.bufferTime || 0);
+                if (sailWindow <= 0 || config.distance / sailWindow > maxSpeed) {
+                    v.deadline = "Deadline too tight for selected vessels";
+                }
             }
         }
         setValidation(v);
-    }, [config, vesselList, mode]);
+    // Use stable primitive keys instead of mutable arrays/objects to prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [config.distance, config.deadline, config.cargoDemand, config.portTime, config.bufferTime, selectedVesselsKey, selectedFuelsKey, vesselList, mode]);
 
     const isValid = Object.keys(validation).length === 0;
 
@@ -175,9 +208,8 @@ export default function Scenario() {
                                             label="From"
                                             value={config.originPort}
                                             onChange={(v) => {
-                                                const d = getRouteDistance(v, config.destinationPort);
-                                                const dl = calculateFeasibleDeadline(d, config.portTime, config.bufferTime);
-                                                updateConfig({ originPort: v, distance: d, deadline: dl });
+                                                updateConfig({ originPort: v });
+                                                fetchLiveDistance(v, config.destinationPort);
                                             }}
                                             options={PORTS.filter(p => p !== config.destinationPort).map(p => ({ value: p, label: p }))}
                                         />
@@ -185,12 +217,42 @@ export default function Scenario() {
                                             label="To"
                                             value={config.destinationPort}
                                             onChange={(v) => {
-                                                const d = getRouteDistance(config.originPort, v);
-                                                const dl = calculateFeasibleDeadline(d, config.portTime, config.bufferTime);
-                                                updateConfig({ destinationPort: v, distance: d, deadline: dl });
+                                                updateConfig({ destinationPort: v });
+                                                fetchLiveDistance(config.originPort, v);
                                             }}
                                             options={PORTS.filter(p => p !== config.originPort).map(p => ({ value: p, label: p }))}
                                         />
+                                        {/* Live route advisory */}
+                                        {(liveRoute || routeLoading) && (
+                                            <div className="md:col-span-2 -mt-1">
+                                                {routeLoading ? (
+                                                    <div className="flex items-center gap-2 text-[11px] text-[#64748B] animate-pulse">
+                                                        <div className="w-3 h-3 rounded-full border-2 border-[#0076a8] border-t-transparent animate-spin" />
+                                                        Fetching navigable sea distance...
+                                                    </div>
+                                                ) : liveRoute && (
+                                                    <div className="flex flex-wrap items-start gap-3 text-[11px]">
+                                                        <span className={cn(
+                                                            "px-2 py-0.5 rounded font-semibold",
+                                                            liveRoute.source === "precomputed-maritime-table"
+                                                                ? "bg-[#ECFDF5] text-[#059669]"
+                                                                : liveRoute.source === "searoutes-api"
+                                                                ? "bg-[#EFF6FF] text-[#2563EB]"
+                                                                : "bg-[#FFF7ED] text-[#D97706]"
+                                                        )}>
+                                                            {liveRoute.source === "precomputed-maritime-table" ? "\u2713 Verified maritime distance"
+                                                                : liveRoute.source === "searoutes-api" ? "\u26A1 Live Searoutes route"
+                                                                : "~ Estimated (chokepoint-adjusted)"}
+                                                        </span>
+                                                        {liveRoute.routing_notes?.map((note, i) => (
+                                                            <span key={i} className="text-[#92400E] bg-[#FFFBEB] px-2 py-0.5 rounded">
+                                                                \u26A0 {note}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </>
                                 )}
                                 <LabeledInput label="Distance" unit="nm" type="number" value={config.distance} onChange={v => updateConfig({ distance: v })} />
@@ -232,7 +294,7 @@ export default function Scenario() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="text-[14px] font-bold text-[#0F172A]">{vs.name} <span className="text-[12px] font-normal text-[#64748B] ml-1">({vs.id})</span></div>
-                                                    <div className="text-[12px] text-[#475569] mt-0.5">{vs.type} · {vs.capacity?.toLocaleString()} DWT · {vs.maxSpeed} kn max</div>
+                                                    <div className="text-[12px] text-[#475569] mt-0.5">{vs.type} • {vs.capacity?.toLocaleString()} DWT • {vs.maxSpeed} kn max</div>
                                                 </div>
                                                 {vs.available ? (
                                                     <span className="text-[11px] font-semibold text-[#059669] bg-[#ECFDF5] px-2 py-0.5 rounded-full">Available</span>
@@ -258,7 +320,7 @@ export default function Scenario() {
                                                 </div>
                                                 <div className="flex-1">
                                                     <div className="text-[14px] font-bold text-[#0F172A]">{fl.name}</div>
-                                                    <div className="text-[12px] text-[#475569] mt-0.5">{fl.type || "Fossil"} · Base price: ${fl.basePrice}/t</div>
+                                                    <div className="text-[12px] text-[#475569] mt-0.5">{fl.type || "Fossil"} • Base price: ₹{fl.price?.toLocaleString() || "N/A"}/t</div>
                                                 </div>
                                             </div>
                                         );
@@ -308,7 +370,7 @@ export default function Scenario() {
                                 
                                 {config.objectives?.cost && (
                                     <div className="max-w-[50%] border-t border-[#E2E8F0] pt-4 mt-2">
-                                        <LabeledInput label="Carbon Price (EUA)" unit="€ / tCO₂e" type="number" value={config.carbonPrice} onChange={v => updateConfig({ carbonPrice: v })} />
+                                        <LabeledInput label="Carbon Price (EUA)" unit="â‚¬ / tCO₂e" type="number" value={config.carbonPrice} onChange={v => updateConfig({ carbonPrice: v })} />
                                     </div>
                                 )}
                             </div>
@@ -341,7 +403,7 @@ export default function Scenario() {
                             <div className="p-5 flex flex-col gap-5">
                                 <div>
                                     <div className="text-[16px] font-bold text-[#0F172A]">{config.originPort} → {config.destinationPort}</div>
-                                    <div className="text-[13px] text-[#64748B] mt-0.5">{config.distance} nm · {config.deadline} h deadline</div>
+                                    <div className="text-[13px] text-[#64748B] mt-0.5">{config.distance} nm • {config.deadline} h deadline</div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-y-4 gap-x-2 text-[13px]">
@@ -450,4 +512,5 @@ export default function Scenario() {
         </div>
     );
 }
+
 

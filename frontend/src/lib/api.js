@@ -76,8 +76,9 @@ export const api = {
     evaluateEacf: (input) => maybeRealPost("/eacf/evaluate", input, () => ({ status: "mock", name: "EACF" })),
     calculateCii: (input) => USE_MOCK
         ? Promise.resolve({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "mock", unit: "gCO2e/dwt-nm" })
-        : fetch(`${API_BASE}/compliance/cii`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(input) })
-            .then((res) => { if (!res.ok) throw new Error(`API /compliance/cii failed: ${res.status}`); return res.json(); })
+        : fetch(`${API_BASE}/compliance/annual`, { method: "POST", credentials: "include", headers: JSON_HEADERS, body: JSON.stringify(input) })
+            .then((res) => { if (!res.ok) throw new Error(`API /compliance/annual failed: ${res.status}`); return res.json(); })
+            .then((data) => data.results[0] || { attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true })
             .catch(() => ({ attained_cii: 0, cii_limit: input.cii_limit, violation: 0, satisfied: true, status: "fallback", unit: "gCO2e/dwt-nm" })),
     predictFuel: (input) => maybeReal("/predict/fuel", () => predictFuel(input)),
     getShapGlobal: () => SHAP_GLOBAL,
